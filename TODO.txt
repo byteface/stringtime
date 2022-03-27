@@ -1,0 +1,145 @@
+Date from phrase… stringtodate, datestring, stringtime
+
+
+One week from now  - DONE
+In a minute - DONE
+In 15 minutes - DONE
+5 hours from now - DONE
+{number} {time} - DONE
+{number} {time} "from now" - DONE
+{number_word} {time} "from now" - DONE
+"In a" {time}  - DONE
+"In an" {time} - DONE
+"In a" {time} from now - DONE
+"In an" {time} from now - DONE
+
+// would be caught by above - STILL TODO
+"In" {number} {time} - DONE
+"In" {number_word} {time} "from now" - DONE
+
+Yesterday - DONE
+Yesterday at 5 - DONE
+
+{number} {time} "Ago" - DONE
+15 minutes ago - DONE
+
+
+Tomorrow at 3:0
+
+on Tuesday
+
+1pm tues
+
+One o clock on Tuesday
+
+Last Friday at 3pm
+
+The day after 2moro
+The day before yesterday
+
+Now , Right away, Immediately,
+Never
+several hours from now
+In the Morro
+
+Special event. Year
+
+{number} "pm" {day}
+{number} "o clock" {day}
+{number} "o clock on" {day}
+
+
+6 on the coming friday
+
+"Last" {time}
+
+
+8 minutes before 4
+
+Wednesday just been
+Midday Wednesday just been
+Midday on Wednesday just been
+
+Wednesday before last
+
+18 and a half hours ago
+Lunchtime
+Dinnertime
+Bedtime
+Supper time
+
+Whenever, Random, Random range. 
+Anywhere between …
+Sometime between …
+At some point between …
+Anytime from…
+Anyday after…
+
+Tuesday afternoon
+
+Next Friday - (varies. If its greater than 3 days it could mean the coming Friday for some people)
+
+Quarter of an hours ago
+Half hour ago
+Half hour before now
+
+Same time next Friday
+
+Just Now
+Easier on
+At the weekend
+Last weekend
+
+Any Weekday
+The last day of the week
+The first day of the week
+
+
+
+
+TOKENS
+
+NUMBERS
+WORD_NUMBERS
+YEARS
+DAYS
+MONTHS
+TIMES
+
+PHRASES - 
+
+
+*have a recurring flag.
+
+DateRange
+
+10ish
+
+
+notes...
+
+
+```
+// python
+d1 = datetime.datetime.now() + datetime.timedelta(minutes=15)
+d2 = datetime.datetime.now() + datetime.timedelta(hours=1)
+
+// js
+Date.prototype.addHours = function(h) {
+  this.setTime(this.getTime() + (h*60*60*1000));
+  return this;
+}
+```
+
+goals..
+
+```
+earlier = Date.from_phrase('Yesterday') + "1 hour"
+while now < earlier:
+    print(now)
+    now += "1 hour"
+```
+
+## TODO
+
+Dates() - for a range of dates.
