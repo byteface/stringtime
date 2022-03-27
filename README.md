@@ -15,6 +15,7 @@ but is early days so will probably eventually parse via the Date constructor and
 
 ```bash
 python3 -m pip install stringtime
+# python3 -m pip install stringtime --upgrade
 ```
 
 ## Usage and API
