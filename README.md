@@ -40,10 +40,10 @@ to see what else check the unit tests.
 
 ## CLI
 
-There's several commands you can pass to sharpshooter on the command line.
+There's several commands you can pass to stringtime on the command line.
 
 ```bash
-stringtime -p 2 days frome now
+stringtime -p 2 days from now
 ```
 
 ## Tests
