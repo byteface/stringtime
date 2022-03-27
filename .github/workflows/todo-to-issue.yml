@@ -1,0 +1,24 @@
+name: Todo-to-Issue
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  todo-to-issue:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+
+      - name: Create Issues ✔️
+        uses: kevinsawade/python-todo-to-issue@latest
+        with:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INCLUDE_TODO_AFTER_CODE_LINE: ${{ true }}
