@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 with open("README.md", "r") as f:
-    long_description=f.read()
+    long_description = f.read()
 
 from stringtime import __version__
 version = __version__
@@ -13,11 +13,11 @@ setup(
   author_email="byteface@gmail.com",
   license="MIT",
   url='https://github.com/byteface/stringtime',
-  download_url='https://github.com/byteface/stringtime/archive/' + version + ' .tar.gz',
+  download_url='https://github.com/byteface/stringtime/archive/' + version + '.tar.gz',
   description='Create dates from natural language expressions',
   long_description=long_description,
   long_description_content_type="text/markdown",
-  keywords=['dates', 'natural language'],
+  keywords=['date', 'natural language', 'time'],
   python_requires='>=3.6',
   classifiers=[
       "Programming Language :: Python :: 3",
@@ -37,7 +37,8 @@ setup(
       'Topic :: Software Development :: Libraries :: Python Modules',
   ],
   install_requires=[
-      'python-dateutil==2.8.2'
+      'python-dateutil==2.8.2',
+      'ply==3.11',
   ],
   packages=find_packages(),
   include_package_data=True,

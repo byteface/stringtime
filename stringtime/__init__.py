@@ -1,13 +1,13 @@
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
-# import lex
+import re
+
 import ply.lex as lex
 import ply.yacc as yacc
 
 from stringtime.date import Date
 
 tokens = (
-    # "SLANG",
     "WORD_NUMBER",
     "NUMBER",
     "YEAR",
@@ -19,7 +19,7 @@ tokens = (
     "PLUS",
     "MINUS",
     # AND,
-    # "SPACE",
+    # SPACE,
     "YESTERDAY",
     "TOMORROW",
     "THE_DAY_AFTER_TOMORROW",
@@ -34,44 +34,6 @@ tokens = (
 #     # ignore whitespace
 #     pass
 
-'''
-# TODO - is it not better to regex swap these and numbers at the start?
-def t_SLANG(t):
-    r"mins|secs|hrs|ms|dys|wks|mnths|yrs|min\s+|sec\s+|hr|ms|dy|wk|mnth|yr|mils|mil" #|d|w|y"
-
-    # if the following letter is not a space don't do it and just step over it
-    if t.lexer.lexpos + 1 < len(t.lexer.lexdata):
-        if t.lexer.lexdata[t.lexer.lexpos] != " ":
-            print('bailing!')
-            return t
-
-    if t.value.strip('s') == "hr":
-        t.value = "hour"
-        t.type = "TIME"
-    elif t.value.strip('s') == "min" or t.value == "min ":
-        t.value = "minute"
-        t.type = "TIME"
-    elif t.value.strip('s') == "sec" or t.value.strip('s') == "sec ":
-        print('should be getting changed to seconds!')
-        t.value = "second"
-        t.type = "TIME"
-    elif t.value in ["ms", "mil", "mils"]:
-        t.value = "millisecond"
-        t.type = "TIME"
-    elif t.value.strip('s') == "dy":# or t.value == "d":
-        t.value = "day"
-        t.type = "TIME"
-    elif t.value.strip('s') == "wk":
-        t.value = "week"
-        t.type = "TIME"
-    elif t.value.strip('s') == "mnth":
-        t.value = "month"
-        t.type = "TIME"
-    elif t.value.strip('s') == "yr":
-        t.value = "year"
-        t.type = "TIME"
-    return t
-'''
 
 def t_PLUS(t):
     r"\+"
@@ -140,21 +102,13 @@ t_DAY = (
 )
 
 
-# t_TIME = (
-#     r"years|months|weeks|days|hours|minutes|seconds|milliseconds"
-#     r"year|month|week|day|hour|minute|second|millisecond"
-# )
-
 def t_TIME(t):
     r"years|months|weeks|days|hours|minutes|seconds|milliseconds|year|month|week|day|hour|minute|second|millisecond"
 
-    # print('GBOLEDEGOOK!!!!!')
     if t.value.endswith('s'):
-        # print('IT ENDED WITH AN S!!!')
         t.value = t.value[:-1]
         # TODO - set a flag to indicate this is a plural
 
-    # print(t.value)
     return t
 
 # partial phrases that increment time
@@ -176,8 +130,6 @@ t_TODAY = r"today"
 t_AT = r"at|@"
 t_ON = r"on"
 
-# t_PLUS = r"\+"
-
 
 t_YEAR = r"\d{4}"
 # t_DAYS = r"\d{1,2}"
@@ -186,16 +138,18 @@ t_YEAR = r"\d{4}"
 # t_PHRASES = r"\d{1,2}"
 t_ignore = " \t"
 
-
 # def t_DATE_STRING(t):
 # TODO - the same in reverse. so turns a date string, relative to now, into human readable text
 # i.e. 2 minutes ago
 # TODO - might make sense to do a seperate parser for this one.
 
+
 def t_error(t):
     raise TypeError("Unknown text '%s'" % (t.value,))
 
+
 lex.lex()
+
 
 class DateFactory:
     def __init__(self, phrase, *args, **kwargs):
@@ -205,7 +159,7 @@ class DateFactory:
     #     return "Date(%r, %r)" % (self.symbol, self.count)
 
     @staticmethod
-    def create_date(year = None, month = None, week = None, day = None, hour = None, minute = None, second = None):
+    def create_date(year=None, month=None, week=None, day=None, hour=None, minute=None, second=None):
         """creates a date with fixed props
 
         Args:
@@ -241,7 +195,7 @@ class DateFactory:
 
     # todo - consider renaming all the props to offset_    
     @staticmethod
-    def create_date_with_offsets(year = None, month = None, week = None, day = None, hour = None, minute = None, second = None):
+    def create_date_with_offsets(year=None, month=None, week=None, day=None, hour=None, minute=None, second=None):
         """PARAMS NEED TO BE PASSED AS OFFSETS!
 
         this creates a now date with an offset for each property of the time
@@ -362,78 +316,45 @@ def p_single_date(p):
     date : PHRASE TIME PHRASE
     """
     if len(p) == 2:
-        # print('yo!')
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
-        # NO NUMBER PASSED?... PHRASE TIME. so assume 1
-        # will need to split method for others that pass 2
-        # days time now breaking. so might wanna start using git
-        # print('yo yo yo!!', p[1], p[2])
-        # p[0] = DateFactory(p[1], p[2])
         params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
         p[0] = DateFactory.create_date_with_offsets(**params) # 'In a minute'
     elif len(p) == 4:
-
         if p[1] == 'an':
-            p[1] = 1 # if no number is passed, assume 1
-        # params = {p[3]: 1}
-        # print('here!!!>>>', p[1], p[2], p[3])
-        # p[0] = DateFactory(p[1], p[2], p[3])
-        # if p[3] == "from now":
+            p[1] = 1  # if no number is passed, assume 1
         params = {p[2]: p[1]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
-        # elif p[3] == "in":
-            # raise Exception('Not implemented yet')
-            # params = {p[2]: -p[1]}
-        # params = {p[2]: p[1]}
-        # p[0] = DateFactory.create_date_with_offsets(**params)
 
 
-    # in : PHRASE WORD_NUMBER TIME?? not getting converted
+# in : PHRASE WORD_NUMBER TIME?? not getting converted
 def p_single_date_in(p):
     """
     in : PHRASE NUMBER TIME
     in : PHRASE WORD_NUMBER TIME
     """
     if len(p) == 2:
-        # print('aayo!')
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
-        # print('aayo!!')
         p[0] = DateFactory(p[1], p[2])
     elif len(p) == 4:
-        # print('DO ME A FAVOUR!!!>>>', p[1], p[2], p[3])
-        # p[0] = DateFactory(p[1], p[2], p[3])
-        # if p[3] == "from now":
         params = {p[3]: p[2]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
-        # elif p[3] == "in":
-            # raise Exception('Not implemented yet')
-            # params = {p[2]: -p[1]}
-        # params = {p[2]: p[1]}
+
 
 def p_single_date_plus(p):
     """
     adder : PLUS NUMBER TIME
     adder : PLUS WORD_NUMBER TIME
     """
-    # print('ffs')
     if len(p) == 2:
-        # print('aayo!')
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
-        # print('aayo!!')
         p[0] = DateFactory(p[1], p[2])
     elif len(p) == 4:
-        # print('DO ME A FAVOUR!!!>>>', p[1], p[2], p[3])
-        # p[0] = DateFactory(p[1], p[2], p[3])
-        # if p[3] == "from now":
         params = {p[3]: p[2]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
-        # elif p[3] == "in":
-            # raise Exception('Not implemented yet')
-            # params = {p[2]: -p[1]}
-        # params = {p[2]: p[1]}
+
 
 def p_single_date_minus(p):
     """
@@ -442,37 +363,22 @@ def p_single_date_minus(p):
     """
     print('ffs')
     if len(p) == 2:
-        # print('aayo!')
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
-        # print('aayo!!')
         p[0] = DateFactory(p[1], p[2])
     elif len(p) == 4:
-        # print('DO ME A FAVOUR!!!>>>', p[1], p[2], p[3])
-        # p[0] = DateFactory(p[1], p[2], p[3])
-        # if p[3] == "from now":
         params = {p[3]: -p[2]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
-        # elif p[3] == "in":
-            # raise Exception('Not implemented yet')
-            # params = {p[2]: -p[1]}
-        # params = {p[2]: p[1]}
 
 
-# TEST = "from now"
 # WORD_NUMBER TIME & WORD_NUMBER TIME PHRASE
 def p_single_date_past(p):
     """
     date_past : NUMBER TIME PAST_PHRASE
     date_past : WORD_NUMBER TIME PAST_PHRASE
     """
-    # print('agoooooo!!!>', p[0], p[1], p[2], p[3])
-    # if p[3] == "from now":  # TODO - this s a future phrase you dumbass!
-        # p[0] = DateFactory(p[1], p[2], p[3])
     params = {p[2]: -p[1]} # TODO - prepend offset_ to the key
     p[0] = DateFactory.create_date_with_offsets(**params)
-    # p[0] = DateFactory(p[1])
-    # DateFactory.create_date_with_offsets()
 
 
 def p_single_date_yesterday(p):
@@ -482,7 +388,6 @@ def p_single_date_yesterday(p):
     date_yesterday : YESTERDAY AT WORD_NUMBER
     """
     if len(p) == 2:
-        # print('yesterday11!')
         params = {'day': -1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
@@ -500,8 +405,6 @@ def p_single_date_2moro(p):
         params = {'day': 1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
-        # print('here we are!')
-        # get yersterday of the current month and pass it
         params = {'day': Date().get_date()+1, 'hour': p[3], 'minute': 0, 'second': 0}
         p[0] = DateFactory.create_date(**params)
 
@@ -513,36 +416,22 @@ def p_single_date_day(p):
     date_day : PAST_PHRASE DAY
     """
     if len(p) == 2:
-        # params = {'day': 1}
         day_to_find = p[1]
         d = Date()
-        # Date().get_day(to_string=True).title()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
-            # print('searching')
             d.set_date(d.get_date()+1)
-
-        # print('must have found it!!!!', d.get_day(to_string=True), str(d))
 
         p[0] = d
     if len(p) == 3:
-        # print('here we are!', p[2], p[1], p[0])
-        # get yersterday of the current month and pass it
-        # params = {'day': Date().get_date()+1, 'hour': p[3], 'minute': 0, 'second': 0}
-        # p[0] = DateFactory.create_date(**params)
-
         day_to_find = p[2]
         d = Date()
-        # Date().get_day(to_string=True).title()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
-            # print('searching!!!!!')
             if p[1] == 'last':
                 d.set_date(d.get_date()-1)
             elif p[1] == 'next':
                 d.set_date(d.get_date()+1)
-
-        # print('must have found it!!!!', d.get_day(to_string=True), str(d))
 
         p[0] = d
 
@@ -555,7 +444,7 @@ def p_single_date_day(p):
 
 # "SAME TIME ON" # TODO----
 
-#
+
 def p_error(p):
     raise TypeError("unknown text at %r" % (p.value,))
 
@@ -594,10 +483,7 @@ def replace_short_words(phrase):
     phrase = phrase.replace("mil", "millisecond")
     phrase = phrase.replace("mils", "millisecond")
 
-    # phrase = phrase.replace("mon", "monday")
-    import re
     phrase = re.sub(r'\bmon\b', 'monday', phrase)
-    # print('goosefat::', phrase)
     phrase = re.sub(r'\btues\b', 'tuesday', phrase)
     phrase = re.sub(r'\btue\b', 'tuesday', phrase)
     phrase = re.sub(r'\bwed\b', 'wednesday', phrase)
