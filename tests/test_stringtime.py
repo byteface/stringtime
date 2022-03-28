@@ -76,7 +76,7 @@ class TestCase(unittest.TestCase):
         # times = ['year', 'month', 'week', 'day', 'hour', 'minute']
         times = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second']
         for n in range(100):
-            print(n)
+            # print(n)
             for t in times:
                 check_phrase(f"{n} {t} from now")
                 check_phrase(f"{n} {t}s from now")  # plurals

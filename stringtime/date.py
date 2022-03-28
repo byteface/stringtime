@@ -258,7 +258,7 @@ class Date:
             self.set_fullyear(current_year - 1)
             monthValue += 11
 
-        print(">>>>", monthValue, dayValue)
+        # print(">>>>", monthValue, dayValue)
         if monthValue > 0:
 
             # if the new month is less days. it will affect the result. i.e
@@ -277,7 +277,7 @@ class Date:
             if leftovers < 0:
                 # if dayValue is None:
                 leftovers = abs(leftovers)
-                print('leftovers:::', leftovers)
+                # print('leftovers:::', leftovers)
                 # if leftovers is greater than 0 we progress it twice and set the days to the leftovers
                 self.date = self.date.replace(day=int(leftovers)) # reset the day for now to not error
                 self.date = self.date.replace(month=int(monthValue+1))
@@ -327,11 +327,11 @@ class Date:
             current_month = self.date.month
             # self.set_month(current_month - 1) # this could have negative affect. due to how set_month works. it can also change the day. surely doesn't happen here as its backwards?
             day = abs(day) + days_in_the_month(self.date)
-            print('gosh:', day)
+            # print('gosh:', day)
             return self.set_date(day)
             # return
 
-        print("log >>>>", self.date.day, self.date.month, days_in_the_month(self.date))
+        # print("log >>>>", self.date.day, self.date.month, days_in_the_month(self.date))
         # daystore = self.get_date()
         while day > days_in_the_month(self.date):
             day -= days_in_the_month(self.date)
@@ -346,7 +346,7 @@ class Date:
             self.date = self.date.replace(month=int(current_month+1))
 
         # self.date = self.date.replace(month=int(current_month+1))
-        print('days left:::', day)
+        # print('days left:::', day)
 
         if day > 0:
             self.date = self.date.replace(day=int(day))

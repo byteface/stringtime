@@ -381,7 +381,6 @@ def p_single_date_minus(p):
     remover : MINUS NUMBER TIME
     remover : MINUS WORD_NUMBER TIME
     """
-    print("ffs")
     if len(p) == 2:
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
