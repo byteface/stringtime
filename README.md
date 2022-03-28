@@ -1,10 +1,9 @@
-[![PyPI version](https://badge.fury.io/py/stringtime.svg)](https://badge.fury.io/py/stringtime.svg) 
+# stringtime
+
+[![PyPI version](https://badge.fury.io/py/stringtime.svg)](https://badge.fury.io/py/stringtime.svg)
 [![Downloads](https://pepy.tech/badge/stringtime)](https://pepy.tech/project/stringtime)
 [![Python version](https://img.shields.io/pypi/pyversions/stringtime.svg?style=flat)](https://img.shields.io/pypi/pyversions/stringtime.svg?style=flat)
 [![Python package](https://github.com/byteface/stringtime/actions/workflows/python-package.yml/badge.svg?branch=master)](https://github.com/byteface/stringtime/actions/workflows/python-package.yml)
-
-
-# stringtime
 
 A grammar for deriving Date objects from phrases.
 

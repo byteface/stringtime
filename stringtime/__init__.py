@@ -111,6 +111,7 @@ def t_TIME(t):
 
     return t
 
+
 # partial phrases that increment time
 t_PHRASE = (
     r"today\ plus|today\ add|now\ plus|now\ add|add|added|plus|from\ now|time|in\ the\ future|into\ the\ future|away|away\ from\ now|hence|past\ now|after\ now|beyond\ this\ current\ moment|in\ an|in\ a|in|next|an"
@@ -193,7 +194,7 @@ class DateFactory:
             d.set_seconds(second)
         return d
 
-    # todo - consider renaming all the props to offset_    
+    # todo - consider renaming all the props to offset_
     @staticmethod
     def create_date_with_offsets(year=None, month=None, week=None, day=None, hour=None, minute=None, second=None):
         """PARAMS NEED TO BE PASSED AS OFFSETS!
@@ -477,8 +478,8 @@ def replace_short_words(phrase):
 
     phrase = phrase.replace("wk", "week")
     phrase = phrase.replace("wks", "week")
-    phrase = phrase.replace("yr", "yr")
-    phrase = phrase.replace("yrs", "yrs")
+    phrase = phrase.replace("yr", "year")
+    phrase = phrase.replace("yrs", "year")
     phrase = phrase.replace("ms", "millisecond")
     phrase = phrase.replace("mil", "millisecond")
     phrase = phrase.replace("mils", "millisecond")
@@ -487,6 +488,7 @@ def replace_short_words(phrase):
     phrase = re.sub(r'\btues\b', 'tuesday', phrase)
     phrase = re.sub(r'\btue\b', 'tuesday', phrase)
     phrase = re.sub(r'\bwed\b', 'wednesday', phrase)
+    phrase = re.sub(r'\bweds\b', 'wednesday', phrase)
     phrase = re.sub(r'\bthurs\b', 'thursday', phrase)
     phrase = re.sub(r'\bthur\b', 'thursday', phrase)
     phrase = re.sub(r'\bthu\b', 'thursday', phrase)
