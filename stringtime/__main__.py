@@ -17,11 +17,11 @@ def parse_args():
         prog="stringtime",
         description="Create dates from natural language strings.",
     )
-    parser.add_argument('-h', '--help', action='store_true')
+    parser.add_argument("-h", "--help", action="store_true")
     parser.add_argument("-v", "--version", action="store_true")
     parser.add_argument(
-        '-p',
-        '--phrase',
+        "-p",
+        "--phrase",
         help="Pass a phrase to get a date.",
         type=str,
         nargs="*",
@@ -40,7 +40,7 @@ def do_things(arguments, parser):
         print(__version__)
         return __version__
     if arguments.phrase is not None:
-        p = ' '.join(arguments.phrase)
+        p = " ".join(arguments.phrase)
         # print(p)
         d = Date.from_phrase(p)
         # print a calendar with the date highlighted

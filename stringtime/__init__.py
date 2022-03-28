@@ -65,47 +65,45 @@ def t_WORD_NUMBER(t):
     # print('word number detected!', t.value)
 
     number_to_word = {
-        'one': 1,
-        'two': 2,
-        'three': 3,
-        'four': 4,
-        'five': 5,
-        'six': 6,
-        'seven': 7,
-        'eight': 8,
-        'nine': 9,
-        'ten': 10,
-        'eleven': 11,
-        'twelve': 12,
-        'thirteen': 13,
-        'fourteen': 14,
-        'fifteen': 15,
-        'sixteen': 16,
-        'seventeen': 17,
-        'eighteen': 18,
-        'nineteen': 19,
-        'twenty': 20,
-        'thirty': 30,
-        'forty': 40,
-        'fifty': 50,
-        'sixty': 60,
-        'seventy': 70,
-        'eighty': 80,
-        'ninety': 90,
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
+        "eleven": 11,
+        "twelve": 12,
+        "thirteen": 13,
+        "fourteen": 14,
+        "fifteen": 15,
+        "sixteen": 16,
+        "seventeen": 17,
+        "eighteen": 18,
+        "nineteen": 19,
+        "twenty": 20,
+        "thirty": 30,
+        "forty": 40,
+        "fifty": 50,
+        "sixty": 60,
+        "seventy": 70,
+        "eighty": 80,
+        "ninety": 90,
     }
     t.value = number_to_word[t.value]
     return t
 
 
-t_DAY = (
-    r"monday|tuesday|wednesday|thursday|friday|saturday|sunday"
-)
+t_DAY = r"monday|tuesday|wednesday|thursday|friday|saturday|sunday"
 
 
 def t_TIME(t):
     r"years|months|weeks|days|hours|minutes|seconds|milliseconds|year|month|week|day|hour|minute|second|millisecond"
 
-    if t.value.endswith('s'):
+    if t.value.endswith("s"):
         t.value = t.value[:-1]
         # TODO - set a flag to indicate this is a plural
 
@@ -113,19 +111,17 @@ def t_TIME(t):
 
 
 # partial phrases that increment time
-t_PHRASE = (
-    r"today\ plus|today\ add|now\ plus|now\ add|add|added|plus|from\ now|time|in\ the\ future|into\ the\ future|away|away\ from\ now|hence|past\ now|after\ now|beyond\ this\ current\ moment|in\ an|in\ a|in|next|an"
-)
+t_PHRASE = r"today\ plus|today\ add|now\ plus|now\ add|add|added|plus|from\ now|time|in\ the\ future|into\ the\ future|away|away\ from\ now|hence|past\ now|after\ now|beyond\ this\ current\ moment|in\ an|in\ a|in|next|an"
 
 # partial phrases that decrement time
-t_PAST_PHRASE = (
-    r"today\ minus|today\ take|today\ take\ away|now\ minus|now\ take|now\ take\ away|minus|take\ away|off|ago|in\ the\ past|just\ been|before\ now|before\ this\ moment|before\ this\ current\ moment|before|last"
-)
+t_PAST_PHRASE = r"today\ minus|today\ take|today\ take\ away|now\ minus|now\ take|now\ take\ away|minus|take\ away|off|ago|in\ the\ past|just\ been|before\ now|before\ this\ moment|before\ this\ current\ moment|before|last"
 
 
 t_YESTERDAY = r"yesterday"
 t_TOMORROW = r"tomorrow|2moro|2morro"
-t_THE_DAY_AFTER_TOMORROW = r"the day after tomorrow|the day after 2moro|the day after 2morro"
+t_THE_DAY_AFTER_TOMORROW = (
+    r"the day after tomorrow|the day after 2moro|the day after 2morro"
+)
 t_THE_DAY_BEFORE_YESTERDAY = r"the day before yesterday"
 t_TODAY = r"today"
 t_AT = r"at|@"
@@ -156,11 +152,14 @@ class DateFactory:
     def __init__(self, phrase, *args, **kwargs):
         self.phrase = phrase
         # print('Hi, this needs to be turned into a date!', args)
+
     # def __repr__(self):
     #     return "Date(%r, %r)" % (self.symbol, self.count)
 
     @staticmethod
-    def create_date(year=None, month=None, week=None, day=None, hour=None, minute=None, second=None):
+    def create_date(
+        year=None, month=None, week=None, day=None, hour=None, minute=None, second=None
+    ):
         """creates a date with fixed props
 
         Args:
@@ -196,7 +195,9 @@ class DateFactory:
 
     # todo - consider renaming all the props to offset_
     @staticmethod
-    def create_date_with_offsets(year=None, month=None, week=None, day=None, hour=None, minute=None, second=None):
+    def create_date_with_offsets(
+        year=None, month=None, week=None, day=None, hour=None, minute=None, second=None
+    ):
         """PARAMS NEED TO BE PASSED AS OFFSETS!
 
         this creates a now date with an offset for each property of the time
@@ -226,46 +227,64 @@ class DateFactory:
 
         d = Date()
         if year is not None:
-            print(f'  - Creating a new date {year} years from now: Current date:', str(d))
+            print(
+                f"  - Creating a new date {year} years from now: Current date:", str(d)
+            )
             current_year = d.get_year()
             d.set_fullyear(current_year + year)
             # print('   - Updated to:', str(d))
         if month is not None:
-            print(f'  - Creating a new date {month} months from now: Current date:', str(d))
+            print(
+                f"  - Creating a new date {month} months from now: Current date:",
+                str(d),
+            )
             currrent_month = d.get_month()
-            d.set_month(currrent_month + (month-1))  # note the minus one is because Date expects 0-11 but humans say 1-12
+            d.set_month(
+                currrent_month + (month - 1)
+            )  # note the minus one is because Date expects 0-11 but humans say 1-12
             # print('   - Updated to:', str(d))
         if week is not None:
-            print(f'  - Creating a new date {week} weeks from now: Current date:', str(d))
+            print(
+                f"  - Creating a new date {week} weeks from now: Current date:", str(d)
+            )
             # get the current date
             # currrent_day = d.get_day()
             currrent_day = d.get_date()
-            d.set_date(currrent_day + week*7)
+            d.set_date(currrent_day + week * 7)
             # print('   - Updated to:', str(d))
         if day is not None:
-            print(f'  - Creating a new date {day} days from now: Current date:', str(d))
+            print(f"  - Creating a new date {day} days from now: Current date:", str(d))
             # currrent_day = d.get_day()
             currrent_day = d.get_date()
             # print('cuz::', currrent_day, day, d.get_date())
             d.set_date(currrent_day + day)
             # print('   - Updated to:', str(d))
         if hour is not None:
-            print(f'  - Creating a new date {hour} hours from now: Current date:', str(d))
+            print(
+                f"  - Creating a new date {hour} hours from now: Current date:", str(d)
+            )
             currrent_hour = d.get_hours()
             d.set_hours(currrent_hour + hour)
             # print('   - Updated to:', str(d))
         if minute is not None:
-            print(f'  - Creating a new date {minute} minutes from now: Current date:', str(d))
+            print(
+                f"  - Creating a new date {minute} minutes from now: Current date:",
+                str(d),
+            )
             currrent_minute = d.get_minutes()
             d.set_minutes(currrent_minute + minute)
             # print('   - Updated to:', str(d))
         if second is not None:
-            print(f'  - Creating a new date {second} seconds from now: Current date:', str(d))
+            print(
+                f"  - Creating a new date {second} seconds from now: Current date:",
+                str(d),
+            )
             currrent_second = d.get_seconds()
             d.set_seconds(currrent_second + second)
             # print('   - Updated to:', str(d))
 
         return d
+
 
 # When parsing starts, try to make a "date_object" because it's
 # the name on left-hand side of the first p_* function definition.
@@ -320,9 +339,9 @@ def p_single_date(p):
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
         params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
-        p[0] = DateFactory.create_date_with_offsets(**params) # 'In a minute'
+        p[0] = DateFactory.create_date_with_offsets(**params)  # 'In a minute'
     elif len(p) == 4:
-        if p[1] == 'an':
+        if p[1] == "an":
             p[1] = 1  # if no number is passed, assume 1
         params = {p[2]: p[1]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
@@ -362,7 +381,7 @@ def p_single_date_minus(p):
     remover : MINUS NUMBER TIME
     remover : MINUS WORD_NUMBER TIME
     """
-    print('ffs')
+    print("ffs")
     if len(p) == 2:
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
@@ -378,7 +397,7 @@ def p_single_date_past(p):
     date_past : NUMBER TIME PAST_PHRASE
     date_past : WORD_NUMBER TIME PAST_PHRASE
     """
-    params = {p[2]: -p[1]} # TODO - prepend offset_ to the key
+    params = {p[2]: -p[1]}  # TODO - prepend offset_ to the key
     p[0] = DateFactory.create_date_with_offsets(**params)
 
 
@@ -389,10 +408,10 @@ def p_single_date_yesterday(p):
     date_yesterday : YESTERDAY AT WORD_NUMBER
     """
     if len(p) == 2:
-        params = {'day': -1}
+        params = {"day": -1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
-        params = {'day': Date().get_date()-1, 'hour': p[3], 'minute': 0, 'second': 0}
+        params = {"day": Date().get_date() - 1, "hour": p[3], "minute": 0, "second": 0}
         p[0] = DateFactory.create_date(**params)
 
 
@@ -403,10 +422,10 @@ def p_single_date_2moro(p):
     date_2moro : TOMORROW AT WORD_NUMBER
     """
     if len(p) == 2:
-        params = {'day': 1}
+        params = {"day": 1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
-        params = {'day': Date().get_date()+1, 'hour': p[3], 'minute': 0, 'second': 0}
+        params = {"day": Date().get_date() + 1, "hour": p[3], "minute": 0, "second": 0}
         p[0] = DateFactory.create_date(**params)
 
 
@@ -421,7 +440,7 @@ def p_single_date_day(p):
         d = Date()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
-            d.set_date(d.get_date()+1)
+            d.set_date(d.get_date() + 1)
 
         p[0] = d
     if len(p) == 3:
@@ -429,10 +448,10 @@ def p_single_date_day(p):
         d = Date()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
-            if p[1] == 'last':
-                d.set_date(d.get_date()-1)
-            elif p[1] == 'next':
-                d.set_date(d.get_date()+1)
+            if p[1] == "last":
+                d.set_date(d.get_date() - 1)
+            elif p[1] == "next":
+                d.set_date(d.get_date() + 1)
 
         p[0] = d
 
@@ -484,17 +503,17 @@ def replace_short_words(phrase):
     phrase = phrase.replace("mil", "millisecond")
     phrase = phrase.replace("mils", "millisecond")
 
-    phrase = re.sub(r'\bmon\b', 'monday', phrase)
-    phrase = re.sub(r'\btues\b', 'tuesday', phrase)
-    phrase = re.sub(r'\btue\b', 'tuesday', phrase)
-    phrase = re.sub(r'\bwed\b', 'wednesday', phrase)
-    phrase = re.sub(r'\bweds\b', 'wednesday', phrase)
-    phrase = re.sub(r'\bthurs\b', 'thursday', phrase)
-    phrase = re.sub(r'\bthur\b', 'thursday', phrase)
-    phrase = re.sub(r'\bthu\b', 'thursday', phrase)
-    phrase = re.sub(r'\bfri\b', 'friday', phrase)
-    phrase = re.sub(r'\bsat\b', 'saturday', phrase)
-    phrase = re.sub(r'\bsun\b', 'sunday', phrase)
+    phrase = re.sub(r"\bmon\b", "monday", phrase)
+    phrase = re.sub(r"\btues\b", "tuesday", phrase)
+    phrase = re.sub(r"\btue\b", "tuesday", phrase)
+    phrase = re.sub(r"\bwed\b", "wednesday", phrase)
+    phrase = re.sub(r"\bweds\b", "wednesday", phrase)
+    phrase = re.sub(r"\bthurs\b", "thursday", phrase)
+    phrase = re.sub(r"\bthur\b", "thursday", phrase)
+    phrase = re.sub(r"\bthu\b", "thursday", phrase)
+    phrase = re.sub(r"\bfri\b", "friday", phrase)
+    phrase = re.sub(r"\bsat\b", "saturday", phrase)
+    phrase = re.sub(r"\bsun\b", "sunday", phrase)
 
     # TODO - regexes might be better here. allow space or number in front
     # import re
