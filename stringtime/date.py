@@ -365,21 +365,26 @@ class Date:
         if monthValue == 0:
             monthValue = 1
 
-        # print(">>>>", monthValue)
+        print(">>>>", monthValue)
+
+
         while monthValue > 11:
+            print('im in here++++')
             current_year = self.date.year
             self.set_fullyear(current_year + 1)
             monthValue -= 11
             # self.date.replace(month=int(1))
 
         while monthValue < 0:
+            print('im in here22++++')
             current_year = self.date.year
             self.set_fullyear(current_year - 1)
             monthValue += 11
 
-        # print(">>>>", monthValue, dayValue)
+        print(">>>>", monthValue, dayValue)
+        if monthValue > 0:
+            self.date = self.date.replace(month=int(monthValue))
 
-        self.date = self.date.replace(month=int(monthValue))
         if dayValue is not None:
             self.setDate(dayValue)
         return self.get_time()
@@ -405,7 +410,9 @@ class Date:
             self.set_minutes(current_minute - 1)
             secondsValue += 59
 
+        # if monthValue != 0:
         self.date = self.date.replace(second=int(secondsValue))
+
         if msValue is not None:
             self.setMilliseconds(msValue)
         return self.get_time()

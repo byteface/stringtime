@@ -3,6 +3,10 @@
 test:
 	python3 -m unittest tests.test_stringtime
 
+# test:
+# python3 -m unittest tests.test_stringtime.TestCase.test_phrases_past
+
+
 clean:
 	rm -r dir/
 

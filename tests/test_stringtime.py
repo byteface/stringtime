@@ -18,7 +18,7 @@ from stringtime import get_date
 
 
 def check_phrase(p: str):
-    print('inputted phrase:', p)
+    print('check_phrase:', p)
     d = get_date(p)
     # print('  - The year is:::', d[0].get_year())
     # print('  - The month is:::', d[0].get_month(to_string=True))
@@ -26,7 +26,7 @@ def check_phrase(p: str):
     # print('  - The hour is:::', d[0].get_hours())
     # print('  - The minute is:::', d[0].get_minutes())
     # print('  - The second is:::', d[0].get_seconds())
-    print('  - The date is :::', str(d[0]))
+    print('- The date is :::', str(d[0]))
     return d[0]
 
 
@@ -34,10 +34,10 @@ class TestCase(unittest.TestCase):
 
     def test_phrases(self):
         # test any single phrases
-        check_phrase(f"In a minute")
-        check_phrase(f"In an hour")
-        check_phrase(f"20hrs from now")  # works
-        check_phrase(f"20mins in the future")  # works
+        check_phrase("In a minute")
+        check_phrase("In an hour")
+        check_phrase("20hrs from now")
+        check_phrase("20mins in the future")
         check_phrase("In 15 minutes")
         check_phrase("5 hours from now")
         check_phrase("In the future 12 hours")
@@ -45,11 +45,11 @@ class TestCase(unittest.TestCase):
         # check_phrase(f"20 minutes hence") # fails
         # check_phrase(f"10 minutes ago") # fails when has to tick over
 
-        check_phrase(f"2 hours ago")
+        check_phrase("2 hours ago")
         # check_phrase(f"24 hours ago") # fails - so only at tick over
         # check_phrase(f"3 weeks ago") # fails - probably same reasons
         # check_phrase(f"30 seconds ago") # fails
-        check_phrase(f"1 hour before now")
+        check_phrase("1 hour before now")
 
         # check_phrase(f"now minus 1 hours") # no handlers for that yet
         # check_phrase(f"several hours from now") # several to generate random number
@@ -135,10 +135,10 @@ class TestCase(unittest.TestCase):
         # check_phrase(f"In an hour from now") # fails
         # check_phrase(f"In 10 minutes from now") #fails
 
-        check_phrase(f"In 10 mins")
-        check_phrase(f"In 10mins")
-        check_phrase(f"In 10 dys")
-        check_phrase(f"In 10 secs")  # fails??
+        check_phrase("In 10 mins")
+        check_phrase("In 10mins")
+        check_phrase("In 10 dys")
+        check_phrase("In 10 secs")  # fails??
 
         # check_phrase(f"5 secs from now") # fails
 
@@ -173,10 +173,10 @@ class TestCase(unittest.TestCase):
     def test_phrases_yesterday_2moro_2day(self):
         # yesterday/2moro/2day
 
-        check_phrase(f"yesterday")  # works - 2moro reverse days is not working
-        check_phrase(f"tomorrow")  # works
-        check_phrase(f"tomorrow at 5")  # works
-        check_phrase(f"yesterday at 3")  # works
+        check_phrase("yesterday")
+        check_phrase("tomorrow")
+        check_phrase("tomorrow at 5")
+        check_phrase("yesterday at 3")
 
         # check_phrase(f"2moro")  # fails
         # check_phrase(f"today")  # fails
@@ -184,27 +184,27 @@ class TestCase(unittest.TestCase):
 
     def test_phrases_days_of_the_week(self):
 
-        # check_phrase(f"Monday")  # works
-        # check_phrase(f"Last Tuesday")  # works
+        # check_phrase(f"Monday")
+        # check_phrase(f"Last Tuesday")
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         for d in days:
-            check_phrase(f"{d}")  # works
-            check_phrase(f"{d} at 5")  # works
-            check_phrase(f"{d} at 5pm")  # works
-            check_phrase(f"Next {d}")  # works
+            check_phrase(f"{d}")
+            check_phrase(f"{d} at 5")
+            check_phrase(f"{d} at 5pm")
+            check_phrase(f"Next {d}")
             # check_phrase(f"Next Monday @ 7:15pm in the afteroon")  #TODO
             # check_phrase(f"Next Monday @ 9:15pm in the evening")  #TODO
             # check_phrase(f"Next Monday @ 9:15pm in the morning")  # SHOULD ERROR DUE TO CONFLICTING CONDITIONS
 
             # find previous nearest day
-            check_phrase(f"Last {d}")  # works
+            check_phrase(f"Last {d}")
 
         # slang day names...
         days = ["Mon", "tues", "Wed", "Thurs", "Fri", "Sat", "Sun"]
         for d in days:
-            check_phrase(f"{d}")  # works
-            check_phrase(f"Next {d}")  # works
-            check_phrase(f"On {d}")  # works
+            check_phrase(f"{d}")
+            check_phrase(f"Next {d}")
+            check_phrase(f"On {d}")
 
             # check_phrase(f"Last {d} @ 11:15am")  #fails
 
