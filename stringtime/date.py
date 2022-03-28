@@ -10,6 +10,13 @@ class Date:
     """Date"""
 
     @staticmethod
+    def get_month_length(month, year):  # = None):
+        """Returns the number of days in the current month"""
+        # if year is None:
+            # use the current year
+        return calendar.monthrange(year, month)[1]
+
+    @staticmethod
     def from_phrase(phrase: str):
         """Parses phrase and return a date"""
         # print('Inputted phrase: : :', phrase)
@@ -97,6 +104,16 @@ class Date:
         self.date = parse(date_string, MyParserInfo())
         return self.date
 
+    def get_fullyear(self):
+        """Returns the year"""
+        return self.date.year
+
+    def get_month(self, to_string=False):
+        """Returns the month (from 0-11)"""
+        if to_string:
+            return calendar.month_name[self.date.month]
+        return self.date.month - 1
+
     def get_date(self):
         """Returns the day of the month (from 1-31)"""
         return self.date.day
@@ -113,31 +130,21 @@ class Date:
         pyweekday = self.date.isoweekday()
         return pyweekday if pyweekday < 6 else 0
 
-    def get_fullyear(self):
-        """Returns the year"""
-        return self.date.year
-
     def get_hours(self):
         """Returns the hour (from 0-23)"""
         return self.date.hour
-
-    def get_milliseconds(self):
-        """Returns the milliseconds (from 0-999)"""
-        return round(self.date.microsecond / 1000)
 
     def get_minutes(self):
         """Returns the minutes (from 0-59)"""
         return self.date.minute
 
-    def get_month(self, to_string=False):
-        """Returns the month (from 0-11)"""
-        if to_string:
-            return calendar.month_name[self.date.month]
-        return self.date.month - 1
-
     def get_seconds(self):
         """Returns the seconds (from 0-59)"""
         return self.date.second
+
+    def get_milliseconds(self):
+        """Returns the milliseconds (from 0-999)"""
+        return round(self.date.microsecond / 1000)
 
     def get_time(self):
         """Returns A number representing the milliseconds elapsed between 1 January 1970 00:00:00 UTC and self.date"""
@@ -197,11 +204,100 @@ class Date:
         """Returns the number of milliseconds since midnight Jan 1, 1970"""
         return round(time.time() * 1000)
 
+    def set_year(self, year):
+        """Deprecated. Use the setFullYear() method instead"""
+        # self.date.replace(year=int(year))
+        # return self.get_time()
+        # TODO - there may not be a date object already?
+        return self.set_fullyear(year)
+
+    def set_fullyear(
+        self, yearValue: int, monthValue: int = None, dateValue: int = None
+    ):
+        """Sets the year of a date object
+
+        Args:
+            yearValue (_type_): _description_
+            monthValue (int, optional): _description_. Defaults to None.
+            dateValue (int, optional): _description_. Defaults to None.
+
+        Returns:
+            int: milliseconds between epoch and updated date.
+        """
+        self.date = self.date.replace(year=int(yearValue))
+        if monthValue is not None:
+            self.setMonth(monthValue)
+        if dateValue is not None:
+            self.setDate(dateValue)
+        return self.get_time()
+
+    def set_month(self, monthValue: int, dayValue: int = None):  # -> int:
+        """Sets the month of a date object
+
+        Args:
+            monthValue (int): a number from 0 to 11 indicating the month.
+            dayValue (int, optional): an optional day of the month. Defaults to 0.
+
+        Returns:
+            int: milliseconds between epoch and updated date.
+        """
+        if monthValue == 0:
+            monthValue = 1
+
+        # print(">>>>", monthValue)
+        while monthValue > 11:
+            # print('im in here++++')
+            current_year = self.date.year
+            self.set_fullyear(current_year + 1)
+            monthValue -= 11
+            # self.date.replace(month=int(1))
+
+        while monthValue < 0:
+            # print('im in here22++++')
+            current_year = self.date.year
+            self.set_fullyear(current_year - 1)
+            monthValue += 11
+
+        print(">>>>", monthValue, dayValue)
+        if monthValue > 0:
+
+            # if the new month is less days. it will affect the result. i.e
+            # js would progress to the next month and add the spare left over days
+            # So if the current day is 31st August 2016. and you setMonth(1), it would be 2nd March.
+            # as there's 29 days in February that year.
+            # in python it will error as the new month has less days.
+            # so we need to change it first.
+
+            # current_month = self.date.month
+            # days = calendar.monthrange(self.date.year, current_month)[1]
+            next_month_total_days = calendar.monthrange(self.date.year, monthValue)[1]
+            # print(self.get_month_length(self.date.month, self.date.year), self.get_date())
+            # leftovers = self.get_month_length(self.date.month, self.date.year) - self.get_date()
+            leftovers = next_month_total_days - self.get_date()
+            if leftovers < 0:
+                # if dayValue is None:
+                leftovers = abs(leftovers)
+                print('leftovers:::', leftovers)
+                # if leftovers is greater than 0 we progress it twice and set the days to the leftovers
+                self.date = self.date.replace(day=int(leftovers)) # reset the day for now to not error
+                self.date = self.date.replace(month=int(monthValue+1))
+            else:
+                self.date = self.date.replace(month=int(monthValue))
+
+            # days_in_the_new_month = lambda d: calendar.monthrange(d.year, d.month)[1]
+
+        if dayValue is not None:
+            self.setDate(dayValue)
+        return self.get_time()
+
     def set_date(self, day: int):
         """Sets the day of the month of a date object
 
         If the day passed in is greater than the number of days left in the month,
-        then the months are incremented and the days adjusted accordingly
+        then the months are incremented and the days adjusted accordingly.
+
+        set_month() can affect the day in unexpected ways.
+        see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/setMonth
 
         Args:
             day (int): An integer representing the day of the month.
@@ -229,42 +325,31 @@ class Date:
 
         if day < 0:
             current_month = self.date.month
-            self.set_month(current_month - 1)
+            # self.set_month(current_month - 1) # this could have negative affect. due to how set_month works. it can also change the day. surely doesn't happen here as its backwards?
             day = abs(day) + days_in_the_month(self.date)
-            # print('gosh:', day)
+            print('gosh:', day)
             return self.set_date(day)
             # return
 
-        # print("HV>>>>", hoursValue, self.date.day)
+        print("log >>>>", self.date.day, self.date.month, days_in_the_month(self.date))
+        # daystore = self.get_date()
         while day > days_in_the_month(self.date):
-            current_month = self.date.month
-            self.set_month(current_month + 1)
             day -= days_in_the_month(self.date)
+            current_month = self.date.month
+            self.date = self.date.replace(day=int(1)) # temp reset the day so we can set the
+            # self.set_month(current_month + 1) # # this could have negative affect. due to how set_month works. it can also change the day.
 
-        # print('days left:::', day)
+            # if its now dec increase the year
+            if self.date.month == 11:
+                self.set_fullyear(self.date.year + 1)
+                current_month -= 11
+            self.date = self.date.replace(month=int(current_month+1))
+
+        # self.date = self.date.replace(month=int(current_month+1))
+        print('days left:::', day)
 
         if day > 0:
             self.date = self.date.replace(day=int(day))
-        return self.get_time()
-
-    def set_fullyear(
-        self, yearValue: int, monthValue: int = None, dateValue: int = None
-    ):
-        """Sets the year of a date object
-
-        Args:
-            yearValue (_type_): _description_
-            monthValue (int, optional): _description_. Defaults to None.
-            dateValue (int, optional): _description_. Defaults to None.
-
-        Returns:
-            int: milliseconds between epoch and updated date.
-        """
-        self.date = self.date.replace(year=int(yearValue))
-        if monthValue is not None:
-            self.setMonth(monthValue)
-        if dateValue is not None:
-            self.setDate(dateValue)
         return self.get_time()
 
     def set_hours(
@@ -311,16 +396,6 @@ class Date:
             self.setMilliseconds(msValue)
         return self.get_time()
 
-    def set_milliseconds(self, milliseconds: int):
-        """Sets the milliseconds of a date object
-
-        Args:
-            milliseconds (int): Milliseconds to set i.e 123
-        """
-        microseconds = int(milliseconds) * 1000
-        self.date = self.date.replace(microsecond=microseconds)
-        # return
-
     def set_minutes(
         self, minutesValue: int, secondsValue: int = None, msValue: int = None
     ):
@@ -352,43 +427,6 @@ class Date:
             self.setMilliseconds(msValue)
         return self.get_time()
 
-    def set_month(self, monthValue: int, dayValue: int = None):  # -> int:
-        """Sets the month of a date object
-
-        Args:
-            monthValue (int): a number from 0 to 11 indicating the month.
-            dayValue (int, optional): an optional day of the month. Defaults to 0.
-
-        Returns:
-            int: milliseconds between epoch and updated date.
-        """
-        if monthValue == 0:
-            monthValue = 1
-
-        print(">>>>", monthValue)
-
-
-        while monthValue > 11:
-            print('im in here++++')
-            current_year = self.date.year
-            self.set_fullyear(current_year + 1)
-            monthValue -= 11
-            # self.date.replace(month=int(1))
-
-        while monthValue < 0:
-            print('im in here22++++')
-            current_year = self.date.year
-            self.set_fullyear(current_year - 1)
-            monthValue += 11
-
-        print(">>>>", monthValue, dayValue)
-        if monthValue > 0:
-            self.date = self.date.replace(month=int(monthValue))
-
-        if dayValue is not None:
-            self.setDate(dayValue)
-        return self.get_time()
-
     def set_seconds(self, secondsValue: int, msValue: int = None):
         """Sets the seconds of a date object
 
@@ -416,6 +454,16 @@ class Date:
         if msValue is not None:
             self.setMilliseconds(msValue)
         return self.get_time()
+
+    def set_milliseconds(self, milliseconds: int):
+        """Sets the milliseconds of a date object
+
+        Args:
+            milliseconds (int): Milliseconds to set i.e 123
+        """
+        microseconds = int(milliseconds) * 1000
+        self.date = self.date.replace(microsecond=microseconds)
+        # return
 
     def set_time(self, milliseconds: int = None):
         """Sets the date and time of a date object
@@ -466,13 +514,6 @@ class Date:
         """Set the seconds of a date object, according to universal time"""
         self.setSeconds(seconds)
         return self.get_time()
-
-    def set_year(self, year):
-        """Deprecated. Use the setFullYear() method instead"""
-        # self.date.replace(year=int(year))
-        # return self.get_time()
-        # TODO - there may not be a date object already?
-        return self.set_fullyear(year)
 
     def toDateString(self):
         """Converts the date portion of a Date object into a readable string"""
