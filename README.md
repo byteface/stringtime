@@ -54,6 +54,8 @@ stringtime -p 2 days from now
 
 ## Tests
 
+Now uses pytest and time-machine. So install requirements-dev.txt and run...
+
 ```bash
 make test
 ```

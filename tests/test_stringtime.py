@@ -1,4 +1,3 @@
-# coding: utf8
 """
     test_stringtime
     ~~~~~~~~~~~~~~~
@@ -7,14 +6,11 @@
 """
 
 import os
-import unittest
-# from unittest.mock import Mock
-
-# import requests
-# from mock import patch
-# from inspect import stack
-
-from stringtime import get_date
+import pytest
+import time_machine
+import datetime
+import stringtime
+from stringtime import get_date, Date
 
 
 def check_phrase(p: str):
@@ -30,7 +26,28 @@ def check_phrase(p: str):
     return d[0]
 
 
-class TestCase(unittest.TestCase):
+# pytest -s -v tests/test_stringtime.py::TestCaseStrict::test_assert_phrases
+class TestCaseStrict:
+
+    # note - if you change this the test will fail as they are relative to this date
+    # it was arbitrarily chosen. Feel free to test other dates/times.
+    FAKE_NOW = datetime.datetime(2020, 12, 25, 17, 5, 55)
+
+    @pytest.mark.parametrize(
+        "test_input, expected",
+        [
+            ("In a minute", "2020-12-25 17:06:55"),
+            ("In an hour", "2020-12-25 18:05:55"),
+            ("20hrs from now", "2020-12-26 13:05:55")
+        ]
+    )
+    @time_machine.travel(FAKE_NOW)
+    def test_assert_phrases(self, test_input, expected):
+        assert str(check_phrase(test_input)) == expected
+
+
+class TestCaseLazy:
+    # tests that are not asserting anything
 
     def test_phrases(self):
         # test any single phrases
@@ -129,7 +146,7 @@ class TestCase(unittest.TestCase):
         check_phrase("In 10mins")
         check_phrase("In 10 dys")
         check_phrase("In 10 secs")
-        check_phrase(f"5 secs from now")
+        check_phrase("5 secs from now")
 
     def test_phrases_past(self):
         # tests for phrases that retrieve dates in the past
@@ -202,7 +219,3 @@ class TestCase(unittest.TestCase):
         # TODO - maybe drop parsing when have enough info rather than create more conditions?
         # check_phrase(f"In an hour from now") # fails
         # check_phrase(f"In 10 minutes from now") #fails
-
-
-if __name__ == '__main__':
-    unittest.main()

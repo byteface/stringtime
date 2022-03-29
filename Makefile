@@ -1,7 +1,11 @@
 # to run tests you can use test
 
+# test:
+	# python3 -m unittest tests.test_stringtime
+
 test:
-	python3 -m unittest tests.test_stringtime
+	python3 -m pytest -vvv tests/
+
 
 # test:
 # python3 -m unittest tests.test_stringtime.TestCase.test_phrases_past
