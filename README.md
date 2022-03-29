@@ -7,14 +7,18 @@
 
 A grammar for deriving Date objects from phrases.
 
-api currently looks something like this...
+## Usage
 
 ```bash
 from stringtime import Date
-somedate = Date.from_phrase('an hour from now')
-```
 
-but is early days so will probably eventually parse via the Date constructor and on fail pass along to the regular dateutil parser.
+d = Date('an hour from now')
+d.day  # the day of the week 0-6
+d.get_day(to_string=True) # the day name, e.g. 'Monday'
+d.month  # the month 0-11
+d.hour  # the hour 0-23
+d.get_month(to_string=True) # the month name, e.g. 'January'
+```
 
 ## Installation
 
@@ -36,28 +40,37 @@ Here's a list of example phrases that can be used...
 "Tomorrow"
 "Tuesday"
 "On Wednesday"
+"In a minute"
+"In an hour"
+"20hrs from now"
+"In a day/week/month/year"
+"In 2 years"
+"20mins in the future"
+"20mins in the past"
+"In 15 minutes"
+"5 hours from now"
+"20 minutes hence"
+"10 minutes ago"
+"24 hours ago"
+"3 weeks ago"
+"30 seconds ago"
+"1 hour before now"
+"1 hour after now"
+"1 hour ago"
 "This Friday at 1"
 "Last Wednesday at 5"
 ```
 
-to see what else check the unit tests.
+To see what else is underway check the tests/test_stringtime.py file.
 
-... more to come.
+If anything is broken or you feel is missing please raise an issue or make a pull request.
 
 ## CLI
 
-There's several commands you can pass to stringtime on the command line.
+Use stringtime from the command line:
 
 ```bash
 stringtime -p 2 days from now
-```
-
-## Tests
-
-Now uses pytest and time-machine. So install requirements-dev.txt and run...
-
-```bash
-make test
 ```
 
 ## License
@@ -68,6 +81,4 @@ Uses David Beazley's PLY parser.
 
 ## Disclaimer
 
-Might be buggy... only just made it yesterday.
-
-Probs ignore this til at least version 0.3.
+Might be buggy... still only recent

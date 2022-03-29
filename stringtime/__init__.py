@@ -1,11 +1,44 @@
-__version__ = "0.0.2"
+__version__ = "0.0.3"
+__all__ = ["get_date", "Date"]
 
 import re
 
 import ply.lex as lex
 import ply.yacc as yacc
 
-from stringtime.date import Date
+from stringtime.date import Date as stDate
+
+# -----------------------------------------------------------------------------
+import warnings
+DEBUG = True
+try:
+    ERR_ICN = "\U0000274C"
+    WARN_ICN = "\U000026A0"
+    OK_ICN = "\U00002714"
+    # print(__version__, ERR_ICN, WARN_ICN, OK_ICN)
+except UnicodeEncodeError:
+    warnings.warn("Warning: Icons not supported.")
+    ERR_ICN = ""
+    WARN_ICN = ""
+    OK_ICN = ""
+
+
+def stlog(msg: str, *args, lvl: str = None, **kwargs):
+    """logging for stringtime"""
+    if not DEBUG:
+        return
+    if lvl is None:
+        print(msg, args, kwargs)
+    elif 'e' in lvl:  # error
+        print(f"{ERR_ICN} \033[1;41m{msg}\033[1;0m", *args, kwargs)
+    elif 'w' in lvl:  # warning
+        print(f"{WARN_ICN} \033[1;31m{msg}\033[1;0m", *args, kwargs)
+    elif 'g' in lvl:  # green for good
+        print(f"{OK_ICN} \033[1;32m{msg}\033[1;0m", *args, kwargs)
+    # else:
+    #     print(msg, *args, kwargs)
+
+# -----------------------------------------------------------------------------
 
 tokens = (
     "WORD_NUMBER",
@@ -94,6 +127,39 @@ def t_WORD_NUMBER(t):
         "ninety": 90,
     }
     t.value = number_to_word[t.value]
+
+    # number_to_word2 = {
+    #     "first": 1,
+    #     "second": 2,
+    #     "third": 3,
+    #     "fourth": 4,
+    #     "fifth": 5,
+    #     "sixth": 6,
+    #     "seventh": 7,
+    #     "eighth": 8,
+    #     "ninth": 9,
+    #     "tenth": 10,
+    #     "eleventh": 11,
+    #     "twelfth": 12,
+    #     "thirteenth": 13,
+    #     "fourteenth": 14,
+    #     "fifteenth": 15,
+    #     "sixteenth": 16,
+    #     "seventeenth": 17,
+    #     "eighteenth": 18,
+    #     "nineteenth": 19,
+    #     "twentieth": 20,
+    #     "thirtieth": 30,
+    #     "fortieth": 40,
+    #     "fiftieth": 50,
+    #     "sixtieth": 60,
+    #     "seventieth": 70,
+    #     "eightieth": 80,
+    #     "ninetieth": 90,
+    # }
+    # t.value = number_to_word2[t.value]
+    # return t
+
     return t
 
 
@@ -114,7 +180,7 @@ def t_TIME(t):
 t_PHRASE = r"today\ plus|today\ add|now\ plus|now\ add|add|added|plus|from\ now|time|in\ the\ future|into\ the\ future|away|away\ from\ now|hence|past\ now|after\ now|beyond\ this\ current\ moment|in\ an|in\ a|in|next|an"
 
 # partial phrases that decrement time
-t_PAST_PHRASE = r"today\ minus|today\ take|today\ take\ away|now\ minus|now\ take|now\ take\ away|minus|take\ away|off|ago|in\ the\ past|just\ been|before\ now|before\ this\ moment|before\ this\ current\ moment|before|last"
+t_PAST_PHRASE = r"today\ minus|today\ take|today\ take\ away|now\ minus|now\ take|now\ take\ away|minus|take\ away|off|ago|in\ the\ past|the\ past|just\ been|before\ now|before\ this\ moment|before\ this\ current\ moment|before|last"
 
 
 t_YESTERDAY = r"yesterday"
@@ -151,10 +217,6 @@ lex.lex()
 class DateFactory:
     def __init__(self, phrase, *args, **kwargs):
         self.phrase = phrase
-        # print('Hi, this needs to be turned into a date!', args)
-
-    # def __repr__(self):
-    #     return "Date(%r, %r)" % (self.symbol, self.count)
 
     @staticmethod
     def create_date(
@@ -163,8 +225,8 @@ class DateFactory:
         """creates a date with fixed props
 
         Args:
-            year (_type_, optional): _description_. Defaults to None.
-            month (_type_, optional): _description_. Defaults to None.
+            year (_type_, optional): The year. Defaults to None.
+            month (_type_, optional): The month. Defaults to None.
             week (_type_, optional): _description_. Defaults to None.
             day (_type_, optional): _description_. Defaults to None.
             hour (_type_, optional): _description_. Defaults to None.
@@ -174,12 +236,11 @@ class DateFactory:
         Returns:
             _type_: _description_
         """
-        # print("CREATE DATE WAS CALLED!")
-        d = Date()
+        d = stDate()
         if year is not None:
             d.set_year(year)
         if month is not None:
-            d.set_month(month)
+            d.set_month(month) # note - should this one be -1?
         if week is not None:
             d.set_week(week)
         if day is not None:
@@ -187,7 +248,6 @@ class DateFactory:
         if hour is not None:
             d.set_hours(hour)
         if minute is not None:
-            # print('update minutes', minute)
             d.set_minutes(minute)
         if second is not None:
             d.set_seconds(second)
@@ -208,80 +268,76 @@ class DateFactory:
         - use negative integers to deduct from a prop
 
         Args:
-            year (_type_, optional): How many years to add/take to the current year.
-            month (_type_, optional): _description_. Defaults to None.
-            week (_type_, optional): _description_. Defaults to None.
-            day (_type_, optional): _description_. Defaults to None.
-            hour (_type_, optional): _description_. Defaults to None.
-            minute (_type_, optional): _description_. Defaults to None.
-            second (_type_, optional): _description_. Defaults to None.
+            year (_type_, optional): Number of years to add/take from the current year.
+            month (int, optional): Number of months to add/take from the current month.
+            week (int, optional): Number of weeks to add/take from the current week.
+            day (int, optional): Number of days to add/take from the current day.
+            hour (int, optional): Number of hours to add/take from the current hour.
+            minute (int, optional): Number of minutes to add/take from the current minute.
+            second (int, optional): Number of seconds to add/take from the current second.
 
         Returns:
-            _type_: _description_
+            Date : Returns a Date object with the offsets applied.
         """
-
-        # print('  - Creating a new date!', year, month, week, day, hour, minute, second)
-        # return 'past date'
-        # TODO - do something with the phrase
-        # print('Creating a past date!')
-
-        d = Date()
+        # TODO - should maybe optionally pass and remember the phrase on a new 'description' prop on Date...?
+        d = stDate()
         if year is not None:
-            print(
-                f"  - Creating a new date {year} years from now: Current date:", str(d)
+            stlog(
+                f"Creating new date {year} years from now: Current date:",
+                str(d),
+                lvl='g'
             )
             current_year = d.get_year()
             d.set_fullyear(current_year + year)
-            # print('   - Updated to:', str(d))
         if month is not None:
-            print(
-                f"  - Creating a new date {month} months from now: Current date:",
+            stlog(
+                f"Creating new date {month} months from now: Current date:",
                 str(d),
             )
             currrent_month = d.get_month()
             d.set_month(
-                currrent_month + (month - 1)
-            )  # note the minus one is because Date expects 0-11 but humans say 1-12
-            # print('   - Updated to:', str(d))
+                currrent_month + (month)  # - 1)
+            )  # note the minus one is because Date expects 0-11 but humans say 1-12. wrong cos its the offset?
         if week is not None:
-            print(
-                f"  - Creating a new date {week} weeks from now: Current date:", str(d)
+            stlog(
+                f"Creating new date {week} weeks from now: Current date:",
+                str(d),
+                lvl='g',
             )
-            # get the current date
-            # currrent_day = d.get_day()
             currrent_day = d.get_date()
             d.set_date(currrent_day + week * 7)
-            # print('   - Updated to:', str(d))
         if day is not None:
-            print(f"  - Creating a new date {day} days from now: Current date:", str(d))
-            # currrent_day = d.get_day()
+            stlog(
+                f"Creating new date {day} days from now: Current date:",
+                str(d),
+                lvl='g',
+            )
             currrent_day = d.get_date()
-            # print('cuz::', currrent_day, day, d.get_date())
             d.set_date(currrent_day + day)
-            # print('   - Updated to:', str(d))
         if hour is not None:
-            print(
-                f"  - Creating a new date {hour} hours from now: Current date:", str(d)
+            stlog(
+                f"  - Creating new date {hour} hours from now: Current date:",
+                str(d),
+                lvl='g',
             )
             currrent_hour = d.get_hours()
             d.set_hours(currrent_hour + hour)
-            # print('   - Updated to:', str(d))
         if minute is not None:
-            print(
-                f"  - Creating a new date {minute} minutes from now: Current date:",
+            stlog(
+                f"  - Creating new date {minute} minutes from now: Current date:",
                 str(d),
+                lvl='g',
             )
             currrent_minute = d.get_minutes()
             d.set_minutes(currrent_minute + minute)
-            # print('   - Updated to:', str(d))
         if second is not None:
-            print(
-                f"  - Creating a new date {second} seconds from now: Current date:",
+            stlog(
+                f"  - Creating new date {second} seconds from now: Current date:",
                 str(d),
+                lvl='g',
             )
             currrent_second = d.get_seconds()
             d.set_seconds(currrent_second + second)
-            # print('   - Updated to:', str(d))
 
         return d
 
@@ -410,7 +466,7 @@ def p_single_date_yesterday(p):
         params = {"day": -1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
-        params = {"day": Date().get_date() - 1, "hour": p[3], "minute": 0, "second": 0}
+        params = {"day": stDate().get_date() - 1, "hour": p[3], "minute": 0, "second": 0}
         p[0] = DateFactory.create_date(**params)
 
 
@@ -424,7 +480,7 @@ def p_single_date_2moro(p):
         params = {"day": 1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
-        params = {"day": Date().get_date() + 1, "hour": p[3], "minute": 0, "second": 0}
+        params = {"day": stDate().get_date() + 1, "hour": p[3], "minute": 0, "second": 0}
         p[0] = DateFactory.create_date(**params)
 
 
@@ -436,7 +492,7 @@ def p_single_date_day(p):
     """
     if len(p) == 2:
         day_to_find = p[1]
-        d = Date()
+        d = stDate()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
             d.set_date(d.get_date() + 1)
@@ -444,7 +500,7 @@ def p_single_date_day(p):
         p[0] = d
     if len(p) == 3:
         day_to_find = p[2]
-        d = Date()
+        d = stDate()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
             if p[1] == "last":
@@ -471,15 +527,15 @@ def p_error(p):
 yacc.yacc()
 
 
-######
+###############################################################################
 
 
-import collections
-
-
-# TODO - regexes might be better here. allow space or number in front
 def replace_short_words(phrase):
+    """
+    replace shortened words with normal equivalents
+    """
 
+    # TODO - regexes might be better here. allow space or number in front
     phrase = phrase.replace("hr ", "hour")
     phrase = phrase.replace("hrs", "hour")
     phrase = phrase.replace("min ", "minute")
@@ -524,18 +580,13 @@ def replace_short_words(phrase):
     return phrase
 
 
-def get_date(phrase: str):
-    phrase = phrase.lower()
-    # replace shortening words with full words
+# def get_date(phrase: str):
+#     phrase = phrase.lower()
+#     phrase = replace_short_words(phrase)
+#     return yacc.parse(phrase)
+
+
+def Date(date, *args, **kwargs):
+    phrase = date.lower()
     phrase = replace_short_words(phrase)
-    return yacc.parse(phrase)
-
-
-######
-def assert_raises(exc, f, *args):
-    try:
-        f(*args)
-    except exc:
-        pass
-    else:
-        raise AssertionError("Expected %r" % (exc,))
+    return yacc.parse(phrase)[0]

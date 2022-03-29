@@ -133,3 +133,23 @@ while now < earlier:
 ## TODO
 
 Dates() - for a range of dates.
+
+
+
+## Dev Notes
+
+The entry point the Date object is masked by a function with the same name.
+
+i.e.
+
+```bash
+from stringtime import Date
+```
+
+is different to...
+
+```bash
+from stringtime.date import Date
+```
+
+In general use the first way unless you want to use the Date object directly without the wrapper.

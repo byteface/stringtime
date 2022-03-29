@@ -6,6 +6,35 @@ from dateutil.parser import parse, parserinfo
 import calendar
 
 
+# class Century():
+# class Decade():
+# class Year():
+
+class Month:
+
+    def __init__(self, month):
+        self.month = month
+        self.name = calendar.month_name[month]
+        self.days = calendar.monthrange(2018, month)[1]
+
+    def __len__(self):
+        return self.days
+
+    def __str__(self) -> str:
+        return self.name
+
+    # def __repr__(self) -> str:
+    #     pass
+
+
+# class Week():
+# class Day():
+# class Hour():
+# class Minute():
+# class Second():
+# class Millisecond():
+
+
 class Date:
     """Date"""
 
@@ -39,8 +68,9 @@ class Date:
         d.parse_date(str(date_string))
         return int(d.date.timestamp() * 1000)
 
+
     def __init__(self, date=None, *args, formatter="python", **kwargs):
-        """A date object that tries to behave like the Javascript one.
+        """A date object simliar to the js one.
 
         TODO - js allowed dates are larger than pythons(mysql) datetime 99999 limit
         TODO - also negative dates i.e. BC don't seem to be allowed with datetime
@@ -51,7 +81,7 @@ class Date:
         """
 
         # try:
-        #     self.date = Date.from_phrase(date)
+        #     self._date = Date.from_phrase(date)
         #     return
         # except Exception as e:
         #     pass
@@ -70,28 +100,31 @@ class Date:
             if date == "":
                 date = None
 
+        # this should work via the parser . test
+        # year, monthIndex, day, hours, minutes, seconds, milliseconds
+
         self.formatter = formatter
         if isinstance(date, int):
-            self.date = datetime.datetime.fromtimestamp(date)
+            self._date = datetime.datetime.fromtimestamp(date)
             return
         # elif isinstance(date, str):
         #     if formatter == 'python':
-        #         self.date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        #         self._date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         #     elif formatter == 'javascript':
-        #         self.date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ')
+        #         self._date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ')
         #     else:
         #         raise ValueError('Invalid formatter')
         if date is None:
-            self.date = datetime.datetime.now()
+            self._date = datetime.datetime.now()
         else:
-            self.date = self.parse_date(date)
+            self._date = self.parse_date(date)
 
     def __str__(self):
         """Returns a string representation of the date"""
         if self.formatter == "python":
-            return self.date.strftime("%Y-%m-%d %H:%M:%S")
+            return self._date.strftime("%Y-%m-%d %H:%M:%S")
         else:
-            return self.date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # js
+            return self._date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # js
 
     def parse_date(self, date_string):
         class MyParserInfo(parserinfo):
@@ -101,22 +134,31 @@ class Date:
                     year += 1900
                 return year
 
-        self.date = parse(date_string, MyParserInfo())
-        return self.date
+        self._date = parse(date_string, MyParserInfo())
+        return self._date
 
     def get_fullyear(self):
         """Returns the year"""
-        return self.date.year
+        return self._date.year
 
-    def get_month(self, to_string=False):
-        """Returns the month (from 0-11)"""
+    def get_month(self, to_string=False):  # :, to_object=None):
+        """Returns the month (0-11) or the month name (January-December)
+
+        Args:
+            to_string (bool, optional): returns month name instead of position. Defaults to False.
+
+        Returns:
+            int: The month, from 0 to 11
+        """
         if to_string:
-            return calendar.month_name[self.date.month]
-        return self.date.month - 1
+            return calendar.month_name[self._date.month]
+        # if to_object:
+        #     return Month(self._date.month)
+        return self._date.month - 1
 
     def get_date(self):
         """Returns the day of the month (from 1-31)"""
-        return self.date.day
+        return self._date.day
 
     def get_day(self, to_string=False):
         """Returns the day of the week (from 0-6 : Sunday-Saturday)
@@ -126,78 +168,78 @@ class Date:
             according to local time: 0 for Sunday, 1 for Monday, 2 for Tuesday, and so on
         """
         if to_string:
-            return calendar.day_name[self.date.weekday()]
-        pyweekday = self.date.isoweekday()
+            return calendar.day_name[self._date.weekday()]
+        pyweekday = self._date.isoweekday()
         return pyweekday if pyweekday < 6 else 0
 
     def get_hours(self):
         """Returns the hour (from 0-23)"""
-        return self.date.hour
+        return self._date.hour
 
     def get_minutes(self):
         """Returns the minutes (from 0-59)"""
-        return self.date.minute
+        return self._date.minute
 
     def get_seconds(self):
         """Returns the seconds (from 0-59)"""
-        return self.date.second
+        return self._date.second
 
     def get_milliseconds(self):
         """Returns the milliseconds (from 0-999)"""
-        return round(self.date.microsecond / 1000)
+        return round(self._date.microsecond / 1000)
 
     def get_time(self):
-        """Returns A number representing the milliseconds elapsed between 1 January 1970 00:00:00 UTC and self.date"""
+        """Returns A number representing the milliseconds elapsed between 1 January 1970 00:00:00 UTC and self._date"""
         epoch = datetime.datetime(1970, 1, 1)
-        self.date = self.date.replace(tzinfo=timezone.utc)
+        self._date = self._date.replace(tzinfo=timezone.utc)
         epoch = epoch.replace(tzinfo=timezone.utc)
-        return int((self.date - epoch).total_seconds() * 1000)
+        return int((self._date - epoch).total_seconds() * 1000)
 
     def get_timezone_offset(self):
         """Returns the difference, in minutes, between a date as evaluated in the UTC time zone,
         and the same date as evaluated in the local time zone"""
-        # return self.date.now().utcoffset().total_seconds() / 60  # TODO - TEST
-        # date1 = self.date.astimezone()
+        # return self._date.now().utcoffset().total_seconds() / 60  # TODO - TEST
+        # date1 = self._date.astimezone()
         # date1.replace(tzinfo = timezone.utc)
-        # date2 = self.date.astimezone()
+        # date2 = self._date.astimezone()
         # date2.replace(tzinfo=timezone.utc)
         raise NotImplementedError()
 
     def get_UTC_date(self):
         """Returns the day of the month, according to universal time (from 1-31)"""
-        return self.date.utcnow().month
+        return self._date.utcnow().month
 
     def getUTCDay(self):
         """Returns the day of the week, according to universal time (from 0-6)"""
-        return self.date.utcnow().day
+        return self._date.utcnow().day
 
     def getUTCFullYear(self):
         """Returns the year, according to universal time"""
-        return self.date.utcnow().year
+        return self._date.utcnow().year
 
     def getUTCHours(self):
         """Returns the hour, according to universal time (from 0-23)"""
-        return self.date.utcnow().hour
+        return self._date.utcnow().hour
 
     def getUTCMilliseconds(self):
         """Returns the milliseconds, according to universal time (from 0-999)"""
-        return round(self.date.utcnow().microsecond / 1000)
+        return round(self._date.utcnow().microsecond / 1000)
 
     def getUTCMinutes(self):
         """Returns the minutes, according to universal time (from 0-59)"""
-        return self.date.utcnow().minute
+        return self._date.utcnow().minute
 
     def getUTCMonth(self):
         """Returns the month, according to universal time (from 0-11)"""
-        return self.date.utcnow().month - 1
+        return self._date.utcnow().month - 1
 
     def getUTCSeconds(self):
         """Returns the seconds, according to universal time (from 0-59)"""
-        return self.date.utcnow().second
+        return self._date.utcnow().second
 
     def get_year(self):
         """Deprecated. Use the getFullYear() method instead"""
-        return self.date.year
+        return self._date.year
 
     @staticmethod
     def now():
@@ -206,7 +248,7 @@ class Date:
 
     def set_year(self, year):
         """Deprecated. Use the setFullYear() method instead"""
-        # self.date.replace(year=int(year))
+        # self._date.replace(year=int(year))
         # return self.get_time()
         # TODO - there may not be a date object already?
         return self.set_fullyear(year)
@@ -224,7 +266,7 @@ class Date:
         Returns:
             int: milliseconds between epoch and updated date.
         """
-        self.date = self.date.replace(year=int(yearValue))
+        self._date = self._date.replace(year=int(yearValue))
         if monthValue is not None:
             self.setMonth(monthValue)
         if dateValue is not None:
@@ -244,47 +286,31 @@ class Date:
         if monthValue == 0:
             monthValue = 1
 
-        # print(">>>>", monthValue)
         while monthValue > 11:
-            # print('im in here++++')
-            current_year = self.date.year
+            current_year = self._date.year
             self.set_fullyear(current_year + 1)
             monthValue -= 11
-            # self.date.replace(month=int(1))
 
         while monthValue < 0:
-            # print('im in here22++++')
-            current_year = self.date.year
+            current_year = self._date.year
             self.set_fullyear(current_year - 1)
             monthValue += 11
 
-        # print(">>>>", monthValue, dayValue)
         if monthValue > 0:
-
             # if the new month is less days. it will affect the result. i.e
             # js would progress to the next month and add the spare left over days
             # So if the current day is 31st August 2016. and you setMonth(1), it would be 2nd March.
             # as there's 29 days in February that year.
             # in python it will error as the new month has less days.
             # so we need to change it first.
-
-            # current_month = self.date.month
-            # days = calendar.monthrange(self.date.year, current_month)[1]
-            next_month_total_days = calendar.monthrange(self.date.year, monthValue)[1]
-            # print(self.get_month_length(self.date.month, self.date.year), self.get_date())
-            # leftovers = self.get_month_length(self.date.month, self.date.year) - self.get_date()
+            next_month_total_days = calendar.monthrange(self._date.year, monthValue)[1]
             leftovers = next_month_total_days - self.get_date()
             if leftovers < 0:
-                # if dayValue is None:
                 leftovers = abs(leftovers)
-                # print('leftovers:::', leftovers)
-                # if leftovers is greater than 0 we progress it twice and set the days to the leftovers
-                self.date = self.date.replace(day=int(leftovers)) # reset the day for now to not error
-                self.date = self.date.replace(month=int(monthValue+1))
+                self._date = self._date.replace(day=int(leftovers)) # reset the day for now to not error
+                self._date = self._date.replace(month=int(monthValue+1))
             else:
-                self.date = self.date.replace(month=int(monthValue))
-
-            # days_in_the_new_month = lambda d: calendar.monthrange(d.year, d.month)[1]
+                self._date = self._date.replace(month=int(monthValue))
 
         if dayValue is not None:
             self.setDate(dayValue)
@@ -306,50 +332,19 @@ class Date:
             int: milliseconds between epoch and updated date.
         """
         days_in_the_month = lambda d: calendar.monthrange(d.year, d.month)[1]
-        # print('I was told', day)
-        # print( (self.date.day + day) , days_in_the_month(self.date) )
-        # print( (self.date.day + day) > days_in_the_month(self.date) )
-        # # while (self.date.day + day) > days_in_the_month(self.date):
-        # while day > days_in_the_month(self.date):
-        #     current_month = self.date.month
-        #     diff = days_in_the_month(self.date) - (self.date.day+day)
-        #     self.date = self.date.replace(day=1) # set the day to start and update month
-        #     self.set_month(current_month + 1)
-        #     day = abs(diff) - 1  # carry the leftover and set the day to 0. and not sure with minus 1. i lost track of what i was doing. but it works!!
-
-        # while day < 0:
-        #     self.set_month(self.date.month - 1)
-        #     day = days_in_the_month(self.date) + abs(day)
-        #     print('ffs', day)
-        #     return self.set_date(day)
 
         if day < 0:
-            current_month = self.date.month
-            # self.set_month(current_month - 1) # this could have negative affect. due to how set_month works. it can also change the day. surely doesn't happen here as its backwards?
-            day = abs(day) + days_in_the_month(self.date)
-            # print('gosh:', day)
+            current_month = self._date.month
+            day = abs(day) + days_in_the_month(self._date)
             return self.set_date(day)
-            # return
 
-        # print("log >>>>", self.date.day, self.date.month, days_in_the_month(self.date))
-        # daystore = self.get_date()
-        while day > days_in_the_month(self.date):
-            day -= days_in_the_month(self.date)
-            current_month = self.date.month
-            self.date = self.date.replace(day=int(1)) # temp reset the day so we can set the
-            # self.set_month(current_month + 1) # # this could have negative affect. due to how set_month works. it can also change the day.
-
-            # if its now dec increase the year
-            if self.date.month == 11:
-                self.set_fullyear(self.date.year + 1)
-                current_month -= 11
-            self.date = self.date.replace(month=int(current_month+1))
-
-        # self.date = self.date.replace(month=int(current_month+1))
-        # print('days left:::', day)
+        while day > days_in_the_month(self._date):
+            day -= days_in_the_month(self._date)
+            self._date = self._date.replace(day=int(1))
+            self.set_month(self.month + 1)
 
         if day > 0:
-            self.date = self.date.replace(day=int(day))
+            self._date = self._date.replace(day=int(day))
         return self.get_time()
 
     def set_hours(
@@ -370,24 +365,17 @@ class Date:
         Returns:
             int: milliseconds between epoch and updated date.
         """
-
-        # print("HV>>>>", hoursValue, self.date.day)
         while hoursValue > 23:
-            current_day = self.date.day
-            # print('wtf?', current_day)
+            current_day = self._date.day
             self.set_date(current_day + 1)
             hoursValue -= 24
-            # self.date.replace(month=int(1))
 
         while hoursValue < 0:
-            current_day = self.date.day
+            current_day = self._date.day
             self.set_date(current_day - 1)
             hoursValue += 24
-            # self.date.replace(month=int(1))
 
-        # print("HV>>>>", hoursValue)
-
-        self.date = self.date.replace(hour=int(hoursValue))
+        self._date = self._date.replace(hour=int(hoursValue))
         if minutesValue is not None:
             self.setMinutes(minutesValue)
         if secondsValue is not None:
@@ -409,18 +397,17 @@ class Date:
         Returns:
             int: milliseconds between epoch and updated date.
         """
-        # print(">>>>", monthValue)
         while minutesValue > 59:
-            current_hour = self.date.hour
+            current_hour = self._date.hour
             self.set_hours(current_hour + 1)
             minutesValue -= 59
 
         while minutesValue < 0:
-            current_hour = self.date.hour
+            current_hour = self._date.hour
             self.set_hours(current_hour - 1)
-            minutesValue += 59
+            minutesValue += 60
 
-        self.date = self.date.replace(minute=int(minutesValue))
+        self._date = self._date.replace(minute=int(minutesValue))
         if secondsValue is not None:
             self.setSeconds(secondsValue)
         if msValue is not None:
@@ -439,17 +426,16 @@ class Date:
         """
 
         while secondsValue > 59:
-            current_minute = self.date.minute
+            current_minute = self._date.minute
             self.set_minutes(current_minute + 1)
             secondsValue -= 59
 
         while secondsValue < 0:
-            current_minute = self.date.minute
+            current_minute = self._date.minute
             self.set_minutes(current_minute - 1)
             secondsValue += 59
 
-        # if monthValue != 0:
-        self.date = self.date.replace(second=int(secondsValue))
+        self._date = self._date.replace(second=int(secondsValue))
 
         if msValue is not None:
             self.setMilliseconds(msValue)
@@ -462,7 +448,7 @@ class Date:
             milliseconds (int): Milliseconds to set i.e 123
         """
         microseconds = int(milliseconds) * 1000
-        self.date = self.date.replace(microsecond=microseconds)
+        self._date = self._date.replace(microsecond=microseconds)
         # return
 
     def set_time(self, milliseconds: int = None):
@@ -475,9 +461,9 @@ class Date:
             _type_: _description_
         """
         if milliseconds is None:
-            self.date = datetime.datetime.now()
+            self._date = datetime.datetime.now()
         else:
-            self.date = datetime.datetime.fromtimestamp(milliseconds / 1000)
+            self._date = datetime.datetime.fromtimestamp(milliseconds / 1000)
         return milliseconds
 
     def setUTCDate(self, day):
@@ -517,11 +503,11 @@ class Date:
 
     def toDateString(self):
         """Converts the date portion of a Date object into a readable string"""
-        return self.date.strftime("%Y-%m-%d")
+        return self._date.strftime("%Y-%m-%d")
 
     def toUTCString(self):
         """Converts a Date object to a string, according to universal time"""
-        return self.date.strftime("%Y-%m-%d %H:%M:%S")
+        return self._date.strftime("%Y-%m-%d %H:%M:%S")
 
     def toGMTString(self):
         """Deprecated. Use the toUTCString() method instead"""
@@ -529,47 +515,127 @@ class Date:
 
     def toJSON(self):
         """Returns the date as a string, formatted as a JSON date"""
-        return json.dumps(self.date.strftime("%Y-%m-%d"))
+        return json.dumps(self._date.strftime("%Y-%m-%d"))
 
     def toISOString(self):
         """Returns the date as a string, using the ISO standard"""
-        return self.date.strftime("%Y-%m-%d")
+        return self._date.strftime("%Y-%m-%d")
 
     def toLocaleDateString(self):
         """Returns the date portion of a Date object as a string, using locale conventions"""
-        return self.date.strftime("%x")
+        return self._date.strftime("%x")
 
     def toLocaleString(self):
         """Converts a Date object to a string, using locale conventions"""
-        return self.date.strftime("%x")
+        return self._date.strftime("%x")
 
     def toLocaleTimeString(self):
         """Returns the time portion of a Date object as a string, using locale conventions"""
-        return self.date.strftime("%X")
+        return self._date.strftime("%X")
 
     def toTimeString(self):
         """Converts the time portion of a Date object to a string"""
-        return self.date.strftime("%X")
+        return self._date.strftime("%X")
 
     def UTC(self):
         """Returns the number of milliseconds in a date since midnight of January 1, 1970, according to UTC time"""
-        return self.date.utcnow()
+        return self._date.utcnow()
+
+    @property
+    def year(self):
+        return self.get_fullyear()
+
+    @year.setter
+    def year(self, year):
+        self.set_year(year)
+
+    @property
+    def month(self):
+        return self.get_month()
+
+    @month.setter
+    def month(self, month):
+        self.set_month(month)
+
+    @property
+    def day(self):
+        return self.get_day()
+
+    @day.setter
+    def day(self, day):
+        self.set_day(day)
+
+    @property
+    def hours(self):
+        return self.get_hours()
+
+    @hours.setter
+    def hours(self, hours):
+        self.set_hours(hours)
+
+    @property
+    def minutes(self):
+        return self.get_minutes()
+
+    @minutes.setter
+    def minutes(self, minutes):
+        self.set_minutes(minutes)
+
+    @property
+    def seconds(self):
+        return self.get_seconds()
+
+    @seconds.setter
+    def seconds(self, seconds):
+        self.set_seconds(seconds)
+
+    @property
+    def milliseconds(self):
+        return self.get_milliseconds()
+
+    @milliseconds.setter
+    def milliseconds(self, milliseconds):
+        self.set_milliseconds(milliseconds)
+
+    @property
+    def time(self):
+        return self.get_time()
+
+    @time.setter
+    def time(self, time):
+        self.set_time(time)
+
+    @property
+    def date(self):
+        return self.get_date()
+
+    @date.setter
+    def date(self, date):
+        self.set_date(date)
+
+    # @property
+    # def day_of_week(self):
+    #     return self.get_day_of_week()
+
+    # @day_of_week.setter
+    # def day_of_week(self, day_of_week):
+    #     self.set_day_of_week(day_of_week)
 
     # TODO - add all dunders and test
     # def __eq__(self, other):
-    #     return self.date == other.date
+    #     return self._date == other.date
 
     # def __ne__(self, other):
-    #     return self.date != other.date
+    #     return self._date != other.date
 
     # def __lt__(self, other):
-    #     return self.date < other.date
+    #     return self._date < other.date
 
     # def __le__(self, other):
-    #     return self.date <= other.date
+    #     return self._date <= other.date
 
     # def __gt__(self, other):
-    #     return self.date > other.date
+    #     return self._date > other.date
 
     # def __ge__(self, other):
-    #     return self.date >= other.date
+    #     return self._date >= other.date

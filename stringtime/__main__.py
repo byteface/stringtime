@@ -2,6 +2,8 @@
     stringtime CLI entry point.
     ====================================
 
+    # TODO - unit tests for cli tool as this just bust after method change
+
 """
 
 import argparse
@@ -41,11 +43,8 @@ def do_things(arguments, parser):
         return __version__
     if arguments.phrase is not None:
         p = " ".join(arguments.phrase)
-        # print(p)
-        d = Date.from_phrase(p)
-        # print a calendar with the date highlighted
-        # import calendar
-        # print(calendar.month(d.get_year(), d.get_month()+1))
+        d = Date(p)
+        print(d)
 
 
 def run():
