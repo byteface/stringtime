@@ -18,6 +18,10 @@ d.get_day(to_string=True) # the day name, e.g. 'Monday'
 d.month  # the month 0-11
 d.hour  # the hour 0-23
 d.get_month(to_string=True) # the month name, e.g. 'January'
+
+# also wraps dateutil.parser so can parse full date strings
+d = Date("Sat Oct 11 17:13:46 UTC 2003")
+
 ```
 
 ## Installation

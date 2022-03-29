@@ -5,7 +5,7 @@ import time
 from datetime import timezone
 
 from dateutil.parser import parse, parserinfo
-
+from dateutil.parser._parser import ParserError
 # class Century():
 # class Decade():
 # class Year():
@@ -133,7 +133,13 @@ class Date:
                     year += 1900
                 return year
 
-        self._date = parse(date_string, MyParserInfo())
+        try:
+            self._date = parse(date_string, MyParserInfo())
+        except ParserError as e:
+            self._date = datetime.datetime.now()
+            print(f"Error parsing date from string '{date_string}', Date is now: {self._date}")
+            print(e)
+
         return self._date
 
     def get_fullyear(self):

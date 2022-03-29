@@ -73,6 +73,7 @@ class TestCaseStrict:
             ("as soon as possible", "2020-12-25 17:05:55"),
             ("asap", "2020-12-25 17:05:55"),
             ("here and now", "2020-12-25 17:05:55"),
+            ("Sat Oct 11 17:13:46 UTC 2003", "2003-10-11 17:13:46"),  # test fallover nicely to dateutil
             # ("In a decade", "2030-12-25 17:05:55"),
             # ("In a century", "2100-12-25 17:05:55"),
             # ("In a millennium", "2200-12-25 17:05:55"),

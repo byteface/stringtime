@@ -603,9 +603,14 @@ def replace_short_words(phrase):
 
 
 def Date(date, *args, **kwargs):
-    phrase = date.lower()
-    phrase = phrase.strip()
-    phrase = replace_short_words(phrase)
-    if is_now(phrase):
+    try:
+        phrase = date.lower()
+        phrase = phrase.strip()
+        phrase = replace_short_words(phrase)
+        if is_now(phrase):
+            return stDate()
+        return yacc.parse(phrase)[0]
+    except TypeError:
+        return stDate(date, *args, **kwargs)
+    except Exception as e:
         return stDate()
-    return yacc.parse(phrase)[0]
