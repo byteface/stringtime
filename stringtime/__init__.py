@@ -540,6 +540,24 @@ yacc.yacc()
 ###############################################################################
 
 
+def is_now(phrase):
+    """
+    Check if the phrase is "now".
+    These shouldn't need to go thru the parser.
+    """
+    return phrase.lower() in [
+        "now",
+        "right now",
+        "right away",
+        "immediately",
+        "straight away",
+        "at once",
+        "as soon as possible",
+        "asap",
+        "here and now",
+    ]
+
+
 def replace_short_words(phrase):
     """
     replace shortened words with normal equivalents
@@ -586,5 +604,8 @@ def replace_short_words(phrase):
 
 def Date(date, *args, **kwargs):
     phrase = date.lower()
+    phrase = phrase.strip()
     phrase = replace_short_words(phrase)
+    if is_now(phrase):
+        return stDate()
     return yacc.parse(phrase)[0]

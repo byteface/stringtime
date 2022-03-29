@@ -1,47 +1,14 @@
 Date from phrase… stringtodate, datestring, stringtime
 
 
-One week from now  - DONE
-In a minute - DONE
-In 15 minutes - DONE
-5 hours from now - DONE
-{number} {time} - DONE
-{number} {time} "from now" - DONE
-{number_word} {time} "from now" - DONE
-"In a" {time}  - DONE
-"In an" {time} - DONE
-"In a" {time} from now - DONE
-"In an" {time} from now - DONE
-
-// would be caught by above - STILL TODO
-"In" {number} {time} - DONE
-"In" {number_word} {time} "from now" - DONE
-
-Yesterday - DONE
-Yesterday at 5 - DONE
-
-{number} {time} "Ago" - DONE
-15 minutes ago - DONE
-
-
 Tomorrow at 3:0
-
 3.5 hrs from now
-
-
 on Tuesday
-
 1pm tues
-
 One o clock on Tuesday
-
 Last Friday at 3pm
-
 The day after 2moro
 The day before yesterday
-
-Now , Right away, Immediately,
-Never
 several hours from now
 In the Morro
 
