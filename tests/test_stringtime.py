@@ -10,21 +10,20 @@ import pytest
 import time_machine
 import datetime
 import stringtime
-from stringtime import get_date, Date
+from stringtime import Date
 
 
 def check_phrase(p: str):
     print('check_phrase:', p)
-    d = get_date(p)
+    d = Date(p)
     # print('  - The year is:::', d[0].get_year())
     # print('  - The month is:::', d[0].get_month(to_string=True))
     # print('  - The day is:::', d[0].get_date())
     # print('  - The hour is:::', d[0].get_hours())
     # print('  - The minute is:::', d[0].get_minutes())
     # print('  - The second is:::', d[0].get_seconds())
-    print('- The date is :::', str(d[0]))
-    return d[0]
-
+    print('- The date is :::', str(d))
+    return d
 
 # pytest -s -v tests/test_stringtime.py::TestCaseStrict::test_assert_phrases
 class TestCaseStrict:

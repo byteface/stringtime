@@ -10,6 +10,7 @@ from stringtime.date import Date as stDate
 
 # -----------------------------------------------------------------------------
 import warnings
+
 DEBUG = True
 try:
     ERR_ICN = "\U0000274C"
@@ -29,14 +30,15 @@ def stlog(msg: str, *args, lvl: str = None, **kwargs):
         return
     if lvl is None:
         print(msg, args, kwargs)
-    elif 'e' in lvl:  # error
+    elif "e" in lvl:  # error
         print(f"{ERR_ICN} \033[1;41m{msg}\033[1;0m", *args, kwargs)
-    elif 'w' in lvl:  # warning
+    elif "w" in lvl:  # warning
         print(f"{WARN_ICN} \033[1;31m{msg}\033[1;0m", *args, kwargs)
-    elif 'g' in lvl:  # green for good
+    elif "g" in lvl:  # green for good
         print(f"{OK_ICN} \033[1;32m{msg}\033[1;0m", *args, kwargs)
     # else:
     #     print(msg, *args, kwargs)
+
 
 # -----------------------------------------------------------------------------
 
@@ -240,7 +242,7 @@ class DateFactory:
         if year is not None:
             d.set_year(year)
         if month is not None:
-            d.set_month(month) # note - should this one be -1?
+            d.set_month(month)  # note - should this one be -1?
         if week is not None:
             d.set_week(week)
         if day is not None:
@@ -285,7 +287,7 @@ class DateFactory:
             stlog(
                 f"Creating new date {year} years from now: Current date:",
                 str(d),
-                lvl='g'
+                lvl="g",
             )
             current_year = d.get_year()
             d.set_fullyear(current_year + year)
@@ -302,7 +304,7 @@ class DateFactory:
             stlog(
                 f"Creating new date {week} weeks from now: Current date:",
                 str(d),
-                lvl='g',
+                lvl="g",
             )
             currrent_day = d.get_date()
             d.set_date(currrent_day + week * 7)
@@ -310,7 +312,7 @@ class DateFactory:
             stlog(
                 f"Creating new date {day} days from now: Current date:",
                 str(d),
-                lvl='g',
+                lvl="g",
             )
             currrent_day = d.get_date()
             d.set_date(currrent_day + day)
@@ -318,7 +320,7 @@ class DateFactory:
             stlog(
                 f"  - Creating new date {hour} hours from now: Current date:",
                 str(d),
-                lvl='g',
+                lvl="g",
             )
             currrent_hour = d.get_hours()
             d.set_hours(currrent_hour + hour)
@@ -326,7 +328,7 @@ class DateFactory:
             stlog(
                 f"  - Creating new date {minute} minutes from now: Current date:",
                 str(d),
-                lvl='g',
+                lvl="g",
             )
             currrent_minute = d.get_minutes()
             d.set_minutes(currrent_minute + minute)
@@ -334,7 +336,7 @@ class DateFactory:
             stlog(
                 f"  - Creating new date {second} seconds from now: Current date:",
                 str(d),
-                lvl='g',
+                lvl="g",
             )
             currrent_second = d.get_seconds()
             d.set_seconds(currrent_second + second)
@@ -466,7 +468,12 @@ def p_single_date_yesterday(p):
         params = {"day": -1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
-        params = {"day": stDate().get_date() - 1, "hour": p[3], "minute": 0, "second": 0}
+        params = {
+            "day": stDate().get_date() - 1,
+            "hour": p[3],
+            "minute": 0,
+            "second": 0,
+        }
         p[0] = DateFactory.create_date(**params)
 
 
@@ -480,7 +487,12 @@ def p_single_date_2moro(p):
         params = {"day": 1}
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
-        params = {"day": stDate().get_date() + 1, "hour": p[3], "minute": 0, "second": 0}
+        params = {
+            "day": stDate().get_date() + 1,
+            "hour": p[3],
+            "minute": 0,
+            "second": 0,
+        }
         p[0] = DateFactory.create_date(**params)
 
 

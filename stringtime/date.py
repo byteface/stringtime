@@ -10,8 +10,8 @@ import calendar
 # class Decade():
 # class Year():
 
-class Month:
 
+class Month:
     def __init__(self, month):
         self.month = month
         self.name = calendar.month_name[month]
@@ -42,7 +42,7 @@ class Date:
     def get_month_length(month, year):  # = None):
         """Returns the number of days in the current month"""
         # if year is None:
-            # use the current year
+        # use the current year
         return calendar.monthrange(year, month)[1]
 
     @staticmethod
@@ -67,7 +67,6 @@ class Date:
         d = Date()
         d.parse_date(str(date_string))
         return int(d.date.timestamp() * 1000)
-
 
     def __init__(self, date=None, *args, formatter="python", **kwargs):
         """A date object simliar to the js one.
@@ -307,8 +306,10 @@ class Date:
             leftovers = next_month_total_days - self.get_date()
             if leftovers < 0:
                 leftovers = abs(leftovers)
-                self._date = self._date.replace(day=int(leftovers)) # reset the day for now to not error
-                self._date = self._date.replace(month=int(monthValue+1))
+                self._date = self._date.replace(
+                    day=int(leftovers)
+                )  # reset the day for now to not error
+                self._date = self._date.replace(month=int(monthValue + 1))
             else:
                 self._date = self._date.replace(month=int(monthValue))
 
