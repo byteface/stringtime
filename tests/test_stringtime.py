@@ -5,16 +5,18 @@
 
 """
 
+import datetime
 import os
+
 import pytest
 import time_machine
-import datetime
+
 import stringtime
 from stringtime import Date
 
 
 def check_phrase(p: str):
-    print('check_phrase:', p)
+    print("check_phrase:", p)
     d = Date(p)
     # print('  - The year is:::', d[0].get_year())
     # print('  - The month is:::', d[0].get_month(to_string=True))
@@ -22,8 +24,9 @@ def check_phrase(p: str):
     # print('  - The hour is:::', d[0].get_hours())
     # print('  - The minute is:::', d[0].get_minutes())
     # print('  - The second is:::', d[0].get_seconds())
-    print('- The date is :::', str(d))
+    print("- The date is :::", str(d))
     return d
+
 
 # pytest -s -v tests/test_stringtime.py::TestCaseStrict::test_assert_phrases
 class TestCaseStrict:
@@ -61,8 +64,6 @@ class TestCaseStrict:
             ("1 hour before now", "2020-12-25 16:05:55"),
             ("1 hour after now", "2020-12-25 18:05:55"),
             ("1 hour ago", "2020-12-25 16:05:55"),
-
-
             # ("In a decade", "2030-12-25 17:05:55"),
             # ("In a century", "2100-12-25 17:05:55"),
             # ("In a millennium", "2200-12-25 17:05:55"),
@@ -107,7 +108,7 @@ class TestCaseStrict:
             # ("In 4 hours time", "2020-12-25 21:05:55"),
             # ("In 4 hours and 30 minutes time", "2020-12-25 21:35:55"),
             # ("In 4 hours and 30 minutes and 10 seconds time", "2020-12-25 21:35:15"),
-        ]
+        ],
     )
     @time_machine.travel(FAKE_NOW)
     def test_assert_phrases(self, test_input, expected):
@@ -159,7 +160,7 @@ class TestCaseLazy:
         # times = ['hour']
         # times = ['year', 'month', 'week', 'day']
         # times = ['year', 'month', 'week', 'day', 'hour', 'minute']
-        times = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second']
+        times = ["year", "month", "week", "day", "hour", "minute", "second"]
         for n in range(100):
             # print(n)
             for t in times:
@@ -172,7 +173,7 @@ class TestCaseLazy:
         # : x {time} time : i.e. '5 days time'
         for n in range(100):
             for t in times:
-                # plural
+                # plural
                 check_phrase(f"{n} {t}s time")
                 # w/o plural (bad grammar allowed)
                 check_phrase(f"{n} {t} time")
@@ -206,7 +207,9 @@ class TestCaseLazy:
             for t in times:
                 check_phrase(f"{n} {t}")
 
-        check_phrase("Today plus 1 hours")  # hmmm would this be 1 hour into next day? not current time?
+        check_phrase(
+            "Today plus 1 hours"
+        )  # hmmm would this be 1 hour into next day? not current time?
         check_phrase("now add 1 hours")
         check_phrase("In a minute")
         check_phrase("In an hour")
@@ -220,13 +223,13 @@ class TestCaseLazy:
         # tests for phrases that retrieve dates in the past
 
         # check_phrase("A minutes ago")  # fails when ticked over
-        check_phrase("1 minutes ago")  # fails when ticked over
+        check_phrase("1 minutes ago")  # fails when ticked over
 
         # check_phrase(f"20 mins ago")  # works
         # check_phrase(f"10 secs ago")  # works?
         # check_phrase(f"10 hrs ago")  # works
         # check_phrase(f"10 wks ago")  # works - large day negation
-        times = ['yr', 'mnth', 'wk', 'dy', 'hr', 'min', 'sec']
+        times = ["yr", "mnth", "wk", "dy", "hr", "min", "sec"]
         for n in range(100):
             for t in times:
                 check_phrase(f"{n} {t} ago")  # works
@@ -260,7 +263,15 @@ class TestCaseLazy:
 
         # check_phrase(f"Monday")
         # check_phrase(f"Last Tuesday")
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        days = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
         for d in days:
             check_phrase(f"{d}")
             # check_phrase(f"{d} at 5") # TODO
@@ -282,8 +293,7 @@ class TestCaseLazy:
 
             # check_phrase(f"Last {d} @ 11:15am")  #fails
 
-
     # def test_quick_check(self):
-        # TODO - maybe drop parsing when have enough info rather than create more conditions?
-        # check_phrase(f"In an hour from now") # fails
-        # check_phrase(f"In 10 minutes from now") #fails
+    # TODO - maybe drop parsing when have enough info rather than create more conditions?
+    # check_phrase(f"In an hour from now") # fails
+    # check_phrase(f"In 10 minutes from now") #fails

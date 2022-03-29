@@ -1,10 +1,10 @@
+import calendar
+import datetime
 import json
 import time
-import datetime
 from datetime import timezone
-from dateutil.parser import parse, parserinfo
-import calendar
 
+from dateutil.parser import parse, parserinfo
 
 # class Century():
 # class Decade():
@@ -156,7 +156,11 @@ class Date:
         return self._date.month - 1
 
     def get_date(self):
-        """Returns the day of the month (from 1-31)"""
+        """Returns the day of the month (from 1-31)
+
+        Returns:
+            int : The day of the month as an integer, in the range 1 to 31.
+        """
         return self._date.day
 
     def get_day(self, to_string=False):
@@ -172,19 +176,35 @@ class Date:
         return pyweekday if pyweekday < 6 else 0
 
     def get_hours(self):
-        """Returns the hour (from 0-23)"""
+        """Returns the hour (from 0-23)
+
+        Returns:
+            int: The hour as an integer, in the range 0 to 23.
+        """
         return self._date.hour
 
     def get_minutes(self):
-        """Returns the minutes (from 0-59)"""
+        """Returns the minutes (from 0-59)
+
+        Returns:
+            int: The minutes as an integer, in the range 0 to 59.
+        """
         return self._date.minute
 
     def get_seconds(self):
-        """Returns the seconds (from 0-59)"""
+        """Returns the seconds (from 0-59)
+
+        Returns:
+            int: The seconds as an integer, in the range 0 to 59.
+        """
         return self._date.second
 
     def get_milliseconds(self):
-        """Returns the milliseconds (from 0-999)"""
+        """Returns the milliseconds (from 0-999)
+
+        Returns:
+            int: The milliseconds as an integer, in the range 0 to 999.
+        """
         return round(self._date.microsecond / 1000)
 
     def get_time(self):
@@ -419,8 +439,8 @@ class Date:
         """Sets the seconds of a date object
 
         Args:
-            secondsValue (int): _description_
-            msValue (int, optional): _description_. Defaults to None.
+            secondsValue (int): an integer between 0 and 59
+            msValue (int, optional): a number between 0 and 999,
 
         Returns:
             int: milliseconds between epoch and updated date.
@@ -614,17 +634,18 @@ class Date:
     def date(self, date):
         self.set_date(date)
 
-    # @property
-    # def day_of_week(self):
-    #     return self.get_day_of_week()
+    def __repr__(self):
+        return "<Date: {}>".format(self)
 
-    # @day_of_week.setter
-    # def day_of_week(self, day_of_week):
-    #     self.set_day_of_week(day_of_week)
-
-    # TODO - add all dunders and test
-    # def __eq__(self, other):
-    #     return self._date == other.date
+    def __eq__(self, other):
+        try:
+            return self._date == other._date
+        except AttributeError:
+            if isinstance(other, datetime.datetime):
+                return self._date == other
+            # if isinstance(other, str):
+            #     return self._date.date() == other
+        return False
 
     # def __ne__(self, other):
     #     return self._date != other.date

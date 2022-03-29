@@ -11,8 +11,11 @@ test:
 # python3 -m unittest tests.test_stringtime.TestCase.test_phrases_past
 
 
-clean:
-	rm -r dir/
+lint:
+	black stringtime
+	isort stringtime
+	black tests
+	isort tests
 
 build:
 	rm -r dist/

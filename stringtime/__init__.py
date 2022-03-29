@@ -1,15 +1,13 @@
 __version__ = "0.0.3"
-__all__ = ["get_date", "Date"]
+__all__ = ["Date"]
 
 import re
+import warnings
 
 import ply.lex as lex
 import ply.yacc as yacc
 
 from stringtime.date import Date as stDate
-
-# -----------------------------------------------------------------------------
-import warnings
 
 DEBUG = True
 try:
@@ -548,6 +546,7 @@ def replace_short_words(phrase):
     """
 
     # TODO - regexes might be better here. allow space or number in front
+    # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
     phrase = phrase.replace("hr ", "hour")
     phrase = phrase.replace("hrs", "hour")
     phrase = phrase.replace("min ", "minute")
@@ -582,20 +581,7 @@ def replace_short_words(phrase):
     phrase = re.sub(r"\bsat\b", "saturday", phrase)
     phrase = re.sub(r"\bsun\b", "sunday", phrase)
 
-    # TODO - regexes might be better here. allow space or number in front
-    # import re
-    # replace '10hrs ' for '10 hour' using regex make sure either number or space are first
-    # print("BEFORE:", phrase)
-    # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
-    # print("A§AFTER:", phrase)
-
     return phrase
-
-
-# def get_date(phrase: str):
-#     phrase = phrase.lower()
-#     phrase = replace_short_words(phrase)
-#     return yacc.parse(phrase)
 
 
 def Date(date, *args, **kwargs):
