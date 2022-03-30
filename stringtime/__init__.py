@@ -205,20 +205,24 @@ def t_AFTER_TOMORROW(t):
     r"after\ tomorrow|after\ 2moro|after\ 2morro"
     return t
 
+
 # t_BEFORE_YESTERDAY = r"before\ yesterday|other\ day"
 def t_BEFORE_YESTERDAY(t):
     r"before\ yesterday|other\ day"
     # print('before yesterday detected!', t.value)
     return t
 
+
 t_TODAY = r"today"
 
 # t_AT = r"at|@"
+
 
 def t_AT(t):
     r"at|@"
     # print('@ detected!', t.value)
     return t
+
 
 t_ON = r"on"
 t_OF = r"of"
@@ -470,7 +474,7 @@ def p_single_date(p):
                     "second": 0,
                 }
                 p[0] = DateFactory.create_date(**params)
-            else: # number time
+            else:  # number time
                 params = {p[2]: p[1]}
                 p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
             return
@@ -666,6 +670,7 @@ def p_after_tomorrow(p):
     d.set_date(d.get_date() + 2)
     p[0] = d
 
+
 # date_end : THE NUMBER ?? allow
 def p_single_date_end(p):
     """
@@ -792,9 +797,9 @@ def replace_short_words(phrase):
     phrase = phrase.replace("decades", "10 years")
     # phrase = phrase.replace("millenium", "1000 years")
     # phrase = phrase.replace("millenia", "1000 years")
-    phrase = re.sub(r"\bmillenium\b",  "1000 years", phrase)
-    phrase = re.sub(r"\bmillennium\b",  "1000 years", phrase)
-    phrase = re.sub(r"\bmillenia\b",  "1000 years", phrase)
+    phrase = re.sub(r"\bmillenium\b", "1000 years", phrase)
+    phrase = re.sub(r"\bmillennium\b", "1000 years", phrase)
+    phrase = re.sub(r"\bmillenia\b", "1000 years", phrase)
 
     phrase = re.sub(r"\bmon\b", "monday", phrase)
     phrase = re.sub(r"\btues\b", "tuesday", phrase)
