@@ -123,7 +123,6 @@ class TestCaseStrict:
             # ("2 days time at 5", "2020-12-27 17:05:55"),
             # ("4 today", "2020-12-25 16:00:00"),
             # ("2moro at 3", "2020-12-27 03:00:00"),
-
         ],
     )
     @time_machine.travel(FAKE_NOW)
@@ -158,7 +157,10 @@ class TestCaseStrict:
     @pytest.mark.parametrize(
         "test_input, expected",
         [
-            ("Sat Oct 11 17:13:46 UTC 2003", "2003-10-11 17:13:46"),  # test fallover nicely to dateutil
+            (
+                "Sat Oct 11 17:13:46 UTC 2003",
+                "2003-10-11 17:13:46",
+            ),  # test fallover nicely to dateutil
         ],
     )
     @time_machine.travel(FAKE_NOW)

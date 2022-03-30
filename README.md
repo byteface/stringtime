@@ -63,6 +63,14 @@ Here's a list of example phrases that can be used...
 "1 hour ago"
 "This Friday at 1"
 "Last Wednesday at 5"
+# dates without a month specified will use the current month
+"12th"
+"The 8th"
+"On the 14th"
+"January 14th"
+"April the 1st"
+"32nd", # would move into the next month
+"The 18th of March"
 ```
 
 To see what else is underway check the tests/test_stringtime.py file.

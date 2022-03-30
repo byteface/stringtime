@@ -1,4 +1,4 @@
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __all__ = ["Date"]
 
 import re
@@ -68,8 +68,9 @@ tokens = (
 
 def t_DATE_END(t):
     r"st\b|nd\b|rd\b|th\b"
-    print('date-end detected!', t.value)
+    # print('date-end detected!', t.value)
     return t
+
 
 # def t_SPACE(t):
 #     r"\s+"
@@ -92,7 +93,7 @@ def t_MINUS(t):
 def t_NUMBER(t):
     r"\d+"
     t.value = int(t.value)
-    print('number detected!', t.value)
+    # print('number detected!', t.value)
     return t
 
 
@@ -177,6 +178,7 @@ t_DAY = r"monday|tuesday|wednesday|thursday|friday|saturday|sunday"
 
 t_MONTH = r"january|february|march|april|may|june|july|august|september|october|november|december"
 
+
 def t_TIME(t):
     r"years|months|weeks|days|hours|minutes|seconds|milliseconds|year|month|week|day|hour|minute|second|millisecond"
 
@@ -206,11 +208,11 @@ t_ON = r"on"
 t_OF = r"of"
 # t_THE = r"the"
 
+
 def t_THE(t):
     r"the"
-    print('the detected!', t.value)
+    # print('the detected!', t.value)
     return t
-
 
 
 t_YEAR = r"\d{4}"
@@ -554,9 +556,11 @@ def p_this_or_next_period(p):
             elif p[2] == "year":
                 d.set_year(d.get_year() - 1)
             elif p[2] == "month":
-                print(d.get_month())
-                d.set_month(d.get_month()) #-1)  #??? not sure why this is not -1???????. this must be a bug in set_month?
-                print(d.get_month())
+                # print(d.get_month())
+                d.set_month(
+                    d.get_month()
+                )  # -1)  #??? not sure why this is not -1???????. this must be a bug in set_month?
+                # print(d.get_month())
             # elif p[2] == "century":
             #     d.set_year(d.get_year() - 100)
         elif p[1] == "next":
@@ -730,8 +734,8 @@ def get_date(date, *args, **kwargs):
         return stDate()
 
 
-def Date(date=None, *args, length: int=None, **kwargs):
-    '''
+def Date(date=None, *args, length: int = None, **kwargs):
+    """
     # if 2nd argument is a string its a date range
     # if a length is passed, and there's a range, then we need to split it
     # by filling and array with dates between the range
@@ -755,5 +759,5 @@ def Date(date=None, *args, length: int=None, **kwargs):
             dates.append(second_date)
             return dates
         return [first_date, second_date]
-    '''
+    """
     return get_date(date)

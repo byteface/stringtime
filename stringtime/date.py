@@ -6,6 +6,7 @@ from datetime import timezone
 
 from dateutil.parser import parse, parserinfo
 from dateutil.parser._parser import ParserError
+
 # class Century():
 # class Decade():
 # class Year():
@@ -137,7 +138,9 @@ class Date:
             self._date = parse(date_string, MyParserInfo())
         except ParserError as e:
             self._date = datetime.datetime.now()
-            print(f"Error parsing date from string '{date_string}', Date is now: {self._date}")
+            print(
+                f"Error parsing date from string '{date_string}', Date is now: {self._date}"
+            )
             print(e)
 
         return self._date
@@ -332,7 +335,7 @@ class Date:
         Returns:
             int: milliseconds between epoch and updated date.
         """
-        print(monthValue, dayValue)
+        # print(monthValue, dayValue)
         if monthValue == 0:
             monthValue = 1
 
@@ -362,10 +365,10 @@ class Date:
                 )  # reset the day for now to not error
                 self._date = self._date.replace(month=int(monthValue + 1))
             else:
-                #??????? this can't be right.
+                # ??????? this can't be right.
                 self._date = self._date.replace(month=int(monthValue))
 
-        print("DONE:", monthValue, dayValue, self._date.month)
+        # print("DONE:", monthValue, dayValue, self._date.month)
 
         if dayValue is not None:
             self.setDate(dayValue)
