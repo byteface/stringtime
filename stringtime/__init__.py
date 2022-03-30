@@ -60,7 +60,16 @@ tokens = (
     "TODAY",
     "AT",
     "ON",
+    "OF",
+    "THE",
+    "DATE_END",
 )
+
+
+def t_DATE_END(t):
+    r"st\b|nd\b|rd\b|th\b"
+    print('date-end detected!', t.value)
+    return t
 
 # def t_SPACE(t):
 #     r"\s+"
@@ -83,6 +92,7 @@ def t_MINUS(t):
 def t_NUMBER(t):
     r"\d+"
     t.value = int(t.value)
+    print('number detected!', t.value)
     return t
 
 
@@ -165,6 +175,7 @@ def t_WORD_NUMBER(t):
 
 t_DAY = r"monday|tuesday|wednesday|thursday|friday|saturday|sunday"
 
+t_MONTH = r"january|february|march|april|may|june|july|august|september|october|november|december"
 
 def t_TIME(t):
     r"years|months|weeks|days|hours|minutes|seconds|milliseconds|year|month|week|day|hour|minute|second|millisecond"
@@ -192,6 +203,14 @@ t_THE_DAY_BEFORE_YESTERDAY = r"the day before yesterday"
 t_TODAY = r"today"
 t_AT = r"at|@"
 t_ON = r"on"
+t_OF = r"of"
+# t_THE = r"the"
+
+def t_THE(t):
+    r"the"
+    print('the detected!', t.value)
+    return t
+
 
 
 t_YEAR = r"\d{4}"
@@ -372,6 +391,8 @@ def p_date(p):
     date_list : date_yesterday
     date_list : date_2moro
     date_list : date_day
+    date_list : date_end
+    date_list : date_or
     """
     p[0] = [p[1]]
 
@@ -521,11 +542,84 @@ def p_single_date_day(p):
         p[0] = d
 
 
+def p_this_or_next_period(p):
+    """
+    date_or : PAST_PHRASE TIME
+    """
+    if len(p) == 3:
+        d = stDate()
+        if p[1] == "last":
+            if p[2] == "week":
+                d.set_date(d.get_date() - 7)
+            elif p[2] == "year":
+                d.set_year(d.get_year() - 1)
+            elif p[2] == "month":
+                print(d.get_month())
+                d.set_month(d.get_month()) #-1)  #??? not sure why this is not -1???????. this must be a bug in set_month?
+                print(d.get_month())
+            # elif p[2] == "century":
+            #     d.set_year(d.get_year() - 100)
+        elif p[1] == "next":
+            d.set_date(d.get_date() + 1)
+        p[0] = d
+
+
+# date_end : THE NUMBER ?? allow
+def p_single_date_end(p):
+    """
+    date_end : NUMBER DATE_END
+    date_end : THE NUMBER DATE_END
+    date_end : MONTH NUMBER DATE_END
+    date_end : NUMBER DATE_END OF MONTH
+    date_end : ON THE NUMBER DATE_END
+    date_end : MONTH THE NUMBER DATE_END
+    date_end : THE NUMBER DATE_END OF MONTH
+    """
+    # print('TWONKER')
+    if len(p) == 3:
+        # print('p:', p[1], p[2])
+        d = stDate()
+        d.set_date(p[1])
+        p[0] = d
+    if len(p) == 4:
+        # print('p-:', p[1], p[2], p[3])
+        d = stDate()
+        d.set_date(p[2])
+        # print(p[1], "the", p[1] == "the")
+        if p[1] == "the":  # the-2-nd
+            d.set_date(p[2])
+        else:  # january-14-th
+            # print('y!', p[1], p[2])
+            m = d.get_month_index_by_name(p[1])
+            # print('THE MONTH IS:',m)
+            d.set_month(m)
+            d.set_date(p[2])
+        p[0] = d
+    if len(p) == 5:
+        # print('p--:', p[1], p[2], p[3], p[4])
+        d = stDate()
+        if p[1] == "on":  # on-the-1-st
+            d.set_date(p[3])
+        else:  # april-the-1-st
+            # print('i think we are here::' , p[1], p[2], p[3], p[4])
+            m = d.get_month_index_by_name(p[1])
+            d.set_month(m)
+            # print('THE date is:', p[3])
+            d.set_date(p[3])
+            # print('THE date isaaa:', d.get_date())
+        p[0] = d
+    if len(p) == 6:
+        # print('p++:', p[1], p[2], p[3], p[4], p[5])
+        d = stDate()  # the-18-th-of-january
+        m = d.get_month_index_by_name(p[5])
+        d.set_month(m)
+        d.set_date(p[2])
+        p[0] = d
+
+
 # t_THE_DAY_AFTER_TOMORROW = r"the day after tomorrow|the day after 2moro|the day after 2morro"
 # t_THE_DAY_BEFORE_YESTERDAY = r"the day before yesterday"
 # t_TODAY = r"today"
-# t_AT = r"at|@"
-# t_ON = r"on"
 
 # "SAME TIME ON" # TODO----
 
@@ -555,6 +649,7 @@ def is_now(phrase):
         "as soon as possible",
         "asap",
         "here and now",
+        "today",  # this one also requires a token. i.e. today at 5pm
     ]
 
 
@@ -599,10 +694,24 @@ def replace_short_words(phrase):
     phrase = re.sub(r"\bsat\b", "saturday", phrase)
     phrase = re.sub(r"\bsun\b", "sunday", phrase)
 
+    phrase = re.sub(r"\bjan\b", "january", phrase)
+    phrase = re.sub(r"\bfeb\b", "february", phrase)
+    phrase = re.sub(r"\bmar\b", "march", phrase)
+    phrase = re.sub(r"\bapr\b", "april", phrase)
+    phrase = re.sub(r"\bmay\b", "may", phrase)
+    phrase = re.sub(r"\bjun\b", "june", phrase)
+    phrase = re.sub(r"\bjul\b", "july", phrase)
+    phrase = re.sub(r"\baug\b", "august", phrase)
+    phrase = re.sub(r"\bsept\b", "september", phrase)
+    phrase = re.sub(r"\bsep\b", "september", phrase)
+    phrase = re.sub(r"\boct\b", "october", phrase)
+    phrase = re.sub(r"\bnov\b", "november", phrase)
+    phrase = re.sub(r"\bdec\b", "december", phrase)
+
     return phrase
 
 
-def Date(date, *args, **kwargs):
+def get_date(date, *args, **kwargs):
     try:
         phrase = date.lower()
         phrase = phrase.strip()
@@ -610,7 +719,41 @@ def Date(date, *args, **kwargs):
         if is_now(phrase):
             return stDate()
         return yacc.parse(phrase)[0]
-    except TypeError:
+    except TypeError as e:
+        # if debug raise the error
+        if DEBUG:
+            raise e
         return stDate(date, *args, **kwargs)
     except Exception as e:
+        if DEBUG:
+            raise e
         return stDate()
+
+
+def Date(date=None, *args, length: int=None, **kwargs):
+    '''
+    # if 2nd argument is a string its a date range
+    # if a length is passed, and there's a range, then we need to split it
+    # by filling and array with dates between the range
+    # print(date, args)
+    if len(args) > 0 and isinstance(args[0], str):
+        first_date = get_date(date, *args, **kwargs)
+        second_date = get_date(args[0], *args, **kwargs)
+        if length:
+            # return [first_date + i for i in range(length)]
+            # get the difference between the two dates
+            diff = second_date.get_time() - first_date.get_time()
+            # divide by the length
+            diff = diff / length
+            # populate an array with the dates
+            dates = []
+            dates.append(first_date)
+            for i in range(length-2):
+                d = Date('now')
+                d.set_seconds(d.seconds + (diff/1000))
+                dates.append(d)
+            dates.append(second_date)
+            return dates
+        return [first_date, second_date]
+    '''
+    return get_date(date)

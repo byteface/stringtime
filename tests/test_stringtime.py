@@ -73,7 +73,10 @@ class TestCaseStrict:
             ("as soon as possible", "2020-12-25 17:05:55"),
             ("asap", "2020-12-25 17:05:55"),
             ("here and now", "2020-12-25 17:05:55"),
-            ("Sat Oct 11 17:13:46 UTC 2003", "2003-10-11 17:13:46"),  # test fallover nicely to dateutil
+            ("2 weeks from now", "2021-01-08 17:05:55"),
+            ("12th", "2020-12-12 17:05:55"),
+            # ("The 12th of last month", "2020-11-12 17:05:55"),
+            # ("12th of last month", "2020-11-12 17:05:55"),
             # ("In a decade", "2030-12-25 17:05:55"),
             # ("In a century", "2100-12-25 17:05:55"),
             # ("In a millennium", "2200-12-25 17:05:55"),
@@ -85,17 +88,18 @@ class TestCaseStrict:
             # ("The 29th of jly this yr", "2020-07-29 17:05:55"),
             # ("The 29th of jly next yr", "2021-07-29 17:05:55"),
             # ("The 29th of jly last yr", "2018-07-29 17:05:55"),
+            # ("The 12 th of last month", "2020-11-12 17:05:55"), #? allow errors like this?
             # ("Easter 2yrs ago", "2020-12-26 13:05:55"),
             # ("Easter 2yrs from now", "2020-12-26 13:05:55"),
-            # ("today", "2020-12-25 17:05:55"),
+            ("today", "2020-12-25 17:05:55"),
             # ("tomorrow", "2020-12-26 17:05:55"),
             # ("yesterday", "2020-12-24 17:05:55"),
-            # ("last week", "2020-12-18 17:05:55"),
-            # ("next week", "2020-12-25 17:05:55"),
-            # ("last month", "2020-11-25 17:05:55"),
-            # ("next month", "2020-12-25 17:05:55"),
-            # ("last year", "2019-12-25 17:05:55"),
-            # ("next year", "2021-12-25 17:05:55"),
+            ("last week", "2020-12-18 17:05:55"),
+            ("next week", "2021-01-01 17:05:55"),
+            ("last month", "2020-11-25 17:05:55"),
+            ("next month", "2021-01-25 17:05:55"),
+            ("last year", "2019-12-25 17:05:55"),
+            ("next year", "2021-12-25 17:05:55"),
             # ("last century", "2100-12-25 17:05:55"),
             # ("next century", "2200-12-25 17:05:55"),
             # ("this current moment", "2020-12-25 17:05:55"),
@@ -116,10 +120,50 @@ class TestCaseStrict:
             # ("In 4 hours time", "2020-12-25 21:05:55"),
             # ("In 4 hours and 30 minutes time", "2020-12-25 21:35:55"),
             # ("In 4 hours and 30 minutes and 10 seconds time", "2020-12-25 21:35:15"),
+            # ("2 days time at 5", "2020-12-27 17:05:55"),
+            # ("4 today", "2020-12-25 16:00:00"),
+            # ("2moro at 3", "2020-12-27 03:00:00"),
+
         ],
     )
     @time_machine.travel(FAKE_NOW)
     def test_assert_phrases(self, test_input, expected):
+        assert str(check_phrase(test_input)) == expected
+
+    @pytest.mark.parametrize(
+        "test_input, expected",
+        [
+            ("12th", "2020-12-12 17:05:55"),
+            ("12 th", "2020-12-12 17:05:55"),
+            ("The 8th", "2020-12-08 17:05:55"),
+            ("On the 14th", "2020-12-14 17:05:55"),
+            ("January 14th", "2020-01-14 17:05:55"),
+            ("April the 1st", "2020-04-01 17:05:55"),
+            ("April the 14th", "2020-04-14 17:05:55"),
+            ("November 2nd", "2020-11-02 17:05:55"),
+            ("1st", "2020-12-01 17:05:55"),
+            ("31st", "2020-12-31 17:05:55"),
+            ("32nd", "2021-01-01 17:05:55"),  # cheeky!
+            ("The 12th", "2020-12-12 17:05:55"),
+            ("The 18th of March", "2020-03-18 17:05:55"),
+            # ("The 12th of last month", "2020-11-12 17:05:55"),
+            # ("12th of last month", "2020-11-12 17:05:55"),
+            # ("The first of Feb last year", "2020-03-18 17:05:55"),
+        ],
+    )
+    @time_machine.travel(FAKE_NOW)
+    def test_assert_dates(self, test_input, expected):
+        assert str(check_phrase(test_input)) == expected
+
+    @pytest.mark.parametrize(
+        "test_input, expected",
+        [
+            ("Sat Oct 11 17:13:46 UTC 2003", "2003-10-11 17:13:46"),  # test fallover nicely to dateutil
+        ],
+    )
+    @time_machine.travel(FAKE_NOW)
+    def test_assert_DEBUG_OFF(self, mocker, test_input, expected):
+        mocker.patch("stringtime.DEBUG", False)
         assert str(check_phrase(test_input)) == expected
 
 

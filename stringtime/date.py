@@ -161,6 +161,30 @@ class Date:
         #     return Month(self._date.month)
         return self._date.month - 1
 
+    def get_month_index_by_name(self, name: str):
+        """Returns the month index from the month name
+
+        Args:
+            name (str): The month name
+
+        Returns:
+            int: The month index, from 0 to 11
+        """
+        return {
+            "january": 1,
+            "february": 2,
+            "march": 3,
+            "april": 4,
+            "may": 5,
+            "june": 6,
+            "july": 7,
+            "august": 8,
+            "september": 9,
+            "october": 10,
+            "november": 11,
+            "december": 12,
+        }[name]
+
     def get_date(self):
         """Returns the day of the month (from 1-31)
 
@@ -308,6 +332,7 @@ class Date:
         Returns:
             int: milliseconds between epoch and updated date.
         """
+        print(monthValue, dayValue)
         if monthValue == 0:
             monthValue = 1
 
@@ -337,7 +362,10 @@ class Date:
                 )  # reset the day for now to not error
                 self._date = self._date.replace(month=int(monthValue + 1))
             else:
+                #??????? this can't be right.
                 self._date = self._date.replace(month=int(monthValue))
+
+        print("DONE:", monthValue, dayValue, self._date.month)
 
         if dayValue is not None:
             self.setDate(dayValue)
