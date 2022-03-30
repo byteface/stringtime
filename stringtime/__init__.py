@@ -426,8 +426,14 @@ def p_single_date(p):
     date : PHRASE TIME PHRASE
     """
     if len(p) == 2:
+        print('a')
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
+        # print('bb', p[1], p[2])
+        if isinstance(p[1], int):
+            params = {p[2]: p[1]}
+            p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
+            return
         params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
         p[0] = DateFactory.create_date_with_offsets(**params)  # 'In a minute'
     elif len(p) == 4:
@@ -676,10 +682,13 @@ def is_now(phrase):
         "now",
         "right now",
         "right away",
+        "right this second",
+        "right this minute",
         "immediately",
         "straight away",
         "at once",
         "as soon as possible",
+        "this current moment",
         "asap",
         "here and now",
         "today",  # this one also requires a token. i.e. today at 5pm
@@ -711,9 +720,22 @@ def replace_short_words(phrase):
     phrase = phrase.replace("wks", "week")
     phrase = phrase.replace("yr", "year")
     phrase = phrase.replace("yrs", "year")
-    phrase = phrase.replace("ms", "millisecond")
-    phrase = phrase.replace("mil", "millisecond")
-    phrase = phrase.replace("mils", "millisecond")
+    # phrase = phrase.replace("ms", "millisecond")
+    # phrase = phrase.replace("mil", "millisecond")
+    phrase = re.sub(r"\bms\b", "millisecond", phrase)
+    phrase = re.sub(r"\bmil\b", "millisecond", phrase)
+    phrase = re.sub(r"\bmils\b", "millisecond", phrase)
+    # phrase = phrase.replace("mils", "millisecond")
+
+    phrase = phrase.replace("century", "100 years")
+    phrase = phrase.replace("centuries", "100 years")
+    phrase = phrase.replace("decade", "10 years")
+    phrase = phrase.replace("decades", "10 years")
+    # phrase = phrase.replace("millenium", "1000 years")
+    # phrase = phrase.replace("millenia", "1000 years")
+    phrase = re.sub(r"\bmillenium\b",  "1000 years", phrase)
+    phrase = re.sub(r"\bmillennium\b",  "1000 years", phrase)
+    phrase = re.sub(r"\bmillenia\b",  "1000 years", phrase)
 
     phrase = re.sub(r"\bmon\b", "monday", phrase)
     phrase = re.sub(r"\btues\b", "tuesday", phrase)
@@ -740,6 +762,13 @@ def replace_short_words(phrase):
     phrase = re.sub(r"\boct\b", "october", phrase)
     phrase = re.sub(r"\bnov\b", "november", phrase)
     phrase = re.sub(r"\bdec\b", "december", phrase)
+
+    # special cases
+    print('before:', phrase)
+    phrase = phrase.replace("a few", "3")
+    print('after:', phrase)
+    # phrase = re.sub(r"a few\b", "3", phrase)
+    # phrase = re.sub(r"\bseveral\b", "7", phrase)
 
     return phrase
 
