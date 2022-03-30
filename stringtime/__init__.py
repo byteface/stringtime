@@ -55,8 +55,8 @@ tokens = (
     # SPACE,
     "YESTERDAY",
     "TOMORROW",
-    "THE_DAY_AFTER_TOMORROW",
-    "THE_DAY_BEFORE_YESTERDAY",
+    "AFTER_TOMORROW",
+    "BEFORE_YESTERDAY",
     "TODAY",
     "AT",
     "ON",
@@ -182,6 +182,8 @@ t_MONTH = r"january|february|march|april|may|june|july|august|september|october|
 def t_TIME(t):
     r"years|months|weeks|days|hours|minutes|seconds|milliseconds|year|month|week|day|hour|minute|second|millisecond"
 
+    print('time detected!', t.value)
+
     if t.value.endswith("s"):
         t.value = t.value[:-1]
         # TODO - set a flag to indicate this is a plural
@@ -198,10 +200,17 @@ t_PAST_PHRASE = r"today\ minus|today\ take|today\ take\ away|now\ minus|now\ tak
 
 t_YESTERDAY = r"yesterday"
 t_TOMORROW = r"tomorrow|2moro|2morro"
-t_THE_DAY_AFTER_TOMORROW = (
-    r"the day after tomorrow|the day after 2moro|the day after 2morro"
-)
-t_THE_DAY_BEFORE_YESTERDAY = r"the day before yesterday"
+# t_AFTER_TOMORROW = r"after\ tomorrow|after\ 2moro|after\ 2morro"
+def t_AFTER_TOMORROW(t):
+    r"after\ tomorrow|after\ 2moro|after\ 2morro"
+    return t
+
+# t_BEFORE_YESTERDAY = r"before\ yesterday|other\ day"
+def t_BEFORE_YESTERDAY(t):
+    r"before\ yesterday|other\ day"
+    # print('before yesterday detected!', t.value)
+    return t
+
 t_TODAY = r"today"
 t_AT = r"at|@"
 t_ON = r"on"
@@ -211,7 +220,7 @@ t_OF = r"of"
 
 def t_THE(t):
     r"the"
-    # print('the detected!', t.value)
+    print('the detected!', t.value)
     return t
 
 
@@ -395,6 +404,8 @@ def p_date(p):
     date_list : date_day
     date_list : date_end
     date_list : date_or
+    date_list : date_before_yesterday
+    date_list : date_after_tomorrow
     """
     p[0] = [p[1]]
 
@@ -568,6 +579,27 @@ def p_this_or_next_period(p):
         p[0] = d
 
 
+def p_before_yesterday(p):
+    """
+    date_before_yesterday : BEFORE_YESTERDAY
+    date_before_yesterday : THE BEFORE_YESTERDAY
+    date_before_yesterday : THE TIME BEFORE_YESTERDAY
+    """
+    print('before_yesterday decteted')
+    d = stDate()
+    d.set_date(d.get_date() - 2)
+    p[0] = d
+
+
+def p_after_tomorrow(p):
+    """
+    date_after_tomorrow : AFTER_TOMORROW
+    date_after_tomorrow : THE TIME AFTER_TOMORROW
+    """
+    d = stDate()
+    d.set_date(d.get_date() + 2)
+    p[0] = d
+
 # date_end : THE NUMBER ?? allow
 def p_single_date_end(p):
     """
@@ -621,10 +653,7 @@ def p_single_date_end(p):
         p[0] = d
 
 
-# t_THE_DAY_AFTER_TOMORROW = r"the day after tomorrow|the day after 2moro|the day after 2morro"
-# t_THE_DAY_BEFORE_YESTERDAY = r"the day before yesterday"
 # t_TODAY = r"today"
-
 # "SAME TIME ON" # TODO----
 
 
