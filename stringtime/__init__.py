@@ -63,6 +63,8 @@ tokens = (
     "OF",
     "THE",
     "DATE_END",
+    "AM",
+    "PM",
 )
 
 
@@ -181,9 +183,7 @@ t_MONTH = r"january|february|march|april|may|june|july|august|september|october|
 
 def t_TIME(t):
     r"years|months|weeks|days|hours|minutes|seconds|milliseconds|year|month|week|day|hour|minute|second|millisecond"
-
-    print('time detected!', t.value)
-
+    # print('time detected!', t.value)
     if t.value.endswith("s"):
         t.value = t.value[:-1]
         # TODO - set a flag to indicate this is a plural
@@ -212,15 +212,34 @@ def t_BEFORE_YESTERDAY(t):
     return t
 
 t_TODAY = r"today"
-t_AT = r"at|@"
+
+# t_AT = r"at|@"
+
+def t_AT(t):
+    r"at|@"
+    # print('@ detected!', t.value)
+    return t
+
 t_ON = r"on"
 t_OF = r"of"
 # t_THE = r"the"
 
 
+def t_AM(t):
+    r"am"
+    # print('am:morning detected!', t.value)
+    return t
+
+
+def t_PM(t):
+    r"pm"
+    # print('pm:afternoon detected!', t.value)
+    return t
+
+
 def t_THE(t):
     r"the"
-    print('the detected!', t.value)
+    # print('the detected!', t.value)
     return t
 
 
@@ -418,6 +437,10 @@ def p_single_date(p):
     """
     date : TIME
     date : NUMBER TIME
+    date : NUMBER AM
+    date : NUMBER PM
+    date : AT NUMBER AM
+    date : AT NUMBER PM
     date : WORD_NUMBER TIME
     date : PHRASE TIME
     date : TIME PHRASE
@@ -426,17 +449,54 @@ def p_single_date(p):
     date : PHRASE TIME PHRASE
     """
     if len(p) == 2:
-        print('a')
         p[0] = DateFactory(p[1], 1)
     elif len(p) == 3:
         # print('bb', p[1], p[2])
         if isinstance(p[1], int):
-            params = {p[2]: p[1]}
-            p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
+            # 5-pm
+            if p[2] == "am":
+                if p[1] == 12:
+                    p[1] = 0
+                params = {
+                    "hour": p[1],
+                    "minute": 0,
+                    "second": 0,
+                }
+                p[0] = DateFactory.create_date(**params)
+            elif p[2] == "pm":
+                params = {
+                    "hour": p[1],
+                    "minute": 0,
+                    "second": 0,
+                }
+                p[0] = DateFactory.create_date(**params)
+            else: # number time
+                params = {p[2]: p[1]}
+                p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
             return
         params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
         p[0] = DateFactory.create_date_with_offsets(**params)  # 'In a minute'
     elif len(p) == 4:
+        # print("here we are", p[1], p[2], p[3])
+        if p[1] == "at" or p[1] == "@":
+            # at-3-am
+            if p[3] == "am":
+                if p[2] == 12:
+                    p[2] = 0
+                params = {
+                    "hour": p[2],
+                    "minute": 0,
+                    "second": 0,
+                }
+                p[0] = DateFactory.create_date(**params)
+            elif p[3] == "pm":
+                params = {
+                    "hour": p[2],
+                    "minute": 0,
+                    "second": 0,
+                }
+                p[0] = DateFactory.create_date(**params)
+            return
         if p[1] == "an":
             p[1] = 1  # if no number is passed, assume 1
         params = {p[2]: p[1]}  # TODO - prepend offset_ to the key
@@ -591,7 +651,7 @@ def p_before_yesterday(p):
     date_before_yesterday : THE BEFORE_YESTERDAY
     date_before_yesterday : THE TIME BEFORE_YESTERDAY
     """
-    print('before_yesterday decteted')
+    # print('before_yesterday decteted')
     d = stDate()
     d.set_date(d.get_date() - 2)
     p[0] = d
@@ -617,7 +677,6 @@ def p_single_date_end(p):
     date_end : MONTH THE NUMBER DATE_END
     date_end : THE NUMBER DATE_END OF MONTH
     """
-    # print('TWONKER')
     if len(p) == 3:
         # print('p:', p[1], p[2])
         d = stDate()
@@ -764,9 +823,7 @@ def replace_short_words(phrase):
     phrase = re.sub(r"\bdec\b", "december", phrase)
 
     # special cases
-    print('before:', phrase)
     phrase = phrase.replace("a few", "3")
-    print('after:', phrase)
     # phrase = re.sub(r"a few\b", "3", phrase)
     # phrase = re.sub(r"\bseveral\b", "7", phrase)
 
