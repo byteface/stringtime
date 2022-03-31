@@ -468,6 +468,8 @@ def p_single_date(p):
                 }
                 p[0] = DateFactory.create_date(**params)
             elif p[2] == "pm":
+                if p[1] < 12:
+                    p[1] += 12
                 params = {
                     "hour": p[1],
                     "minute": 0,
@@ -481,7 +483,7 @@ def p_single_date(p):
         params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
         p[0] = DateFactory.create_date_with_offsets(**params)  # 'In a minute'
     elif len(p) == 4:
-        # print("here we are", p[1], p[2], p[3])
+        # print("at-5-pm", p[1], p[2], p[3])
         if p[1] == "at" or p[1] == "@":
             # at-3-am
             if p[3] == "am":
@@ -494,6 +496,8 @@ def p_single_date(p):
                 }
                 p[0] = DateFactory.create_date(**params)
             elif p[3] == "pm":
+                if p[2] < 12:
+                    p[2] += 12
                 params = {
                     "hour": p[2],
                     "minute": 0,
