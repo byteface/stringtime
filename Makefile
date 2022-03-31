@@ -8,6 +8,7 @@ lint:
 	isort tests
 
 build:
+	sed -i '' "s/DEBUG = True/DEBUG = False/g" stringtime/__init__.py
 	rm -rf dist/
 	python3 setup.py sdist bdist_wheel
 	rm -r build/
