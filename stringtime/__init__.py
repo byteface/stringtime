@@ -1,4 +1,4 @@
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 __all__ = ["Date"]
 
 import re
@@ -65,7 +65,15 @@ tokens = (
     "DATE_END",
     "AM",
     "PM",
+    "A",
 )
+
+
+def t_A(t):
+    r"\ba\b"
+    t.value = 1
+    t.type = "NUMBER"
+    return t
 
 
 def t_DATE_END(t):
@@ -493,7 +501,9 @@ def p_single_date(p):
                 p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
             return
         if isinstance(p[2], str):
-            params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
+            params = {
+                p[2]: 1
+            }  # TODO - prepend offset_ to the key. passing 1 as no number
             p[0] = DateFactory.create_date_with_offsets(**params)  # 'a minute'
         else:
             params = {
@@ -661,7 +671,7 @@ def p_single_date_day(p):
     date_day : PHRASE DAY
     date_day : PAST_PHRASE DAY
     """
-    print('cool story bro!')
+    print("cool story bro!")
     if len(p) == 2:
         day_to_find = p[1]
         d = stDate()
@@ -692,7 +702,7 @@ def p_this_or_next_period(p):
     """
     date_or : PAST_PHRASE TIME
     """
-    print('this or next period!')
+    print("this or next period!")
     if len(p) == 3:
         d = stDate()
         if p[1] == "last":

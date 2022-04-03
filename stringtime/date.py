@@ -351,7 +351,9 @@ class Date:
             # as there's 29 days in February that year.
             # in python it will error as the new month has less days.
             # so we need to change it first.
-            next_month_total_days = calendar.monthrange(self._date.year, monthValue+1)[1]
+            next_month_total_days = calendar.monthrange(
+                self._date.year, monthValue + 1
+            )[1]
             leftovers = next_month_total_days - self.get_date()
             if leftovers < 0:
                 leftovers = abs(leftovers)
@@ -392,7 +394,7 @@ class Date:
         while day > days_in_the_month(self._date):
             day -= days_in_the_month(self._date)
             self._date = self._date.replace(day=int(1))
-            print('bump the month', self._date.month, self.month)
+            print("bump the month", self._date.month, self.month)
             self.set_month(self.month + 1)
 
         # print('days left::', day)

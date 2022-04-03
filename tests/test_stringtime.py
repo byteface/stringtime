@@ -45,7 +45,10 @@ class TestCaseStrict:
             # you'll lose time if its wrong so double check first
             ("In a day", "2020-12-26 17:05:55"),
             ("In a week", "2021-01-01 17:05:55"),
-            ("In a month", "2021-01-25 17:05:55"),  # bugs for me on local using todays date. not mocked.
+            (
+                "In a month",
+                "2021-01-25 17:05:55",
+            ),  # bugs for me on local using todays date. not mocked.
             ("In a year", "2021-12-25 17:05:55"),
             ("In 2 years", "2022-12-25 17:05:55"),
             ("20mins in the future", "2020-12-25 17:25:55"),
@@ -87,7 +90,7 @@ class TestCaseStrict:
             ("A few days ago", "2020-12-22 17:05:55"),
             ("A few days from now", "2020-12-28 17:05:55"),
             ("A few weeks ago", "2020-12-04 17:05:55"),
-            # ("A few weeks from now", "2020-12-04 17:05:55"), # wrong date. tho i woulda thought was same code block as the test above this one
+            ("A few weeks from now", "2021-01-15 17:05:55"),
             # ("The 12th of last month", "2020-11-12 17:05:55"),
             # ("12th of last month", "2020-12-12 17:05:55"),
             ("In a decade", "2030-12-25 17:05:55"),
@@ -135,7 +138,10 @@ class TestCaseStrict:
             ("5", "2020-12-25 05:00:00"),
             ("5 oclock", "2020-12-25 05:00:00"),
             ("at 5 oclock", "2020-12-25 05:00:00"),
-            ("wednesday at 5 pm", "2020-12-30 17:00:00"),  # ? should this be 5:00:00? - does if parsed by double phrase
+            (
+                "wednesday at 5 pm",
+                "2020-12-30 17:00:00",
+            ),  # ? should this be 5:00:00? - does if parsed by double phrase
             # ("at 5 pm on Wednesday", "2020-12-30 17:00:00"),
             ("Thursday at 2am", "2020-12-31 02:00:00"),
             ("Friday at 5am", "2020-12-25 05:00:00"),
@@ -145,20 +151,18 @@ class TestCaseStrict:
             # ("next century", "2200-12-25 17:05:55"),
             ("this current moment", "2020-12-25 17:05:55"),
             ("here and now", "2020-12-25 17:05:55"),
-
-            # ("a month ago", "2020-11-25 17:05:55"),
-            # ("a week ago", "2020-12-11 17:05:55"),
-            # ("a year ago", "2019-12-25 17:05:55"),
+            ("a month ago", "2020-11-25 17:05:55"),
+            ("a week ago", "2020-12-18 17:05:55"),
+            ("a year ago", "2019-12-25 17:05:55"),
             # ("a decade ago", "2010-12-25 17:05:55"),
             # ("a century ago", "2100-12-25 17:05:55"),
             # ("a millennium ago", "3000-12-25 17:05:55"),
             # ("a decade from now", "2030-12-25 17:05:55"),
             # ("a century from now", "2200-12-25 17:05:55"),
-            # ("a hour from now", "2020-12-25 18:05:55"),
-            # ("a year from now", "2021-12-25 17:05:55"),
-            # ("a month from now", "2021-01-25 17:05:55"),
-            # ("a week from now", "2021-01-11 17:05:55"),
-
+            ("a hour from now", "2020-12-25 18:05:55"),
+            ("a year from now", "2021-12-25 17:05:55"),
+            ("a month from now", "2021-01-25 17:05:55"),
+            ("a week from now", "2021-01-01 17:05:55"),
             # ("Next Monday @ 7:15pm", "2020-12-29 19:15:55"),
             # ("Last Friday @ 7:15pm", "2020-12-25 19:15:55"),
             # ("lst thurs @ nine fifteen", "2020-12-25 19:15:55"),
