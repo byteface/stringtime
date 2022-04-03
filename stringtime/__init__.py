@@ -9,7 +9,7 @@ import ply.yacc as yacc
 
 from stringtime.date import Date as stDate
 
-DEBUG = False
+DEBUG = True
 try:
     ERR_ICN = "\U0000274C"
     WARN_ICN = "\U000026A0"
@@ -634,10 +634,26 @@ def p_single_date_day(p):
         d = stDate()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
+            # print(day_to_find.lower(), d.get_day(to_string=True).lower())
             if p[1] == "last":
-                d.set_date(d.get_date() - 1)
+                # print("last", d.get_date())
+
+                # if its the 1st of the month, go back a month
+                # and set the day to the last day of the month
+                # try by forcing 2 day backwards? so its not minus 1 leaving 0?
+                if d.get_date() == 1:
+                    # print('here')
+                    # d.set_date(d.get_date() - 1)
+                    # d.set_day(d.get_last_day())
+                    d.set_date(d.get_date() - 2)
+                else:
+                    d.set_date(d.get_date() - 1)
+                # print("last2", d.get_date())
+                # raise Exception("last")
             elif p[1] == "next":
                 d.set_date(d.get_date() + 1)
+            else:
+                print("an infinite loop?")
 
         p[0] = d
 

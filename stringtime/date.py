@@ -339,15 +339,15 @@ class Date:
         if monthValue == 0:
             monthValue = 1
 
-        while monthValue > 11:
-            current_year = self._date.year
-            self.set_fullyear(current_year + 1)
-            monthValue -= 11
-
         while monthValue < 0:
             current_year = self._date.year
             self.set_fullyear(current_year - 1)
             monthValue += 11
+
+        while monthValue > 11:
+            current_year = self._date.year
+            self.set_fullyear(current_year + 1)
+            monthValue -= 11
 
         if monthValue > 0:
             # if the new month is less days. it will affect the result. i.e
@@ -391,10 +391,10 @@ class Date:
         """
         days_in_the_month = lambda d: calendar.monthrange(d.year, d.month)[1]
 
-        if day < 0:
+        while day < 0:
             current_month = self._date.month
-            day = abs(day) + days_in_the_month(self._date)
-            return self.set_date(day)
+            self.set_month(current_month - 1)
+            day += days_in_the_month(self._date)
 
         while day > days_in_the_month(self._date):
             day -= days_in_the_month(self._date)

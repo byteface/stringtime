@@ -1,11 +1,12 @@
 test:
 	python3 -m pytest -vvv tests/
 
+testp:
+	python3 -m pytest -vvv -s tests/
+
 lint:
-	black stringtime
-	isort stringtime
-	black tests
-	isort tests
+	black stringtime tests
+	isort stringtime tests
 
 build:
 	sed -i '' "s/DEBUG = True/DEBUG = False/g" stringtime/__init__.py
