@@ -163,6 +163,8 @@ class TestCaseStrict:
             ("a year from now", "2021-12-25 17:05:55"),
             ("a month from now", "2021-01-25 17:05:55"),
             ("a week from now", "2021-01-01 17:05:55"),
+            ("2:57", "2020-12-25 02:57:00"),
+            # ("Next Monday @ 7:15", "2020-12-29 19:15:55"),
             # ("Next Monday @ 7:15pm", "2020-12-29 19:15:55"),
             # ("Last Friday @ 7:15pm", "2020-12-25 19:15:55"),
             # ("lst thurs @ nine fifteen", "2020-12-25 19:15:55"),

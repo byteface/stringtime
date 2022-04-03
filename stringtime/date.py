@@ -394,10 +394,7 @@ class Date:
         while day > days_in_the_month(self._date):
             day -= days_in_the_month(self._date)
             self._date = self._date.replace(day=int(1))
-            print("bump the month", self._date.month, self.month)
             self.set_month(self.month + 1)
-
-        # print('days left::', day)
 
         if day > 0:
             self._date = self._date.replace(day=int(day))

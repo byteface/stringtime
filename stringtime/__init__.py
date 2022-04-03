@@ -66,8 +66,16 @@ tokens = (
     "AM",
     "PM",
     "A",
+    "COLON",
+    # "DATESTAMP",
+    # "TIMESTAMP",
 )
 
+
+def t_COLON(t):
+    r":"
+    # print('colon detected!', t.value)
+    return t
 
 def t_A(t):
     r"\ba\b"
@@ -105,6 +113,22 @@ def t_NUMBER(t):
     t.value = int(t.value)
     # print('number detected!', t.value)
     return t
+
+
+# \d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}|\d{2}-\d{2}
+# strings in the form: 2020-12-24 or 2020/12/24 or 2020|12|24
+# strings in the form: 2020-12 or 12/24 or 2020|12
+# def t_DATESTAMP(t):
+#     r"\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}|\d{2}-\d{2}|\d{4}/\d{2}/\d{2}|\d{4}/\d{2}|\d{4}|\d{2}/\d{2}|\d{4}|\d{2}|\d{2}|\d{4}|\d{2}|\d{4}|\d{2}|\d{2}"
+#     print('datestamp detected!', t.value)
+#     return t
+
+
+# # strings in the form: 04:00:00
+# def t_TIMESTAMP(t):
+#     r"\d{2}:\d{2}:\d{2}|\d{2}:\d{2}|\d{2}:\d{2}\.\d{3}"
+#     print('timestamp detected!', t.value)
+#     return t
 
 
 # t_WORD_NUMBER = (
@@ -347,7 +371,7 @@ class DateFactory:
         d = stDate()
         if year is not None:
             stlog(
-                f"Creating new date {year} years from now: Current date:",
+                f"Increasing years by {year}",
                 str(d),
                 lvl="g",
             )
@@ -355,7 +379,7 @@ class DateFactory:
             d.set_fullyear(current_year + year)
         if month is not None:
             stlog(
-                f"Creating new date {month} months from now: Current date:",
+                f"Increasing months by {month}",
                 str(d),
             )
             currrent_month = d.get_month()
@@ -364,7 +388,7 @@ class DateFactory:
             )  # note the minus one is because Date expects 0-11 but humans say 1-12. wrong cos its the offset?
         if week is not None:
             stlog(
-                f"Creating new date {week} weeks from now: Current date:",
+                f"Increasing weeks by {week}",
                 str(d),
                 lvl="g",
             )
@@ -372,7 +396,7 @@ class DateFactory:
             d.set_date(currrent_day + week * 7)
         if day is not None:
             stlog(
-                f"Creating new date {day} days from now: Current date:",
+                f"Increasing days by {day}",
                 str(d),
                 lvl="g",
             )
@@ -380,7 +404,7 @@ class DateFactory:
             d.set_date(currrent_day + day)
         if hour is not None:
             stlog(
-                f"  - Creating new date {hour} hours from now: Current date:",
+                f"Increasing hours by {hour}",
                 str(d),
                 lvl="g",
             )
@@ -388,7 +412,7 @@ class DateFactory:
             d.set_hours(currrent_hour + hour)
         if minute is not None:
             stlog(
-                f"  - Creating new date {minute} minutes from now: Current date:",
+                f"Increasing minutes by {minute}",
                 str(d),
                 lvl="g",
             )
@@ -396,7 +420,7 @@ class DateFactory:
             d.set_minutes(currrent_minute + minute)
         if second is not None:
             stlog(
-                f"  - Creating new date {second} seconds from now: Current date:",
+                f"Increasing seconds by {second}",
                 str(d),
                 lvl="g",
             )
@@ -441,8 +465,42 @@ def p_date(p):
     date_list : date_before_yesterday
     date_list : date_after_tomorrow
     date_list : date_twice
+    date_list : timestamp
     """
     p[0] = [p[1]]
+
+
+# def p_datestamp(p):
+#     """
+#     datestamp : NUMBER MINUS NUMBER
+#     datestamp : NUMBER MINUS NUMBER MINUS NUMBER
+#     """
+#     if len(p) == 4:
+#         p[0] = stDate.create_date_with_offsets(
+#             year=p[1], month=p[2], day=p[3]
+#         )
+
+
+def p_timestamp(p):
+    """
+    timestamp : NUMBER COLON NUMBER
+    timestamp : AT NUMBER COLON NUMBER
+    timestamp : NUMBER COLON NUMBER COLON NUMBER
+    timestamp : AT NUMBER COLON NUMBER COLON NUMBER
+    """
+    print('this should get picked up!')
+    if len(p) == 4:
+        params = {"hour": p[1], "minute": p[3], "second": 0}
+        p[0] = DateFactory.create_date(**params)
+    if len(p) == 5:  # at xx:xx
+        params = {"hour": p[2], "minute": p[4], "second": 0}
+        p[0] = DateFactory.create_date(**params)
+    elif len(p) == 6:
+        params = {"hour": p[1], "minute": p[3], "second": p[5]}
+        p[0] = DateFactory.create_date(**params)
+    elif len(p) == 7:  # at xx:xx:xx
+        params = {"hour": p[2], "minute": p[4], "second": p[6]}
+        p[0] = DateFactory.create_date(**params)
 
 
 # TIME - not strictly valid. but should do a single unit of that time
