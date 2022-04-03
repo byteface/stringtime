@@ -520,8 +520,29 @@ def p_twice(p):
     print('DOUBLE DATE!', p[1], p[2])
     # i.e. 2 days time at 4pm
     # everything different to 'now' on each date added to a new date
+    # rules in 2nd will have to always replace the first.
+    # for each prop.
+        # if its not 'now' use it over the first
+
+    now = stDate()
+    d = p[1]
+    d2 = p[2]
+
+    if d2.get_year() != now.get_year():
+        d.set_year(d2.get_year())
+    if d2.get_month() != now.get_month():
+        d.set_month(d2.get_month())
+    if d2.get_date() != now.get_date():
+        d.set_date(d2.get_date())
+    if d2.get_hours() != now.get_hours():
+        d.set_hours(d2.get_hours())
+    if d2.get_minutes() != now.get_minutes():
+        d.set_minutes(d2.get_minutes())
+    if d2.get_seconds() != now.get_seconds():
+        d.set_seconds(d2.get_seconds())
+
     # not quite right. but almost...
-    p[0] = p[2]  #[p[1], p[2]]
+    p[0] = d  #p[2]  #[p[1], p[2]]
 
 
 # in : PHRASE WORD_NUMBER TIME?? not getting converted

@@ -121,6 +121,7 @@ class TestCaseStrict:
             ("Thursday", "2020-12-31 17:05:55"),  # first THURSDAY relative to FAKE DATE
             ("Friday", "2020-12-25 17:05:55"),  # first FRIDAY relative to FAKE DATE
             ("on Wednesday",  "2020-12-30 17:05:55"),
+            ("2 days time at 4pm",  "2020-12-27 16:00:00"), # DOUBLE DATE TEST
             # ("at 5", "2020-12-30 17:00:00"),
             # ("@1", "2020-12-25 01:00:00"),
             # ("5", "2020-12-25 17:00:00"),
