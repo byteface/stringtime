@@ -95,7 +95,6 @@ class Date:
                 date = str(date)
             for arg in args:
                 date += " " + str(arg)
-            # print("date is:::::::::::::::::::::::::::::::::::::", date)
             date = date.strip()
             if date == "":
                 date = None
@@ -174,18 +173,18 @@ class Date:
             int: The month index, from 0 to 11
         """
         return {
-            "january": 1,
-            "february": 2,
-            "march": 3,
-            "april": 4,
-            "may": 5,
-            "june": 6,
-            "july": 7,
-            "august": 8,
-            "september": 9,
-            "october": 10,
-            "november": 11,
-            "december": 12,
+            "january": 0,
+            "february": 1,
+            "march": 2,
+            "april": 3,
+            "may": 4,
+            "june": 5,
+            "july": 6,
+            "august": 7,
+            "september": 8,
+            "october": 9,
+            "november": 10,
+            "december": 11,
         }[name]
 
     def get_date(self):
@@ -335,10 +334,6 @@ class Date:
         Returns:
             int: milliseconds between epoch and updated date.
         """
-        # print(monthValue, dayValue)
-        if monthValue == 0:
-            monthValue = 1
-
         while monthValue < 0:
             current_year = self._date.year
             self.set_fullyear(current_year - 1)
@@ -347,16 +342,16 @@ class Date:
         while monthValue > 11:
             current_year = self._date.year
             self.set_fullyear(current_year + 1)
-            monthValue -= 11
+            monthValue -= 12
 
-        if monthValue > 0:
+        if monthValue >= 0:
             # if the new month is less days. it will affect the result. i.e
             # js would progress to the next month and add the spare left over days
             # So if the current day is 31st August 2016. and you setMonth(1), it would be 2nd March.
             # as there's 29 days in February that year.
             # in python it will error as the new month has less days.
             # so we need to change it first.
-            next_month_total_days = calendar.monthrange(self._date.year, monthValue)[1]
+            next_month_total_days = calendar.monthrange(self._date.year, monthValue+1)[1]
             leftovers = next_month_total_days - self.get_date()
             if leftovers < 0:
                 leftovers = abs(leftovers)
@@ -364,11 +359,9 @@ class Date:
                     day=int(leftovers)
                 )  # reset the day for now to not error
                 self._date = self._date.replace(month=int(monthValue + 1))
+                self._date = self._date.replace(day=leftovers)
             else:
-                # ??????? this can't be right.
-                self._date = self._date.replace(month=int(monthValue))
-
-        # print("DONE:", monthValue, dayValue, self._date.month)
+                self._date = self._date.replace(month=int(monthValue + 1))
 
         if dayValue is not None:
             self.setDate(dayValue)
@@ -399,7 +392,10 @@ class Date:
         while day > days_in_the_month(self._date):
             day -= days_in_the_month(self._date)
             self._date = self._date.replace(day=int(1))
+            print('bump the month', self._date.month, self.month)
             self.set_month(self.month + 1)
+
+        # print('days left::', day)
 
         if day > 0:
             self._date = self._date.replace(day=int(day))

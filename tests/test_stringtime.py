@@ -45,7 +45,7 @@ class TestCaseStrict:
             # you'll lose time if its wrong so double check first
             ("In a day", "2020-12-26 17:05:55"),
             ("In a week", "2021-01-01 17:05:55"),
-            ("In a month", "2021-01-25 17:05:55"),
+            ("In a month", "2021-01-25 17:05:55"),  # bugs for me on local using todays date. not mocked.
             ("In a year", "2021-12-25 17:05:55"),
             ("In 2 years", "2022-12-25 17:05:55"),
             ("20mins in the future", "2020-12-25 17:25:55"),
@@ -86,12 +86,13 @@ class TestCaseStrict:
             ("A few months away", "2021-03-25 17:05:55"),
             ("A few days ago", "2020-12-22 17:05:55"),
             ("A few days from now", "2020-12-28 17:05:55"),
-            # ("A few weeks ago", "2020-12-04 17:05:55"),
-            # ("A few weeks from now", "2021-01-04 17:05:55"),
+            ("A few weeks ago", "2020-12-04 17:05:55"),
+            # ("A few weeks from now", "2020-12-04 17:05:55"), # wrong date. tho i woulda thought was same code block as the test above this one
             # ("The 12th of last month", "2020-11-12 17:05:55"),
-            # ("12th of last month", "2020-11-12 17:05:55"),
+            # ("12th of last month", "2020-12-12 17:05:55"),
             ("In a decade", "2030-12-25 17:05:55"),
             ("In a century", "2120-12-25 17:05:55"),
+            # ("2 centuries", "2220-12-25 17:05:55"),
             ("In a millennium", "3020-12-25 17:05:55"),
             # ("In a century and a half", "2120-12-25 17:05:55"),
             # ("In a millennium and a half", "2300-12-25 17:05:55"),
@@ -129,19 +130,35 @@ class TestCaseStrict:
                 "2020-12-27 16:00:00",
             ),  # DOUBLE DATE TEST (2days,at4pm). parses 2 phrases and merges
             ("2moro at 1", "2020-12-26 01:00:00"),
-            # ("at 5", "2020-12-30 17:00:00"),
-            # ("@1", "2020-12-25 01:00:00"),
-            # ("5", "2020-12-25 17:00:00"),
-            # ("at 5 oclock", "2020-12-25 05:00:00"),
-            # ("5 oclock", "2020-12-25 05:00:00"),
-            ("wednesday at 5 pm", "2020-12-30 17:05:55"),  # ? should this be 5:00:00?
-            # ("at 5 pm on Wednesday", "2020-12-?? 17:00:00"),
-            # ("Friday at 5am", "2020-12-25 05:00:00"),
-            # ("Friday at 5 PM", "2020-12-25 17:05:55"),
+            ("at 5", "2020-12-25 05:00:00"),
+            ("@1", "2020-12-25 01:00:00"),
+            ("5", "2020-12-25 05:00:00"),
+            ("5 oclock", "2020-12-25 05:00:00"),
+            ("at 5 oclock", "2020-12-25 05:00:00"),
+            ("wednesday at 5 pm", "2020-12-30 17:00:00"),  # ? should this be 5:00:00? - does if parsed by double phrase
+            # ("at 5 pm on Wednesday", "2020-12-30 17:00:00"),
+            ("Thursday at 2am", "2020-12-31 02:00:00"),
+            ("Friday at 5am", "2020-12-25 05:00:00"),
+            ("Friday at 5 PM", "2020-12-25 17:00:00"),
+            ("Last Thursday at 4am", "2020-12-24 04:00:00"),
             # ("last century", "2100-12-25 17:05:55"),
             # ("next century", "2200-12-25 17:05:55"),
             ("this current moment", "2020-12-25 17:05:55"),
             ("here and now", "2020-12-25 17:05:55"),
+
+            # ("a month ago", "2020-11-25 17:05:55"),
+            # ("a week ago", "2020-12-11 17:05:55"),
+            # ("a year ago", "2019-12-25 17:05:55"),
+            # ("a decade ago", "2010-12-25 17:05:55"),
+            # ("a century ago", "2100-12-25 17:05:55"),
+            # ("a millennium ago", "3000-12-25 17:05:55"),
+            # ("a decade from now", "2030-12-25 17:05:55"),
+            # ("a century from now", "2200-12-25 17:05:55"),
+            # ("a hour from now", "2020-12-25 18:05:55"),
+            # ("a year from now", "2021-12-25 17:05:55"),
+            # ("a month from now", "2021-01-25 17:05:55"),
+            # ("a week from now", "2021-01-11 17:05:55"),
+
             # ("Next Monday @ 7:15pm", "2020-12-29 19:15:55"),
             # ("Last Friday @ 7:15pm", "2020-12-25 19:15:55"),
             # ("lst thurs @ nine fifteen", "2020-12-25 19:15:55"),
@@ -159,7 +176,7 @@ class TestCaseStrict:
             # ("In 4 hours and 30 minutes and 10 seconds time", "2020-12-25 21:35:15"),
             # ("2 days time at 5", "2020-12-27 17:05:55"),
             # ("4 today", "2020-12-25 16:00:00"),
-            # ("2moro at 3", "2020-12-27 03:00:00"),
+            ("2moro at 3", "2020-12-26 03:00:00"),
             # ("Monday before last", "2020-12-22 17:05:55"),?date
         ],
     )
@@ -195,6 +212,8 @@ class TestCaseStrict:
     @pytest.mark.parametrize(
         "test_input, expected",
         [
+            ("19:35:55", "2020-12-25 19:35:55"),  # timestamps only
+            ("2020-12-23", "2020-12-23 00:00:00"),  # datestamps only
             ("", "2020-12-25 17:05:55"),  # no date returns today
             (
                 "Sat Oct 11 17:13:46 UTC 2003",
@@ -300,10 +319,7 @@ class TestCaseLazy:
         # check_phrase("A minutes ago")  # fails when ticked over
         check_phrase("1 minutes ago")  # fails when ticked over
 
-        # check_phrase(f"20 mins ago")  # works
-        # check_phrase(f"10 secs ago")  # works?
-        # check_phrase(f"10 hrs ago")  # works
-        # check_phrase(f"10 wks ago")  # works - large day negation
+        # 20 mins ago, 10 secs ago, 10 hrs ago, 10 wks ago
         times = ["yr", "mnth", "wk", "dy", "hr", "min", "sec"]
         for n in range(100):
             for t in times:

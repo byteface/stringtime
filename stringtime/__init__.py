@@ -9,7 +9,7 @@ import ply.yacc as yacc
 
 from stringtime.date import Date as stDate
 
-DEBUG = False
+DEBUG = True
 try:
     ERR_ICN = "\U0000274C"
     WARN_ICN = "\U000026A0"
@@ -277,9 +277,11 @@ class DateFactory:
     ):
         """creates a date with fixed props
 
+        unlike datatime it uses 0 indexing for months
+
         Args:
             year (_type_, optional): The year. Defaults to None.
-            month (_type_, optional): The month. Defaults to None.
+            month (_type_, optional): the month (0-11). Defaults to None.
             week (_type_, optional): _description_. Defaults to None.
             day (_type_, optional): _description_. Defaults to None.
             hour (_type_, optional): _description_. Defaults to None.
@@ -293,7 +295,7 @@ class DateFactory:
         if year is not None:
             d.set_year(year)
         if month is not None:
-            d.set_month(month)  # note - should this one be -1?
+            d.set_month(month)
         if week is not None:
             d.set_week(week)
         if day is not None:
@@ -332,6 +334,7 @@ class DateFactory:
         Returns:
             Date : Returns a Date object with the offsets applied.
         """
+        # print("Creating date!!", year, month, week, day, hour, minute, second)
         # TODO - should maybe optionally pass and remember the phrase on a new 'description' prop on Date...?
         d = stDate()
         if year is not None:
@@ -440,6 +443,10 @@ def p_date(p):
 # TODO - might be able to have 'past phrases' and 'future phrases'
 def p_single_date(p):
     """
+    date : NUMBER
+    date : WORD_NUMBER
+    date : AT NUMBER
+    date : AT WORD_NUMBER
     date : TIME
     date : NUMBER TIME
     date : NUMBER AM
@@ -454,9 +461,13 @@ def p_single_date(p):
     date : PHRASE TIME PHRASE
     """
     if len(p) == 2:
-        p[0] = DateFactory(p[1], 1)
+        params = {
+            "hour": p[1],
+            "minute": 0,
+            "second": 0,
+        }
+        p[0] = DateFactory.create_date(**params)
     elif len(p) == 3:
-        # print('bb', p[1], p[2])
         if isinstance(p[1], int):
             # 5-pm
             if p[2] == "am":
@@ -481,8 +492,17 @@ def p_single_date(p):
                 params = {p[2]: p[1]}
                 p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
             return
-        params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
-        p[0] = DateFactory.create_date_with_offsets(**params)  # 'In a minute'
+        if isinstance(p[2], str):
+            params = {p[2]: 1}  # TODO - prepend offset_ to the key. passing 1 as no number
+            p[0] = DateFactory.create_date_with_offsets(**params)  # 'a minute'
+        else:
+            params = {
+                "hour": p[2],
+                "minute": 0,
+                "second": 0,
+            }
+            p[0] = DateFactory.create_date(**params)  # 'at 4'
+
     elif len(p) == 4:
         # print("at-5-pm", p[1], p[2], p[3])
         if p[1] == "at" or p[1] == "@":
@@ -516,13 +536,11 @@ def p_single_date(p):
 def p_twice(p):
     """
     date_twice : date date
+    date_twice : date_day date
     """
-    # print("DOUBLE DATE!", p[1], p[2])
-    # i.e. 2 days time at 4pm
-    # everything different to 'now' on each date added to a new date
-    # rules in 2nd will have to always replace the first.
-    # for each prop.
-    # if its not 'now' use it over the first
+    # print("Parse 2 phrases!", p[1], p[2])
+    # i.e. '(2 days time) (at 4pm)'
+    # i.e. date_day date = 'wednesday @ 5pm'
 
     now = stDate()
     d = p[1]
@@ -643,6 +661,7 @@ def p_single_date_day(p):
     date_day : PHRASE DAY
     date_day : PAST_PHRASE DAY
     """
+    print('cool story bro!')
     if len(p) == 2:
         day_to_find = p[1]
         d = stDate()
@@ -656,22 +675,11 @@ def p_single_date_day(p):
         d = stDate()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
-            # print(day_to_find.lower(), d.get_day(to_string=True).lower())
             if p[1] == "last":
-                # print("last", d.get_date())
-
-                # if its the 1st of the month, go back a month
-                # and set the day to the last day of the month
-                # try by forcing 2 day backwards? so its not minus 1 leaving 0?
                 if d.get_date() == 1:
-                    # print('here')
-                    # d.set_date(d.get_date() - 1)
-                    # d.set_day(d.get_last_day())
                     d.set_date(d.get_date() - 2)
                 else:
                     d.set_date(d.get_date() - 1)
-                # print("last2", d.get_date())
-                # raise Exception("last")
             elif p[1] == "next" or p[1] == "on":
                 d.set_date(d.get_date() + 1)
             # else:
@@ -684,6 +692,7 @@ def p_this_or_next_period(p):
     """
     date_or : PAST_PHRASE TIME
     """
+    print('this or next period!')
     if len(p) == 3:
         d = stDate()
         if p[1] == "last":
@@ -692,11 +701,7 @@ def p_this_or_next_period(p):
             elif p[2] == "year":
                 d.set_year(d.get_year() - 1)
             elif p[2] == "month":
-                # print(d.get_month())
-                d.set_month(
-                    d.get_month()
-                )  # -1)  #??? not sure why this is not -1???????. this must be a bug in set_month?
-                # print(d.get_month())
+                d.set_month(d.get_month() - 1)
             # elif p[2] == "century":
             #     d.set_year(d.get_year() - 100)
         elif p[1] == "next":
@@ -738,7 +743,6 @@ def p_single_date_end(p):
     date_end : THE NUMBER DATE_END OF MONTH
     """
     if len(p) == 3:
-        # print('p:', p[1], p[2])
         d = stDate()
         d.set_date(p[1])
         p[0] = d
@@ -746,13 +750,10 @@ def p_single_date_end(p):
         # print('p-:', p[1], p[2], p[3])
         d = stDate()
         d.set_date(p[2])
-        # print(p[1], "the", p[1] == "the")
         if p[1] == "the":  # the-2-nd
             d.set_date(p[2])
         else:  # january-14-th
-            # print('y!', p[1], p[2])
             m = d.get_month_index_by_name(p[1])
-            # print('THE MONTH IS:',m)
             d.set_month(m)
             d.set_date(p[2])
         p[0] = d
@@ -762,15 +763,11 @@ def p_single_date_end(p):
         if p[1] == "on":  # on-the-1-st
             d.set_date(p[3])
         else:  # april-the-1-st
-            # print('i think we are here::' , p[1], p[2], p[3], p[4])
             m = d.get_month_index_by_name(p[1])
             d.set_month(m)
-            # print('THE date is:', p[3])
             d.set_date(p[3])
-            # print('THE date isaaa:', d.get_date())
         p[0] = d
     if len(p) == 6:
-        # print('p++:', p[1], p[2], p[3], p[4], p[5])
         d = stDate()  # the-18-th-of-january
         m = d.get_month_index_by_name(p[5])
         d.set_month(m)
@@ -893,6 +890,10 @@ def replace_short_words(phrase):
     phrase = phrase.replace("2moro", "tomorrow")
     phrase = phrase.replace("2morro", "tomorrow")
     phrase = phrase.replace("tomorow", "tomorrow")
+
+    # typos
+    phrase = phrase.replace("febuary", "february")
+    phrase = phrase.replace("feburary", "february")
 
     return phrase
 
