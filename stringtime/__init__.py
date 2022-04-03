@@ -618,6 +618,7 @@ def p_single_date_2moro(p):
 def p_single_date_day(p):
     """
     date_day : DAY
+    date_day : ON DAY
     date_day : PHRASE DAY
     date_day : PAST_PHRASE DAY
     """
@@ -650,7 +651,7 @@ def p_single_date_day(p):
                     d.set_date(d.get_date() - 1)
                 # print("last2", d.get_date())
                 # raise Exception("last")
-            elif p[1] == "next":
+            elif p[1] == "next" or p[1] == "on":
                 d.set_date(d.get_date() + 1)
             else:
                 print("an infinite loop?")
@@ -864,6 +865,9 @@ def replace_short_words(phrase):
     phrase = phrase.replace("a few", "3")
     # phrase = re.sub(r"a few\b", "3", phrase)
     # phrase = re.sub(r"\bseveral\b", "7", phrase)
+
+    phrase = phrase.replace("oclock", "")
+    phrase = phrase.replace("o'clock", "")
 
     return phrase
 

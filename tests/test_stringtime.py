@@ -117,6 +117,15 @@ class TestCaseStrict:
             ("12pm", "2020-12-25 12:00:00"),
             ("at 5AM", "2020-12-25 05:00:00"),
             ("at 5 pm", "2020-12-25 17:00:00"),
+            ("Wednesday", "2020-12-30 17:05:55"),  # first WEDNESDAY relative to FAKE DATE
+            ("Thursday", "2020-12-31 17:05:55"),  # first THURSDAY relative to FAKE DATE
+            ("Friday", "2020-12-25 17:05:55"),  # first FRIDAY relative to FAKE DATE
+            ("on Wednesday",  "2020-12-30 17:05:55"),
+            # ("at 5", "2020-12-30 17:00:00"),
+            # ("@1", "2020-12-25 01:00:00"),
+            # ("5", "2020-12-25 17:00:00"),
+            # ("5 oclock", "2020-12-25 17:00:00"),
+            # ("wednesday at 5 pm", "2020-12-30 17:00:00"),
             # ("at 5 pm on Wednesday", "2020-12-?? 17:00:00"),
             # ("Friday at 5am", "2020-12-25 05:05:55"),
             # ("Friday at 5 PM", "2020-12-25 17:05:55"),
@@ -366,29 +375,21 @@ class TestCaseLazy:
             "Sunday",
         ]
         for d in days:
-            print("d")
             check_phrase(f"{d}")
             # check_phrase(f"{d} at 5") # TODO
             # check_phrase(f"{d} at 5pm") # TODO
-            print("d2")
             check_phrase(f"Next {d}")
             # check_phrase(f"Next Monday @ 7:15pm in the afteroon")  #TODO
             # check_phrase(f"Next Monday @ 9:15pm in the evening")  #TODO
             # check_phrase(f"Next Monday @ 9:15pm in the morning")  # SHOULD ERROR DUE TO CONFLICTING CONDITIONS
-
-            print("d3")
             # find previous nearest day
             check_phrase(f"Last {d}")
-            print("d4")
 
         # slang day names...
         days = ["Mon", "tues", "Wed", "Thurs", "Fri", "Sat", "Sun"]
         for d in days:
-            print("d")
             check_phrase(f"{d}")
-            print("d2")
             check_phrase(f"Next {d}")
-            print("d3")
             # check_phrase(f"On {d}") # TODO
 
             # check_phrase(f"Last {d} @ 11:15am")  #fails
