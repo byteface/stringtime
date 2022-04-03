@@ -1,4 +1,4 @@
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 __all__ = ["Date"]
 
 import re
@@ -9,7 +9,7 @@ import ply.yacc as yacc
 
 from stringtime.date import Date as stDate
 
-DEBUG = True
+DEBUG = False
 try:
     ERR_ICN = "\U0000274C"
     WARN_ICN = "\U000026A0"
