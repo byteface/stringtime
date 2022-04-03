@@ -59,7 +59,7 @@ class Date:
         # print('  - The hour is:::', d[0].get_hours())
         # print('  - The minute is:::', d[0].get_minutes())
         # print('  - The second is:::', d[0].get_seconds())
-        print(f"  - The date {phrase} is :::", str(d[0]))
+        # print(f"  - The date {phrase} is :::", str(d[0]))
         return d[0]
 
     @staticmethod

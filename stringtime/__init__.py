@@ -517,12 +517,12 @@ def p_twice(p):
     """
     date_twice : date date
     """
-    print('DOUBLE DATE!', p[1], p[2])
+    # print("DOUBLE DATE!", p[1], p[2])
     # i.e. 2 days time at 4pm
     # everything different to 'now' on each date added to a new date
     # rules in 2nd will have to always replace the first.
     # for each prop.
-        # if its not 'now' use it over the first
+    # if its not 'now' use it over the first
 
     now = stDate()
     d = p[1]
@@ -542,7 +542,7 @@ def p_twice(p):
         d.set_seconds(d2.get_seconds())
 
     # not quite right. but almost...
-    p[0] = d  #p[2]  #[p[1], p[2]]
+    p[0] = d  # p[2]  #[p[1], p[2]]
 
 
 # in : PHRASE WORD_NUMBER TIME?? not getting converted
@@ -674,8 +674,8 @@ def p_single_date_day(p):
                 # raise Exception("last")
             elif p[1] == "next" or p[1] == "on":
                 d.set_date(d.get_date() + 1)
-            else:
-                print("an infinite loop?")
+            # else:
+            #     print("an infinite loop?")
 
         p[0] = d
 
@@ -889,6 +889,10 @@ def replace_short_words(phrase):
 
     phrase = phrase.replace("oclock", "")
     phrase = phrase.replace("o'clock", "")
+
+    phrase = phrase.replace("2moro", "tomorrow")
+    phrase = phrase.replace("2morro", "tomorrow")
+    phrase = phrase.replace("tomorow", "tomorrow")
 
     return phrase
 

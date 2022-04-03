@@ -117,18 +117,26 @@ class TestCaseStrict:
             ("12pm", "2020-12-25 12:00:00"),
             ("at 5AM", "2020-12-25 05:00:00"),
             ("at 5 pm", "2020-12-25 17:00:00"),
-            ("Wednesday", "2020-12-30 17:05:55"),  # first WEDNESDAY relative to FAKE DATE
+            (
+                "Wednesday",
+                "2020-12-30 17:05:55",
+            ),  # first WEDNESDAY relative to FAKE DATE
             ("Thursday", "2020-12-31 17:05:55"),  # first THURSDAY relative to FAKE DATE
             ("Friday", "2020-12-25 17:05:55"),  # first FRIDAY relative to FAKE DATE
-            ("on Wednesday",  "2020-12-30 17:05:55"),
-            ("2 days time at 4pm",  "2020-12-27 16:00:00"), # DOUBLE DATE TEST
+            ("on Wednesday", "2020-12-30 17:05:55"),
+            (
+                "2 days time at 4pm",
+                "2020-12-27 16:00:00",
+            ),  # DOUBLE DATE TEST (2days,at4pm). parses 2 phrases and merges
+            ("2moro at 1", "2020-12-26 01:00:00"),
             # ("at 5", "2020-12-30 17:00:00"),
             # ("@1", "2020-12-25 01:00:00"),
             # ("5", "2020-12-25 17:00:00"),
-            # ("5 oclock", "2020-12-25 17:00:00"),
-            # ("wednesday at 5 pm", "2020-12-30 17:00:00"),
+            # ("at 5 oclock", "2020-12-25 05:00:00"),
+            # ("5 oclock", "2020-12-25 05:00:00"),
+            ("wednesday at 5 pm", "2020-12-30 17:05:55"),  # ? should this be 5:00:00?
             # ("at 5 pm on Wednesday", "2020-12-?? 17:00:00"),
-            # ("Friday at 5am", "2020-12-25 05:05:55"),
+            # ("Friday at 5am", "2020-12-25 05:00:00"),
             # ("Friday at 5 PM", "2020-12-25 17:05:55"),
             # ("last century", "2100-12-25 17:05:55"),
             # ("next century", "2200-12-25 17:05:55"),
@@ -187,6 +195,7 @@ class TestCaseStrict:
     @pytest.mark.parametrize(
         "test_input, expected",
         [
+            ("", "2020-12-25 17:05:55"),  # no date returns today
             (
                 "Sat Oct 11 17:13:46 UTC 2003",
                 "2003-10-11 17:13:46",
@@ -198,39 +207,23 @@ class TestCaseStrict:
         mocker.patch("stringtime.DEBUG", False)
         assert str(check_phrase(test_input)) == expected
 
+    @pytest.mark.parametrize(
+        "test_input, expected",
+        [
+            ("nOw", "2020-12-25 17:05:55"),
+            ("todaY", "2020-12-25 17:05:55"),
+            ("riGhT Now", "2020-12-25 17:05:55"),
+            ("ImmeDiaTely", "2020-12-25 17:05:55"),
+        ],
+    )
+    @time_machine.travel(FAKE_NOW)
+    def test_present(self, mocker, test_input, expected):
+        # mocker.patch("stringtime.DEBUG", False)
+        assert str(check_phrase(test_input)) == expected
+
 
 class TestCaseLazy:
     # tests that are not asserting anything
-
-    def test_phrases(self):
-        # test any single phrases
-        check_phrase("In a minute")
-        check_phrase("In an hour")
-        check_phrase("20hrs from now")
-        check_phrase("20mins in the future")
-        check_phrase("In 15 minutes")
-        check_phrase("5 hours from now")
-        check_phrase("In the future 12 hours")
-        check_phrase("20 minutes hence")
-        check_phrase("10 minutes ago")
-        check_phrase("2 hours ago")
-        check_phrase("24 hours ago")
-        check_phrase("3 weeks ago")
-        check_phrase("30 seconds ago")
-        check_phrase("1 hour before now")
-
-        # check_phrase(f"now minus 1 hours") # no handlers for that yet
-        # check_phrase(f"several hours from now") # several to generate random number
-
-    def test_phrases_present(self):
-        # tests for any possible phrases that get 'now' as a date
-
-        # check_phrase(f"right now") # fails
-        # check_phrase(f"now") # fails
-        # check_phrase(f"this current moment") # fails
-        # check_phrase(f"here and now") # fails
-        # check_phrase(f"Immediatley") # fails
-        pass
 
     def test_phrases_future(self):
         # tests for phrases that retrieve dates in the past
@@ -270,9 +263,7 @@ class TestCaseLazy:
 
         # check_phrase(f"29 seconds in the future") # fails???
 
-        # check_phrase(f"In 3 days")
-        # check_phrase(f"In 5 minutes")
-        # check_phrase(f"In 12 hours")
+        # In 3 days, In 5 minutes, In 12 hours
         for n in range(100):
             for t in times:
                 check_phrase(f"In {n} {t}s")
@@ -333,39 +324,15 @@ class TestCaseLazy:
 
     def test_phrases_yesterday_2moro_2day(self):
         # yesterday/2moro/2day
-
         check_phrase("yesterday")
         check_phrase("tomorrow")
         check_phrase("tomorrow at 5")
         check_phrase("yesterday at 3")
-
         # check_phrase(f"2moro")  # fails
         # check_phrase(f"today")  # fails
         # check_phrase(f"2day @ 5pm")  # fails
 
-    # def test_wtf(self):
-    #     print('wtf!!!')
-
-    # check_phrase(f"Monday")
-    # check_phrase(f"Last Tuesday")
-    # days = [
-    #     "Monday",
-    #     "Tuesday",
-    #     "Wednesday",
-    #     "Thursday",
-    #     "Friday",
-    #     "Saturday",
-    #     "Sunday",
-    # ]
-    # for d in days:
-    #     print('d')
-    #     check_phrase(f"{d}")
-
     def test_phrases_days_of_the_week(self):
-        print("check it out")
-
-        # check_phrase(f"Monday")
-        # check_phrase(f"Last Tuesday")
         days = [
             "Monday",
             "Tuesday",
@@ -375,6 +342,7 @@ class TestCaseLazy:
             "Saturday",
             "Sunday",
         ]
+        # Monday, Last Tuesday, Next Wednesday... etc
         for d in days:
             check_phrase(f"{d}")
             # check_phrase(f"{d} at 5") # TODO
@@ -392,7 +360,6 @@ class TestCaseLazy:
             check_phrase(f"{d}")
             check_phrase(f"Next {d}")
             # check_phrase(f"On {d}") # TODO
-
             # check_phrase(f"Last {d} @ 11:15am")  #fails
 
     # def test_quick_check(self):
