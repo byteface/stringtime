@@ -85,6 +85,25 @@ Use stringtime from the command line:
 stringtime -p 2 days from now
 ```
 
+## Dev
+
+Clone the repo and install dev requirements:
+
+```bash
+python3 -m ven venv
+python3 -m pip install -r requirements-dev.txt
+```
+
+to dev see the tests and add more or uncomment some that are not passing yet.
+
+## Run tests
+
+See the make file...
+
+```bash
+make test
+```
+
 ## License
 
 Do what you want with this code.
