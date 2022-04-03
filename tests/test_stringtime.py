@@ -141,6 +141,7 @@ class TestCaseStrict:
             # ("2 days time at 5", "2020-12-27 17:05:55"),
             # ("4 today", "2020-12-25 16:00:00"),
             # ("2moro at 3", "2020-12-27 03:00:00"),
+            # ("Monday before last", "2020-12-22 17:05:55"),?date
         ],
     )
     @time_machine.travel(FAKE_NOW)
@@ -331,7 +332,26 @@ class TestCaseLazy:
         # check_phrase(f"today")  # fails
         # check_phrase(f"2day @ 5pm")  # fails
 
+    # def test_wtf(self):
+    #     print('wtf!!!')
+
+    # check_phrase(f"Monday")
+    # check_phrase(f"Last Tuesday")
+    # days = [
+    #     "Monday",
+    #     "Tuesday",
+    #     "Wednesday",
+    #     "Thursday",
+    #     "Friday",
+    #     "Saturday",
+    #     "Sunday",
+    # ]
+    # for d in days:
+    #     print('d')
+    #     check_phrase(f"{d}")
+
     def test_phrases_days_of_the_week(self):
+        print("check it out")
 
         # check_phrase(f"Monday")
         # check_phrase(f"Last Tuesday")
@@ -345,22 +365,29 @@ class TestCaseLazy:
             "Sunday",
         ]
         for d in days:
+            print("d")
             check_phrase(f"{d}")
             # check_phrase(f"{d} at 5") # TODO
             # check_phrase(f"{d} at 5pm") # TODO
+            print("d2")
             check_phrase(f"Next {d}")
             # check_phrase(f"Next Monday @ 7:15pm in the afteroon")  #TODO
             # check_phrase(f"Next Monday @ 9:15pm in the evening")  #TODO
             # check_phrase(f"Next Monday @ 9:15pm in the morning")  # SHOULD ERROR DUE TO CONFLICTING CONDITIONS
 
+            print("d3")
             # find previous nearest day
             check_phrase(f"Last {d}")
+            print("d4")
 
         # slang day names...
         days = ["Mon", "tues", "Wed", "Thurs", "Fri", "Sat", "Sun"]
         for d in days:
+            print("d")
             check_phrase(f"{d}")
+            print("d2")
             check_phrase(f"Next {d}")
+            print("d3")
             # check_phrase(f"On {d}") # TODO
 
             # check_phrase(f"Last {d} @ 11:15am")  #fails
