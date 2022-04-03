@@ -411,7 +411,7 @@ def p_date_object(p):
 
 
 def p_date_list(p):
-    "date_list :  date_list date"
+    "date_list : date_list date"
     p[0] = p[1] + [p[2]]
 
 
@@ -429,6 +429,7 @@ def p_date(p):
     date_list : date_or
     date_list : date_before_yesterday
     date_list : date_after_tomorrow
+    date_list : date_twice
     """
     p[0] = [p[1]]
 
@@ -509,6 +510,18 @@ def p_single_date(p):
             p[1] = 1  # if no number is passed, assume 1
         params = {p[2]: p[1]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
+
+
+# combines rules test
+def p_twice(p):
+    """
+    date_twice : date date
+    """
+    print('DOUBLE DATE!', p[1], p[2])
+    # i.e. 2 days time at 4pm
+    # everything different to 'now' on each date added to a new date
+    # not quite right. but almost...
+    p[0] = p[2]  #[p[1], p[2]]
 
 
 # in : PHRASE WORD_NUMBER TIME?? not getting converted
