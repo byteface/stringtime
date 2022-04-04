@@ -68,14 +68,13 @@ tokens = (
     "A",
     "COLON",
     # "DATESTAMP",
-    # "TIMESTAMP",
 )
 
 
 def t_COLON(t):
     r":"
-    # print('colon detected!', t.value)
     return t
+
 
 def t_A(t):
     r"\ba\b"
@@ -122,18 +121,6 @@ def t_NUMBER(t):
 #     r"\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}|\d{2}-\d{2}|\d{4}/\d{2}/\d{2}|\d{4}/\d{2}|\d{4}|\d{2}/\d{2}|\d{4}|\d{2}|\d{2}|\d{4}|\d{2}|\d{4}|\d{2}|\d{2}"
 #     print('datestamp detected!', t.value)
 #     return t
-
-
-# # strings in the form: 04:00:00
-# def t_TIMESTAMP(t):
-#     r"\d{2}:\d{2}:\d{2}|\d{2}:\d{2}|\d{2}:\d{2}\.\d{3}"
-#     print('timestamp detected!', t.value)
-#     return t
-
-
-# t_WORD_NUMBER = (
-#     r"one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety"
-# )
 
 
 # TODO - test for all numbers
@@ -247,8 +234,6 @@ def t_BEFORE_YESTERDAY(t):
 
 t_TODAY = r"today"
 
-# t_AT = r"at|@"
-
 
 def t_AT(t):
     r"at|@"
@@ -258,7 +243,6 @@ def t_AT(t):
 
 t_ON = r"on"
 t_OF = r"of"
-# t_THE = r"the"
 
 
 def t_AM(t):
@@ -466,6 +450,7 @@ def p_date(p):
     date_list : date_after_tomorrow
     date_list : date_twice
     date_list : timestamp
+    date_list : timestamp_adpt
     """
     p[0] = [p[1]]
 
@@ -484,29 +469,44 @@ def p_date(p):
 def p_timestamp(p):
     """
     timestamp : NUMBER COLON NUMBER
-    timestamp : AT NUMBER COLON NUMBER
     timestamp : NUMBER COLON NUMBER COLON NUMBER
-    timestamp : AT NUMBER COLON NUMBER COLON NUMBER
     """
-    print('this should get picked up!')
     if len(p) == 4:
         params = {"hour": p[1], "minute": p[3], "second": 0}
-        p[0] = DateFactory.create_date(**params)
-    if len(p) == 5:  # at xx:xx
-        params = {"hour": p[2], "minute": p[4], "second": 0}
-        p[0] = DateFactory.create_date(**params)
     elif len(p) == 6:
         params = {"hour": p[1], "minute": p[3], "second": p[5]}
-        p[0] = DateFactory.create_date(**params)
-    elif len(p) == 7:  # at xx:xx:xx
-        params = {"hour": p[2], "minute": p[4], "second": p[6]}
-        p[0] = DateFactory.create_date(**params)
+    p[0] = DateFactory.create_date(**params)
+
+
+# saves having multiple redefinitions inside timestamp
+def p_timestamp_adapter(p):
+    """
+    timestamp_adpt : timestamp AM
+    timestamp_adpt : timestamp PM
+    timestamp_adpt : AT timestamp
+    timestamp_adpt : AT timestamp PM
+    timestamp_adpt : AT timestamp AM
+    """
+    # print('this should get picked up by the NEW ONE!')
+    if len(p) == 3:
+        if p[1] == "at":
+            p[0] = p[2]
+        else:
+            if p[2] == "pm":
+                p[1].set_hours(p[1].get_hours() + 12)
+                p[0] = p[1]
+            if p[2] == "am":
+                # print('its am!')
+                p[0] = p[1]
+    elif len(p) == 4:
+        if p[1] == "at":
+            p[0] = p[2]
+    # p[0] = p[2]
 
 
 # TIME - not strictly valid. but should do a single unit of that time
 # NUMBER TIME - not strictly valid. but should work
 # TIME PHRASE -  again not really valid. but should do a single unit of that time
-# TODO - might be able to have 'past phrases' and 'future phrases'
 def p_single_date(p):
     """
     date : NUMBER
