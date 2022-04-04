@@ -9,7 +9,7 @@ import ply.yacc as yacc
 
 from stringtime.date import Date as stDate
 
-DEBUG = True
+DEBUG = False
 try:
     ERR_ICN = "\U0000274C"
     WARN_ICN = "\U000026A0"
@@ -110,7 +110,6 @@ def t_MINUS(t):
 def t_NUMBER(t):
     r"\d+"
     t.value = int(t.value)
-    # print('number detected!', t.value)
     return t
 
 
@@ -237,7 +236,6 @@ t_TODAY = r"today"
 
 def t_AT(t):
     r"at|@"
-    # print('@ detected!', t.value)
     return t
 
 
@@ -259,7 +257,6 @@ def t_PM(t):
 
 def t_THE(t):
     r"the"
-    # print('the detected!', t.value)
     return t
 
 
@@ -487,7 +484,6 @@ def p_timestamp_adapter(p):
     timestamp_adpt : AT timestamp PM
     timestamp_adpt : AT timestamp AM
     """
-    # print('this should get picked up by the NEW ONE!')
     if len(p) == 3:
         if p[1] == "at":
             p[0] = p[2]
@@ -729,7 +725,6 @@ def p_single_date_day(p):
     date_day : PHRASE DAY
     date_day : PAST_PHRASE DAY
     """
-    print("cool story bro!")
     if len(p) == 2:
         day_to_find = p[1]
         d = stDate()
@@ -760,7 +755,6 @@ def p_this_or_next_period(p):
     """
     date_or : PAST_PHRASE TIME
     """
-    print("this or next period!")
     if len(p) == 3:
         d = stDate()
         if p[1] == "last":
@@ -783,7 +777,6 @@ def p_before_yesterday(p):
     date_before_yesterday : THE BEFORE_YESTERDAY
     date_before_yesterday : THE TIME BEFORE_YESTERDAY
     """
-    # print('before_yesterday decteted')
     d = stDate()
     d.set_date(d.get_date() - 2)
     p[0] = d
