@@ -85,6 +85,9 @@ Here's a list of example phrases that can be used...
 "April the 1st"
 "third of May"
 "The first of September"
+"The 12th of last month"
+"next month on the first"
+"last month on the 16th at 2am"
 "32nd", # would move into the next month
 "The 18th of March"
 ```

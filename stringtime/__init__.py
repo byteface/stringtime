@@ -522,6 +522,7 @@ def p_date(p):
     date_list : date_day
     date_list : date_end
     date_list : date_or
+    date_list : date_month_relative
     date_list : date_before_yesterday
     date_list : date_after_tomorrow
     date_list : date_twice
@@ -736,6 +737,7 @@ def p_twice(p):
     date_twice : date date
     date_twice : date_day date
     date_twice : date date_day
+    date_twice : date_month_relative date
     date_twice : timestamp_adpt date_day
     """
     # print("Parse 2 phrases!", p[1], p[2])
@@ -1035,6 +1037,40 @@ def p_single_date_end(p):
         d.set_month(m)
         d.set_date(p[2])
         p[0] = d
+
+
+def p_month_relative_date(p):
+    """
+    date_month_relative : THE NUMBER DATE_END OF PAST_PHRASE TIME
+    date_month_relative : NUMBER DATE_END OF PAST_PHRASE TIME
+    date_month_relative : THE NUMBER DATE_END OF PHRASE TIME
+    date_month_relative : NUMBER DATE_END OF PHRASE TIME
+    date_month_relative : PAST_PHRASE TIME ON THE NUMBER DATE_END
+    date_month_relative : PHRASE TIME ON THE NUMBER DATE_END
+    """
+    d = stDate()
+
+    if len(p) == 6:
+        day = p[1]
+        direction = p[4]
+    elif len(p) == 7:
+        if p[1] == "the":
+            day = p[2]
+            direction = p[5]
+        else:
+            direction = p[1]
+            day = p[5]
+    else:
+        direction = p[1]
+        day = p[5]
+
+    if direction == "last":
+        d.set_month(d.get_month() - 1)
+    elif direction == "next":
+        d.set_month(d.get_month() + 1)
+
+    d.set_date(day)
+    p[0] = d
 
 
 # t_TODAY = r"today"
