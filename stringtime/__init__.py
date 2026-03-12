@@ -42,6 +42,7 @@ def stlog(msg: str, *args, lvl: str = None, **kwargs):
 
 tokens = (
     "WORD_NUMBER",
+    "DECIMAL",
     "NUMBER",
     "YEAR",
     "DAY",
@@ -68,6 +69,7 @@ tokens = (
     "A",
     "COLON",
     "AND",
+    "HALF",
     # "DATESTAMP",
 )
 
@@ -79,6 +81,11 @@ def t_COLON(t):
 
 def t_AND(t):
     r"and"
+    return t
+
+
+def t_HALF(t):
+    r"half"
     return t
 
 
@@ -110,6 +117,12 @@ def t_PLUS(t):
 def t_MINUS(t):
     r"-"
     t.value = "-"
+    return t
+
+
+def t_DECIMAL(t):
+    r"\d+\.\d+"
+    t.value = float(t.value)
     return t
 
 
@@ -416,6 +429,66 @@ class DateFactory:
 
         return d
 
+    @staticmethod
+    def create_date_with_half_offset(unit, whole=1, sign=1):
+        """Create mixed offsets for phrases like 'an hour and a half'."""
+        params = {}
+        whole = whole * sign
+
+        if unit == "minute":
+            params["minute"] = whole
+            params["second"] = 30 * sign
+        elif unit == "hour":
+            params["hour"] = whole
+            params["minute"] = 30 * sign
+        elif unit == "day":
+            params["day"] = whole
+            params["hour"] = 12 * sign
+        elif unit == "week":
+            params["week"] = whole
+            params["day"] = 3 * sign
+            params["hour"] = 12 * sign
+        elif unit == "month":
+            params["month"] = whole
+            params["day"] = 15 * sign
+        elif unit == "year":
+            params["year"] = whole
+            params["month"] = 6 * sign
+        else:
+            params[unit] = whole
+
+        return DateFactory.create_date_with_offsets(**params)
+
+    @staticmethod
+    def create_date_with_fractional_offset(unit, value, sign=1):
+        """Create offsets for decimal durations like '1.5 days'."""
+        whole = int(value)
+        fraction = value - whole
+
+        if abs(fraction - 0.5) < 1e-9:
+            return DateFactory.create_date_with_half_offset(
+                unit, whole=whole, sign=sign
+            )
+
+        params = {unit: value * sign}
+
+        # Fall back to the nearest supported sub-unit when possible.
+        if unit == "minute":
+            params = {"minute": whole * sign, "second": round(60 * fraction) * sign}
+        elif unit == "hour":
+            params = {"hour": whole * sign, "minute": round(60 * fraction) * sign}
+        elif unit == "day":
+            params = {"day": whole * sign, "hour": round(24 * fraction) * sign}
+        elif unit == "week":
+            total_days = 7 * value
+            whole_days = int(total_days)
+            params = {
+                "day": whole_days * sign,
+                "hour": round((total_days - whole_days) * 24) * sign,
+            }
+
+        return DateFactory.create_date_with_offsets(**params)
+
 
 # When parsing starts, try to make a "date_object" because it's
 # the name on left-hand side of the first p_* function definition.
@@ -516,11 +589,13 @@ def p_timestamp_adapter(p):
 def p_single_date(p):
     """
     date : NUMBER
+    date : DECIMAL
     date : WORD_NUMBER
     date : AT NUMBER
     date : AT WORD_NUMBER
     date : TIME
     date : NUMBER TIME
+    date : DECIMAL TIME
     date : NUMBER AM
     date : NUMBER PM
     date : AT NUMBER AM
@@ -529,14 +604,23 @@ def p_single_date(p):
     date : PHRASE TIME
     date : TIME PHRASE
     date : NUMBER TIME PHRASE
+    date : DECIMAL TIME PHRASE
     date : WORD_NUMBER TIME PHRASE
     date : PHRASE TIME PHRASE
     date : PHRASE TIME AND NUMBER TIME
     date : PHRASE TIME AND WORD_NUMBER TIME
+    date : WORD_NUMBER AND NUMBER HALF TIME
+    date : WORD_NUMBER TIME AND NUMBER HALF
+    date : WORD_NUMBER TIME AND NUMBER HALF TIME
+    date : PHRASE TIME AND NUMBER HALF
     date : NUMBER TIME AND NUMBER TIME PHRASE
     date : NUMBER TIME AND WORD_NUMBER TIME PHRASE
     date : WORD_NUMBER TIME AND NUMBER TIME PHRASE
     date : WORD_NUMBER TIME AND WORD_NUMBER TIME PHRASE
+    date : WORD_NUMBER AND NUMBER HALF TIME PHRASE
+    date : WORD_NUMBER TIME AND NUMBER HALF PHRASE
+    date : WORD_NUMBER TIME AND NUMBER HALF TIME PHRASE
+    date : PHRASE TIME AND NUMBER HALF PHRASE
     """
     if len(p) == 2:
         params = {
@@ -546,7 +630,7 @@ def p_single_date(p):
         }
         p[0] = DateFactory.create_date(**params)
     elif len(p) == 3:
-        if isinstance(p[1], int):
+        if isinstance(p[1], (int, float)):
             # 5-pm
             if p[2] == "am":
                 if p[1] == 12:
@@ -567,8 +651,11 @@ def p_single_date(p):
                 }
                 p[0] = DateFactory.create_date(**params)
             else:  # number time
-                params = {p[2]: p[1]}
-                p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
+                if isinstance(p[1], float):
+                    p[0] = DateFactory.create_date_with_fractional_offset(p[2], p[1])
+                else:
+                    params = {p[2]: p[1]}
+                    p[0] = DateFactory.create_date_with_offsets(**params)  # '3 days'
             return
         if isinstance(p[2], str):
             params = {
@@ -608,8 +695,28 @@ def p_single_date(p):
             return
         if p[1] == "an":
             p[1] = 1  # if no number is passed, assume 1
-        params = {p[2]: p[1]}  # TODO - prepend offset_ to the key
-        p[0] = DateFactory.create_date_with_offsets(**params)
+        if isinstance(p[1], float):
+            p[0] = DateFactory.create_date_with_fractional_offset(p[2], p[1])
+        else:
+            params = {p[2]: p[1]}  # TODO - prepend offset_ to the key
+            p[0] = DateFactory.create_date_with_offsets(**params)
+    elif len(p) == 5 and p[4] == "half":
+        whole = 1 if p[1] in ["in", "in a", "in an", "an"] else p[1]
+        p[0] = DateFactory.create_date_with_half_offset(p[2], whole=whole)
+    elif len(p) == 5 and p[3] == "half":
+        p[0] = DateFactory.create_date_with_half_offset(p[4], whole=p[1])
+    elif len(p) == 6 and p[5] == "half":
+        whole = 1 if p[1] in ["in", "in a", "in an", "an"] else p[1]
+        p[0] = DateFactory.create_date_with_half_offset(p[2], whole=whole)
+    elif len(p) == 6 and p[4] == "half":
+        p[0] = DateFactory.create_date_with_half_offset(p[2], whole=p[1])
+    elif len(p) == 7 and p[5] == "half":
+        whole = 1 if p[1] in ["in", "in a", "in an", "an"] else p[1]
+        sign = -1 if p[6] in ["ago", "last", "minus", "before now", "in the past", "the past"] else 1
+        p[0] = DateFactory.create_date_with_half_offset(p[2], whole=whole, sign=sign)
+    elif len(p) == 8 and p[4] == "half":
+        sign = -1 if p[7] in ["ago", "last", "minus", "before now", "in the past", "the past"] else 1
+        p[0] = DateFactory.create_date_with_half_offset(p[2], whole=p[1], sign=sign)
     elif len(p) == 6:
         if p[1] == "in" or p[1] == "in a" or p[1] == "in an" or p[1] == "an":
             params = {p[2]: 1, p[5]: p[4]}
@@ -660,6 +767,7 @@ def p_twice(p):
 def p_single_date_in(p):
     """
     in : PHRASE NUMBER TIME
+    in : PHRASE DECIMAL TIME
     in : PHRASE WORD_NUMBER TIME
     """
     if len(p) == 2:
@@ -667,8 +775,11 @@ def p_single_date_in(p):
     elif len(p) == 3:
         p[0] = DateFactory(p[1], p[2])
     elif len(p) == 4:
-        params = {p[3]: p[2]}  # TODO - prepend offset_ to the key
-        p[0] = DateFactory.create_date_with_offsets(**params)
+        if isinstance(p[2], float):
+            p[0] = DateFactory.create_date_with_fractional_offset(p[3], p[2])
+        else:
+            params = {p[3]: p[2]}  # TODO - prepend offset_ to the key
+            p[0] = DateFactory.create_date_with_offsets(**params)
 
 
 def p_compound_date_in(p):
@@ -736,10 +847,14 @@ def p_compound_date_minus(p):
 def p_single_date_past(p):
     """
     date_past : NUMBER TIME PAST_PHRASE
+    date_past : DECIMAL TIME PAST_PHRASE
     date_past : WORD_NUMBER TIME PAST_PHRASE
     """
-    params = {p[2]: -p[1]}  # TODO - prepend offset_ to the key
-    p[0] = DateFactory.create_date_with_offsets(**params)
+    if isinstance(p[1], float):
+        p[0] = DateFactory.create_date_with_fractional_offset(p[2], p[1], sign=-1)
+    else:
+        params = {p[2]: -p[1]}  # TODO - prepend offset_ to the key
+        p[0] = DateFactory.create_date_with_offsets(**params)
 
 
 def p_compound_date_past(p):
@@ -751,6 +866,15 @@ def p_compound_date_past(p):
     """
     params = {p[2]: -p[1], p[5]: -p[4]}
     p[0] = DateFactory.create_date_with_offsets(**params)
+
+
+def p_half_date_past(p):
+    """
+    date_past : WORD_NUMBER TIME AND NUMBER HALF PAST_PHRASE
+    date_past : PHRASE TIME AND NUMBER HALF PAST_PHRASE
+    """
+    whole = 1 if p[1] in ["in", "in a", "in an", "an"] else p[1]
+    p[0] = DateFactory.create_date_with_half_offset(p[2], whole=whole, sign=-1)
 
 
 def p_single_date_yesterday(p):
@@ -950,8 +1074,70 @@ def replace_short_words(phrase):
     replace shortened words with normal equivalents
     """
 
+    def replace_fractional_words(match):
+        raw_number = match.group("number")
+        unit = match.group("unit")
+        word_numbers = {
+            "a": 1,
+            "an": 1,
+            "one": 1,
+            "two": 2,
+            "three": 3,
+            "four": 4,
+            "five": 5,
+            "six": 6,
+            "seven": 7,
+            "eight": 8,
+            "nine": 9,
+            "ten": 10,
+            "eleven": 11,
+            "twelve": 12,
+            "thirteen": 13,
+            "fourteen": 14,
+            "fifteen": 15,
+            "sixteen": 16,
+            "seventeen": 17,
+            "eighteen": 18,
+            "nineteen": 19,
+            "twenty": 20,
+            "thirty": 30,
+            "forty": 40,
+            "fifty": 50,
+            "sixty": 60,
+            "seventy": 70,
+            "eighty": 80,
+            "ninety": 90,
+        }
+        if raw_number.isdigit():
+            value = int(raw_number)
+        else:
+            value = word_numbers[raw_number]
+        return f"{value + 0.5} {unit}"
+
+    def replace_quarter_words(match):
+        raw_number = match.group("number")
+        unit = match.group("unit")
+        quarter_values = {
+            "a": 0.25,
+            "an": 0.25,
+            "one": 0.25,
+            "three": 0.75,
+        }
+        return f"{quarter_values[raw_number]} {unit}"
+
     # TODO - regexes might be better here. allow space or number in front
     # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
+    phrase = re.sub(
+        r"\b(?P<number>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+and\s+a\s+half\s+(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
+        replace_fractional_words,
+        phrase,
+    )
+    phrase = re.sub(
+        r"\b(?P<number>a|an|one|three)\s+quarters?\s+of\s+(?:an?\s+)?(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
+        replace_quarter_words,
+        phrase,
+    )
+
     phrase = phrase.replace("hr ", "hour")
     phrase = phrase.replace("hrs", "hour")
     phrase = phrase.replace("min ", "minute")
