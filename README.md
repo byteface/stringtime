@@ -74,6 +74,10 @@ Here's a list of example phrases that can be used...
 "1 hour ago"
 "This Friday at 1"
 "Last Wednesday at 5"
+"Next Monday @ 7:15"
+"7:15 Next Monday"
+"Next Monday @ 7:15pm"
+"Friday at 5:30"
 "at 5 pm on Wednesday"
 "at 5:52 pm"
 # dates without a month specified will use the current month

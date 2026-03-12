@@ -738,6 +738,9 @@ def p_twice(p):
     date_twice : date_day date
     date_twice : date date_day
     date_twice : date_month_relative date
+    date_twice : date_day timestamp
+    date_twice : date_day timestamp_adpt
+    date_twice : timestamp date_day
     date_twice : timestamp_adpt date_day
     """
     # print("Parse 2 phrases!", p[1], p[2])
@@ -1222,6 +1225,11 @@ def replace_short_words(phrase):
         suffix = match.group("suffix")
         return f"{day}{suffix} of {direction} month"
 
+    def rewrite_day_time_phrase(match):
+        day_phrase = match.group("day_phrase")
+        time_phrase = match.group("time_phrase")
+        return f"{time_phrase} {day_phrase}"
+
     # TODO - regexes might be better here. allow space or number in front
     # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
     phrase = re.sub(
@@ -1242,6 +1250,11 @@ def replace_short_words(phrase):
     phrase = re.sub(
         r"\b(?P<direction>last|next)\s+month\s+on\s+the\s+(?P<day>\d+)(?P<suffix>st|nd|rd|th)\b",
         rewrite_month_relative_on,
+        phrase,
+    )
+    phrase = re.sub(
+        r"\b(?P<day_phrase>(?:(?:last|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday))\s+(?:at|@)\s+(?P<time_phrase>\d{1,2}:\d{2}(?:\s?(?:am|pm))?)\b",
+        rewrite_day_time_phrase,
         phrase,
     )
     phrase = re.sub(
