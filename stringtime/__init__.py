@@ -1216,6 +1216,12 @@ def replace_short_words(phrase):
         value = ordinal_values[word]
         return f"{value}{ordinal_suffix(value)}"
 
+    def rewrite_month_relative_on(match):
+        direction = match.group("direction")
+        day = match.group("day")
+        suffix = match.group("suffix")
+        return f"{day}{suffix} of {direction} month"
+
     # TODO - regexes might be better here. allow space or number in front
     # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
     phrase = re.sub(
@@ -1231,6 +1237,11 @@ def replace_short_words(phrase):
     phrase = re.sub(
         r"\b(?P<ordinal>first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth)\b",
         replace_simple_ordinal_words,
+        phrase,
+    )
+    phrase = re.sub(
+        r"\b(?P<direction>last|next)\s+month\s+on\s+the\s+(?P<day>\d+)(?P<suffix>st|nd|rd|th)\b",
+        rewrite_month_relative_on,
         phrase,
     )
     phrase = re.sub(
