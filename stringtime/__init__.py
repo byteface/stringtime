@@ -1020,6 +1020,10 @@ def p_single_date_end(p):
         d = stDate()
         if p[1] == "on":  # on-the-1-st
             d.set_date(p[3])
+        elif p[3] == "of":  # 18-th-of-march
+            m = d.get_month_index_by_name(p[4])
+            d.set_month(m)
+            d.set_date(p[1])
         else:  # april-the-1-st
             m = d.get_month_index_by_name(p[1])
             d.set_month(m)
@@ -1125,11 +1129,72 @@ def replace_short_words(phrase):
         }
         return f"{quarter_values[raw_number]} {unit}"
 
+    def ordinal_suffix(value):
+        if 10 <= value % 100 <= 20:
+            return "th"
+        return {1: "st", 2: "nd", 3: "rd"}.get(value % 10, "th")
+
+    def replace_compound_ordinal_words(match):
+        tens_word = match.group("tens")
+        ones_word = match.group("ones")
+        tens_values = {"twenty": 20, "thirty": 30}
+        ones_ordinals = {
+            "first": 1,
+            "second": 2,
+            "third": 3,
+            "fourth": 4,
+            "fifth": 5,
+            "sixth": 6,
+            "seventh": 7,
+            "eighth": 8,
+            "ninth": 9,
+        }
+        value = tens_values[tens_word] + ones_ordinals[ones_word]
+        return f"{value}{ordinal_suffix(value)}"
+
+    def replace_simple_ordinal_words(match):
+        word = match.group("ordinal")
+        ordinal_values = {
+            "first": 1,
+            "second": 2,
+            "third": 3,
+            "fourth": 4,
+            "fifth": 5,
+            "sixth": 6,
+            "seventh": 7,
+            "eighth": 8,
+            "ninth": 9,
+            "tenth": 10,
+            "eleventh": 11,
+            "twelfth": 12,
+            "thirteenth": 13,
+            "fourteenth": 14,
+            "fifteenth": 15,
+            "sixteenth": 16,
+            "seventeenth": 17,
+            "eighteenth": 18,
+            "nineteenth": 19,
+            "twentieth": 20,
+            "thirtieth": 30,
+        }
+        value = ordinal_values[word]
+        return f"{value}{ordinal_suffix(value)}"
+
     # TODO - regexes might be better here. allow space or number in front
     # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
     phrase = re.sub(
         r"\b(?P<number>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+and\s+a\s+half\s+(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
         replace_fractional_words,
+        phrase,
+    )
+    phrase = re.sub(
+        r"\b(?P<tens>twenty|thirty)\s+(?P<ones>first|second|third|fourth|fifth|sixth|seventh|eighth|ninth)\b",
+        replace_compound_ordinal_words,
+        phrase,
+    )
+    phrase = re.sub(
+        r"\b(?P<ordinal>first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth)\b",
+        replace_simple_ordinal_words,
         phrase,
     )
     phrase = re.sub(

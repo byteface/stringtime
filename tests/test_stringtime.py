@@ -246,6 +246,10 @@ class TestCaseStrict:
             ("32nd", "2021-01-01 17:05:55"),  # cheeky!
             ("The 12th", "2020-12-12 17:05:55"),
             ("The 18th of March", "2020-03-18 17:05:55"),
+            ("The first of September", "2020-09-01 17:05:55"),
+            ("third of May", "2020-05-03 17:05:55"),
+            ("twenty first", "2020-12-21 17:05:55"),
+            ("thirtieth", "2020-12-30 17:05:55"),
             # ("The 12th of last month", "2020-11-12 17:05:55"),
             # ("12th of last month", "2020-11-12 17:05:55"),
             # ("The first of Feb last year", "2020-03-18 17:05:55"),

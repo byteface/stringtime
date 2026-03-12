@@ -78,10 +78,13 @@ Here's a list of example phrases that can be used...
 "at 5:52 pm"
 # dates without a month specified will use the current month
 "12th"
+"twenty first"
 "The 8th"
 "On the 14th"
 "January 14th"
 "April the 1st"
+"third of May"
+"The first of September"
 "32nd", # would move into the next month
 "The 18th of March"
 ```
