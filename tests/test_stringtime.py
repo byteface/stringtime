@@ -9,7 +9,6 @@ import datetime
 import os
 
 import pytest
-import time_machine
 
 import stringtime
 from stringtime import Date
@@ -28,12 +27,39 @@ def check_phrase(p: str):
     return d
 
 
+REAL_DATETIME = datetime.datetime
+FAKE_NOW = REAL_DATETIME(2020, 12, 25, 17, 5, 55)
+
+
+class FrozenDateTime(REAL_DATETIME):
+    @classmethod
+    def now(cls, tz=None):
+        if tz is not None:
+            return FAKE_NOW.astimezone(tz)
+        return FAKE_NOW
+
+    @classmethod
+    def utcnow(cls):
+        return FAKE_NOW
+
+    @classmethod
+    def fromtimestamp(cls, ts, tz=None):
+        if tz is not None:
+            return REAL_DATETIME.fromtimestamp(ts, tz)
+        return REAL_DATETIME.fromtimestamp(ts)
+
+
+@pytest.fixture(autouse=True)
+def freeze_now(monkeypatch):
+    monkeypatch.setattr("stringtime.date.datetime.datetime", FrozenDateTime)
+
+
 # pytest -s -v tests/test_stringtime.py::TestCaseStrict::test_assert_phrases
 class TestCaseStrict:
 
     # note - if you change this the test will fail as they are relative to this date
     # it was arbitrarily chosen. Feel free to test other dates/times.
-    FAKE_NOW = datetime.datetime(2020, 12, 25, 17, 5, 55)
+    FAKE_NOW = FAKE_NOW
 
     @pytest.mark.parametrize(
         "test_input, expected",
@@ -165,8 +191,11 @@ class TestCaseStrict:
             ("a week from now", "2021-01-01 17:05:55"),
             ("2:57", "2020-12-25 02:57:00"),
             ("2:57pm", "2020-12-25 14:57:00"),
-            # ("at 5:52 pm", "2020-12-25 17:52:00"),
+            ("at 5:52 pm", "2020-12-25 17:52:00"),
             ("at 5:52 am", "2020-12-25 05:52:00"),
+            ("10 hours and 30 minutes from now", "2020-12-26 03:35:55"),
+            ("10 hours and 30 minutes ago", "2020-12-25 06:35:55"),
+            ("In a minute and 10 seconds", "2020-12-25 17:07:05"),
             # ("Next Monday @ 7:15", "2020-12-29 19:15:55"),
             # ("7:15 Next Monday", "2020-12-29 19:15:55"),
             # ("Next Monday @ 7:15pm", "2020-12-29 19:15:55"),
@@ -176,9 +205,6 @@ class TestCaseStrict:
             # ("last month on the 16th @ 2am", "2020-11-16 02:05:55"),
             # ("next month on the first @ 3pm", "2020-12-01 15:03:55"),
             # ("friday at 5:30", "2020-12-25 17:30:55"),
-            # ("10 hours and 30 minutes from now", "2020-12-25 19:35:55"),
-            # ("10 hours and 30 minutes ago", "2020-12-25 15:25:55"),
-            # ("In a minute and 10 seconds", "2020-12-25 17:06:15"),
             # ("In a minute and a half", "2020-12-25 17:06:55"),
             # ("In an hour and a half", "2020-12-25 18:06:55"),
             # ("In 4 hours time", "2020-12-25 21:05:55"),
@@ -187,10 +213,11 @@ class TestCaseStrict:
             # ("2 days time at 5", "2020-12-27 17:05:55"),
             # ("4 today", "2020-12-25 16:00:00"),
             ("2moro at 3", "2020-12-26 03:00:00"),
+            ("at 5 pm on Wednesday", "2020-12-30 17:00:00"),
+            ("at 5:52 pm on Wednesday", "2020-12-30 17:52:00"),
             # ("Monday before last", "2020-12-22 17:05:55"),?date
         ],
     )
-    @time_machine.travel(FAKE_NOW)
     def test_assert_phrases(self, test_input, expected):
         assert str(check_phrase(test_input)) == expected
 
@@ -215,7 +242,6 @@ class TestCaseStrict:
             # ("The first of Feb last year", "2020-03-18 17:05:55"),
         ],
     )
-    @time_machine.travel(FAKE_NOW)
     def test_assert_dates(self, test_input, expected):
         assert str(check_phrase(test_input)) == expected
 
@@ -231,7 +257,6 @@ class TestCaseStrict:
             ),  # test fallover nicely to dateutil
         ],
     )
-    @time_machine.travel(FAKE_NOW)
     def test_assert_DEBUG_OFF(self, mocker, test_input, expected):
         mocker.patch("stringtime.DEBUG", False)
         assert str(check_phrase(test_input)) == expected
@@ -245,7 +270,6 @@ class TestCaseStrict:
             ("ImmeDiaTely", "2020-12-25 17:05:55"),
         ],
     )
-    @time_machine.travel(FAKE_NOW)
     def test_present(self, mocker, test_input, expected):
         # mocker.patch("stringtime.DEBUG", False)
         assert str(check_phrase(test_input)) == expected

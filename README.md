@@ -55,6 +55,8 @@ Here's a list of example phrases that can be used...
 "5 hours from now"
 "20 minutes hence"
 "10 minutes ago"
+"10 hours and 30 minutes from now"
+"In a minute and 10 seconds"
 "24 hours ago"
 "3 weeks ago"
 "30 seconds ago"
@@ -63,6 +65,8 @@ Here's a list of example phrases that can be used...
 "1 hour ago"
 "This Friday at 1"
 "Last Wednesday at 5"
+"at 5 pm on Wednesday"
+"at 5:52 pm"
 # dates without a month specified will use the current month
 "12th"
 "The 8th"
@@ -90,7 +94,8 @@ stringtime -p 2 days from now
 Clone the repo and install dev requirements:
 
 ```bash
-python3 -m ven venv
+python3 -m venv venv
+. venv/bin/activate
 python3 -m pip install -r requirements-dev.txt
 ```
 

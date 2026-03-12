@@ -67,12 +67,18 @@ tokens = (
     "PM",
     "A",
     "COLON",
+    "AND",
     # "DATESTAMP",
 )
 
 
 def t_COLON(t):
     r":"
+    return t
+
+
+def t_AND(t):
+    r"and"
     return t
 
 
@@ -496,6 +502,10 @@ def p_timestamp_adapter(p):
                 p[0] = p[1]
     elif len(p) == 4:
         if p[1] == "at":
+            if p[3] == "pm" and p[2].get_hours() < 12:
+                p[2].set_hours(p[2].get_hours() + 12)
+            elif p[3] == "am" and p[2].get_hours() == 12:
+                p[2].set_hours(0)
             p[0] = p[2]
     # p[0] = p[2]
 
@@ -521,6 +531,12 @@ def p_single_date(p):
     date : NUMBER TIME PHRASE
     date : WORD_NUMBER TIME PHRASE
     date : PHRASE TIME PHRASE
+    date : PHRASE TIME AND NUMBER TIME
+    date : PHRASE TIME AND WORD_NUMBER TIME
+    date : NUMBER TIME AND NUMBER TIME PHRASE
+    date : NUMBER TIME AND WORD_NUMBER TIME PHRASE
+    date : WORD_NUMBER TIME AND NUMBER TIME PHRASE
+    date : WORD_NUMBER TIME AND WORD_NUMBER TIME PHRASE
     """
     if len(p) == 2:
         params = {
@@ -594,6 +610,17 @@ def p_single_date(p):
             p[1] = 1  # if no number is passed, assume 1
         params = {p[2]: p[1]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
+    elif len(p) == 6:
+        if p[1] == "in" or p[1] == "in a" or p[1] == "in an" or p[1] == "an":
+            params = {p[2]: 1, p[5]: p[4]}
+        else:
+            params = {p[2]: p[1], p[5]: p[4]}
+        p[0] = DateFactory.create_date_with_offsets(**params)
+    elif len(p) == 7:
+        params = {p[2]: p[1], p[5]: p[4]}
+        if p[6] in ["ago", "last", "minus", "before now", "in the past", "the past"]:
+            params = {key: -value for key, value in params.items()}
+        p[0] = DateFactory.create_date_with_offsets(**params)
 
 
 # combines rules test
@@ -601,6 +628,8 @@ def p_twice(p):
     """
     date_twice : date date
     date_twice : date_day date
+    date_twice : date date_day
+    date_twice : timestamp_adpt date_day
     """
     # print("Parse 2 phrases!", p[1], p[2])
     # i.e. '(2 days time) (at 4pm)'
@@ -642,6 +671,17 @@ def p_single_date_in(p):
         p[0] = DateFactory.create_date_with_offsets(**params)
 
 
+def p_compound_date_in(p):
+    """
+    in : PHRASE NUMBER TIME AND NUMBER TIME
+    in : PHRASE WORD_NUMBER TIME AND NUMBER TIME
+    in : PHRASE NUMBER TIME AND WORD_NUMBER TIME
+    in : PHRASE WORD_NUMBER TIME AND WORD_NUMBER TIME
+    """
+    params = {p[3]: p[2], p[6]: p[5]}
+    p[0] = DateFactory.create_date_with_offsets(**params)
+
+
 def p_single_date_plus(p):
     """
     adder : PLUS NUMBER TIME
@@ -654,6 +694,17 @@ def p_single_date_plus(p):
     elif len(p) == 4:
         params = {p[3]: p[2]}  # TODO - prepend offset_ to the key
         p[0] = DateFactory.create_date_with_offsets(**params)
+
+
+def p_compound_date_plus(p):
+    """
+    adder : PLUS NUMBER TIME AND NUMBER TIME
+    adder : PLUS WORD_NUMBER TIME AND NUMBER TIME
+    adder : PLUS NUMBER TIME AND WORD_NUMBER TIME
+    adder : PLUS WORD_NUMBER TIME AND WORD_NUMBER TIME
+    """
+    params = {p[3]: p[2], p[6]: p[5]}
+    p[0] = DateFactory.create_date_with_offsets(**params)
 
 
 def p_single_date_minus(p):
@@ -670,6 +721,17 @@ def p_single_date_minus(p):
         p[0] = DateFactory.create_date_with_offsets(**params)
 
 
+def p_compound_date_minus(p):
+    """
+    remover : MINUS NUMBER TIME AND NUMBER TIME
+    remover : MINUS WORD_NUMBER TIME AND NUMBER TIME
+    remover : MINUS NUMBER TIME AND WORD_NUMBER TIME
+    remover : MINUS WORD_NUMBER TIME AND WORD_NUMBER TIME
+    """
+    params = {p[3]: -p[2], p[6]: -p[5]}
+    p[0] = DateFactory.create_date_with_offsets(**params)
+
+
 # WORD_NUMBER TIME & WORD_NUMBER TIME PHRASE
 def p_single_date_past(p):
     """
@@ -677,6 +739,17 @@ def p_single_date_past(p):
     date_past : WORD_NUMBER TIME PAST_PHRASE
     """
     params = {p[2]: -p[1]}  # TODO - prepend offset_ to the key
+    p[0] = DateFactory.create_date_with_offsets(**params)
+
+
+def p_compound_date_past(p):
+    """
+    date_past : NUMBER TIME AND NUMBER TIME PAST_PHRASE
+    date_past : WORD_NUMBER TIME AND NUMBER TIME PAST_PHRASE
+    date_past : NUMBER TIME AND WORD_NUMBER TIME PAST_PHRASE
+    date_past : WORD_NUMBER TIME AND WORD_NUMBER TIME PAST_PHRASE
+    """
+    params = {p[2]: -p[1], p[5]: -p[4]}
     p[0] = DateFactory.create_date_with_offsets(**params)
 
 

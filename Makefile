@@ -1,8 +1,11 @@
 test:
-	python3 -m pytest -vvv tests/
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock tests/
 
 testp:
-	python3 -m pytest -vvv -s tests/
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -s -p pytest_mock tests/
+
+cov:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -p pytest_cov --cov=stringtime --cov-report=term-missing tests/
 
 lint:
 	black stringtime tests

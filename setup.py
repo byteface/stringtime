@@ -37,7 +37,7 @@ setup(
       'Topic :: Software Development :: Libraries :: Python Modules',
   ],
   install_requires=[
-      'python-dateutil==2.8.2',
+      'python-dateutil==2.9.0.post0',
       'ply==3.11',
   ],
   packages=find_packages(),

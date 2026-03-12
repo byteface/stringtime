@@ -453,7 +453,7 @@ class Date:
         while minutesValue > 59:
             current_hour = self._date.hour
             self.set_hours(current_hour + 1)
-            minutesValue -= 59
+            minutesValue -= 60
 
         while minutesValue < 0:
             current_hour = self._date.hour
@@ -481,12 +481,12 @@ class Date:
         while secondsValue > 59:
             current_minute = self._date.minute
             self.set_minutes(current_minute + 1)
-            secondsValue -= 59
+            secondsValue -= 60
 
         while secondsValue < 0:
             current_minute = self._date.minute
             self.set_minutes(current_minute - 1)
-            secondsValue += 59
+            secondsValue += 60
 
         self._date = self._date.replace(second=int(secondsValue))
 

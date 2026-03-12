@@ -1,8 +1,10 @@
-pytest==7.1.1
-pytest-mock==3.7.0
-time-machine==2.6.0
-python-dateutil==2.8.2
+pytest==9.0.2
+pytest-cov==7.0.0
+pytest-mock==3.15.1
+python-dateutil==2.9.0.post0
 ply==3.11
-isort==5.10.1
-black==22.3.0
-wheel
+isort==8.0.1
+black==26.3.1
+setuptools==82.0.1
+twine==6.2.0
+wheel==0.46.3
