@@ -31,6 +31,8 @@ python3 -m pip install stringtime
 # python3 -m pip install stringtime --upgrade
 ```
 
+Requires Python 3.10 or newer.
+
 ## Usage and API
 
 Here's a list of example phrases that can be used...
