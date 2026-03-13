@@ -79,6 +79,8 @@ Here's a list of example phrases that can be used...
 "20 minutes hence"
 "10 minutes ago"
 "3 business days from now"
+"3 more sleeps"
+"10 sleeps til xmas"
 "next working day"
 "end of business tomorrow"
 "end of play"

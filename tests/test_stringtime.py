@@ -104,6 +104,7 @@ class TestCaseStrict:
             ("here and now", "2020-12-25 17:05:55"),
             ("2 weeks from now", "2021-01-08 17:05:55"),
             ("3 business days from now", "2020-12-30 17:05:55"),
+            ("3 more sleeps", "2020-12-28 17:05:55"),
             ("next working day", "2020-12-28 17:05:55"),
             ("end of business tomorrow", "2020-12-26 17:00:00"),
             ("end of play", "2020-12-25 17:00:00"),
@@ -388,6 +389,11 @@ class TestCaseStrict:
         d = Date("", relative_to="2021-06-01 10:30:00")
 
         assert str(d) == "2021-06-01 10:30:00"
+
+    def test_sleeps_until_christmas(self):
+        d = Date("10 sleeps til xmas", relative_to="2020-12-15 17:05:55")
+
+        assert str(d) == "2020-12-15 17:05:55"
 
     def test_parse_metadata_for_exact_parser_match(self):
         d = Date("an hour from now")

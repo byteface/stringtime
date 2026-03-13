@@ -1664,6 +1664,36 @@ def get_business_phrase_date(phrase):
     return shift_business_days(get_reference_date(), count)
 
 
+def get_sleep_phrase_date(phrase):
+    match = re.fullmatch(r"(?P<count>\d+)\s+more\s+sleeps?", phrase)
+    if match is not None:
+        d = get_reference_date()
+        d.set_date(d.get_date() + int(match.group("count")))
+        return d
+
+    match = re.fullmatch(
+        r"(?P<count>\d+)\s+sleeps?\s+(?:til|till|until)\s+(?P<target>xmas|christmas)",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    count = int(match.group("count"))
+    target = "christmas" if match.group("target") == "xmas" else match.group("target")
+    target_date = get_holiday_date(target)
+    reference = get_reference_date()
+
+    if target_date is None:
+        return None
+
+    if target_date.to_datetime().date() <= reference.to_datetime().date():
+        target_date.set_fullyear(target_date.get_year() + 1)
+
+    d = clone_date(target_date)
+    d.set_date(d.get_date() - count)
+    return d
+
+
 def merge_date_parts(base_date, overlay_date):
     now = get_reference_date()
     d = base_date
@@ -1712,6 +1742,7 @@ def parse_natural_date_strict(date, *args, **kwargs):
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
     business_date = get_business_phrase_date(phrase)
+    sleep_date = get_sleep_phrase_date(phrase)
     normalized_phrase = replace_short_words(phrase)
     phrase = normalized_phrase
 
@@ -1732,6 +1763,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if business_date is not None:
         return attach_parse_metadata(
             apply_timezone(business_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if sleep_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(sleep_date, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
