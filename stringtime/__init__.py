@@ -1786,6 +1786,64 @@ def get_quarter_phrase_date(phrase):
     return None
 
 
+def get_part_of_day_time(part):
+    return {
+        "morning": (9, 0),
+        "afternoon": (15, 0),
+        "evening": (19, 0),
+        "night": (21, 0),
+        "lunchtime": (12, 30),
+    }.get(part)
+
+
+def get_part_of_day_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
+    reference = get_reference_date()
+
+    if phrase == "in the morning":
+        d = clone_date(reference)
+        d.set_hours(9)
+        d.set_minutes(0)
+        d.set_seconds(0)
+        if reference.get_hours() >= 9:
+            d.set_date(d.get_date() + 1)
+        return d
+
+    patterns = [
+        r"(?P<date>today|tomorrow|yesterday|this|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?P<part>morning|afternoon|evening|night|lunchtime)",
+        r"(?P<part>morning|afternoon|evening|night|lunchtime)\s+(?P<date>today|tomorrow|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
+    ]
+
+    for pattern in patterns:
+        match = re.fullmatch(pattern, phrase)
+        if match is None:
+            continue
+
+        date_text = match.group("date")
+        if date_text == "this":
+            date_text = "today"
+
+        date_part = parse_natural_date_strict(
+            date_text,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if date_part is None:
+            continue
+
+        time_value = get_part_of_day_time(match.group("part"))
+        if time_value is None:
+            continue
+
+        d = clone_date(date_part)
+        d.set_hours(time_value[0])
+        d.set_minutes(time_value[1])
+        d.set_seconds(0)
+        return d
+
+    return None
+
+
 def is_business_day(date_obj):
     return date_obj.to_datetime().weekday() < 5
 
@@ -2033,6 +2091,9 @@ def parse_natural_date_strict(date, *args, **kwargs):
     )
     normalized_phrase = replace_short_words(phrase)
     phrase = normalized_phrase
+    part_of_day_date = get_part_of_day_phrase_date(
+        phrase, *args, timezone_aware=timezone_aware
+    )
 
     holiday_date = get_holiday_date(phrase)
     if holiday_date is not None:
@@ -2118,6 +2179,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if compound_clock_date is not None:
         return attach_parse_metadata(
             apply_timezone(compound_clock_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if part_of_day_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(part_of_day_date, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
