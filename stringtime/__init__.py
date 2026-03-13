@@ -1,17 +1,31 @@
 __version__ = "0.0.6"
 __all__ = [
+    "after",
     "Date",
     "DateMatch",
     "PhraseCandidate",
     "ParseMetadata",
     "Phrase",
+    "builtin_holiday_alias_count",
+    "builtin_holiday_definition_count",
+    "clear_custom_holidays",
     "extract_dates",
+    "is_after",
+    "is_before",
+    "is_same_day",
+    "is_same_time",
     "nearest_phrase_for",
     "nearest_phrases_for",
     "phrase_for",
     "phrases_for",
+    "register_holiday",
+    "register_holiday_date",
+    "register_holiday_dates",
+    "register_holidays",
+    "until",
 ]
 
+import calendar
 import datetime
 import contextvars
 import re
@@ -21,8 +35,20 @@ from dataclasses import dataclass
 import ply.lex as lex
 import ply.yacc as yacc
 from dateutil.easter import easter
+from dateutil.relativedelta import relativedelta
 
 from stringtime.date import Date as stDate
+from stringtime.holidays import (
+    HOLIDAY_FIRST_TOKENS,
+    builtin_holiday_alias_count,
+    builtin_holiday_definition_count,
+    clear_custom_holidays,
+    get_registered_holiday_resolver,
+    register_holiday,
+    register_holiday_date,
+    register_holiday_dates,
+    register_holidays,
+)
 
 DEBUG = False
 try:
@@ -87,6 +113,10 @@ NORMALIZATION_ALIASES = {
     "2moro": "tomorrow",
     "2morro": "tomorrow",
     "2moz": "tomorrow",
+    "2mrw": "tomorrow",
+    "tomoro": "tomorrow",
+    "tmoro": "tomorrow",
+    "tmorow": "tomorrow",
     "tomorow": "tomorrow",
     "hr ": "hour",
     "hrs": "hour",
@@ -107,11 +137,23 @@ NORMALIZATION_ALIASES = {
     "o'clock": "",
     "febuary": "february",
     "feburary": "february",
+    "twelth": "twelfth",
+    "janurary": "january",
+    "januray": "january",
+    "ocotber": "october",
+    "decemeber": "december",
+    "wensday": "wednesday",
+    "wednsday": "wednesday",
+    "thurday": "thursday",
+    "thrusday": "thursday",
 }
 
 NORMALIZATION_WORD_ALIASES = {
     "2day": "today",
     "tdy": "today",
+    "b4": "before",
+    "xmas": "christmas",
+    "hallowe'en": "halloween",
     "tmrw": "tomorrow",
     "tmr": "tomorrow",
     "tomo": "tomorrow",
@@ -119,10 +161,21 @@ NORMALIZATION_WORD_ALIASES = {
     "yday": "yesterday",
     "yest": "yesterday",
     "ystd": "yesterday",
+    "ystrday": "yesterday",
+    "ystrdy": "yesterday",
+    "yestday": "yesterday",
+    "2nite": "tonight",
+    "tonite": "tonight",
+    "tnite": "tonight",
     "nite": "night",
+    "midnite": "midnight",
+    "arvo": "afternoon",
     "eob": "end of business",
+    "cob": "end of business",
+    "cop": "end of play",
     "eom": "end of month",
     "eoy": "close of year",
+    "coy": "close of year",
 }
 
 
@@ -175,13 +228,170 @@ def apply_timezone(date_obj, tzinfo, timezone_aware=False):
 
 def normalize_timezone_phrase(phrase):
     return re.sub(
-        r"^((?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|today|tomorrow|yesterday)\s+(\d{1,2}(?::\d{2})?(?:am|pm))$",
+        r"^((?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|today|tomorrow|yesterday)\s+(\d{1,2}(?::\d{2})?(?:am|pm)?)$",
         r"\1 at \2",
         phrase,
     )
 
 
 def normalize_phrase(phrase):
+    def normalize_24h_time(match):
+        hour = int(match.group("hour"))
+        minute = int(match.group("minute"))
+        meridiem = "am" if hour < 12 else "pm"
+        normalized_hour = hour % 12
+        if normalized_hour == 0:
+            normalized_hour = 12
+        if minute == 0:
+            return f"{normalized_hour}{meridiem}"
+        return f"{normalized_hour}:{minute:02d}{meridiem}"
+
+    phrase = re.sub(
+        r"\b(?P<hour>\d{1,2})\s+(?P<meridiem>am|pm)\b",
+        r"\g<hour>\g<meridiem>",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(r"(?<!\w)a\.m\.(?!\w)", "am", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"(?<!\w)p\.m\.(?!\w)", "pm", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bante meridiem\b", "am", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bpost meridiem\b", "pm", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bhundreth\b", "hundredth", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bthe end of month\b", "end of month", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bmonth end\b", "end of month", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"\bthe start of the month of (?P<month>january|february|march|april|may|june|july|august|september|october|november|december)\b",
+        r"the start of \g<month>",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bnew year's\b(?!\s+day)",
+        "new year's day",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(r"\bthe bank holiday\b", "bank holiday", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bbank holiday monday\b", "bank holiday", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"\bthe night before christmas\b", "christmas eve", phrase, flags=re.IGNORECASE
+    )
+    phrase = re.sub(r"\beop today\b", "eop", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bthe close of year\b", "close of year", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"\bthe start of next quarter\b", "start of next quarter", phrase, flags=re.IGNORECASE
+    )
+    phrase = re.sub(r"\b(?:in|on)\s+the\s+morrow\b", "tomorrow", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bthe\s+morrow\b", "tomorrow", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\blunch\s+time\b", "lunchtime", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\bdinner\s+time\b", "dinnertime", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(r"\btea\s+time\b", "teatime", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"\b(?:about|around)\s+(lunchtime|dinnertime|teatime)\b",
+        r"\1",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bmidnight\s+(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+        r"midnight on \g<weekday>",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bthe\s+beginning\s+of\s+(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)\b",
+        r"the start of \g<month>",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bbeginning\s+of\s+(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)\b",
+        r"start of \g<month>",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(r"\bfirst light\b", "dawn", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"^at\s+(dawn|sunrise|sunset|dusk|twilight)\s+(.+)$",
+        r"\1 \2",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\b(?P<hour>[01]?\d|2[0-3]):(?P<minute>\d{2})\b(?!\s*(?:am|pm)\b)",
+        normalize_24h_time,
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bthe\s+start\s+of\s+(q[1-4](?:\s+\d{4})?)\b",
+        r"start of \1",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bmiddle\s+of\s+(q[1-4](?:\s+\d{4})?)\b",
+        r"mid \1",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bnext\s+month\s+on\s+(?P<day>\d+)(?P<suffix>st|nd|rd|th)\b",
+        r"\g<day>\g<suffix> of next month",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bthe\s+second-last\s+day\s+of\s+the\s+month\b",
+        "the second to last day of the month",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bthe\s+penultimate\s+day\s+of\s+the\s+month\b",
+        "the second to last day of the month",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bsecond-last\s+day\s+of\s+the\s+month\b",
+        "second to last day of the month",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bpenultimate\s+day\s+of\s+the\s+month\b",
+        "second to last day of the month",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"\bt[\s-]*minus\s+(?P<rest>.+)$",
+        lambda match: f"{match.group('rest')} ago",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(r"\b(noon|midnight|midday)ish\b", r"\1", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"\b(?:about|around)\s+(?=(?:\d{1,2}(?::\d{2})?(?:am|pm)?|\d{1,2}ish|noon|midnight|midday|dawn|sunrise|sunset|dusk|twilight)\b)",
+        "",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(r"\btonight\b", "today night", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"\bclose of business\b", "end of business", phrase, flags=re.IGNORECASE
+    )
+    phrase = re.sub(r"\bclose of play\b", "end of play", phrase, flags=re.IGNORECASE)
+    phrase = re.sub(
+        r"\b(?P<hour>\d{1,2})(?::(?P<minute>\d{2}))?\s+in\s+the\s+morning\b",
+        lambda match: (
+            f"{int(match.group('hour')) % 12}:{match.group('minute')}am"
+            if match.group("minute") is not None
+            else f"{int(match.group('hour')) % 12}am"
+        ),
+        phrase,
+    )
     phrase = normalize_timezone_phrase(phrase)
     phrase = re.sub(
         r"^(in\s+.+?)\s+from now$",
@@ -194,6 +404,12 @@ def normalize_phrase(phrase):
 def apply_word_aliases(phrase):
     for source, target in NORMALIZATION_WORD_ALIASES.items():
         phrase = re.sub(rf"\b{re.escape(source)}\b", target, phrase)
+    return phrase
+
+
+def apply_literal_aliases(phrase):
+    for source, target in NORMALIZATION_ALIASES.items():
+        phrase = phrase.replace(source, target)
     return phrase
 
 
@@ -231,6 +447,7 @@ class PhraseCandidate:
 def clone_date(date_obj):
     cloned = stDate()
     cloned._date = date_obj.to_datetime().replace()
+    cloned.parse_metadata = getattr(date_obj, "parse_metadata", None)
     return cloned
 
 
@@ -250,6 +467,115 @@ def coerce_reference_date(value):
     if isinstance(value, (str, int)):
         return stDate(value)
     raise TypeError("relative_to must be a string, int, date, datetime, or Date")
+
+
+def coerce_value_date(value, *, argument_name="value", default_now=False):
+    if value is None:
+        if default_now:
+            return get_reference_date()
+        raise TypeError(
+            f"{argument_name} must be a string, int, date, datetime, or Date"
+        )
+
+    coerced = coerce_reference_date(value)
+    if coerced is None:
+        raise TypeError(
+            f"{argument_name} must be a string, int, date, datetime, or Date"
+        )
+    return coerced
+
+
+def normalize_duration_datetime(value):
+    if value.tzinfo is None:
+        return value.replace(microsecond=0)
+    return value.astimezone(datetime.timezone.utc).replace(tzinfo=None, microsecond=0)
+
+
+def comparable_datetime(value):
+    return normalize_duration_datetime(value.to_datetime())
+
+
+def format_duration_string(from_value, to_value):
+    start = normalize_duration_datetime(from_value)
+    end = normalize_duration_datetime(to_value)
+
+    if end < start:
+        start, end = end, start
+
+    delta = relativedelta(end, start)
+    weeks, days = divmod(delta.days, 7)
+    components = [
+        ("year", delta.years),
+        ("month", delta.months),
+        ("week", weeks),
+        ("day", days),
+        ("hour", delta.hours),
+        ("minute", delta.minutes),
+        ("second", delta.seconds),
+    ]
+
+    parts = []
+    for label, value in components:
+        if value == 0:
+            continue
+        suffix = "" if value == 1 else "s"
+        parts.append(f"{value} {label}{suffix}")
+
+    if not parts:
+        return "0 seconds"
+    if len(parts) == 1:
+        return parts[0]
+    if len(parts) == 2:
+        return f"{parts[0]} and {parts[1]}"
+    return f"{', '.join(parts[:-1])} and {parts[-1]}"
+
+
+def maybe_roll_until_target_forward(target, reference):
+    if normalize_duration_datetime(target.to_datetime()) >= normalize_duration_datetime(
+        reference.to_datetime()
+    ):
+        return target
+
+    metadata = getattr(target, "parse_metadata", None)
+    if metadata is None or metadata.used_dateutil:
+        return target
+
+    normalized = (metadata.normalized_text or "").strip().lower()
+    if normalized == "" or normalized.startswith(("next ", "last ", "this ")):
+        return target
+
+    if get_registered_holiday_resolver(normalized) is None:
+        return target
+
+    return get_date(f"next {normalized}", relative_to=reference)
+
+
+def resolve_duration_arguments(*args, from_=None, to=None, kwargs=None):
+    if kwargs is None:
+        kwargs = {}
+
+    kwargs = dict(kwargs)
+    if "from" in kwargs and from_ is None:
+        from_ = kwargs.pop("from")
+    if "to" in kwargs and to is None:
+        to = kwargs.pop("to")
+    if kwargs:
+        unexpected = ", ".join(sorted(kwargs))
+        raise TypeError(f"unexpected keyword argument(s): {unexpected}")
+
+    remaining = list(args)
+    if remaining and from_ is None and to is None:
+        to = remaining.pop(0)
+    elif remaining and from_ is None:
+        from_ = remaining.pop(0)
+
+    if remaining and to is None:
+        to = remaining.pop(0)
+
+    if remaining:
+        raise TypeError("too many positional arguments")
+
+    return from_, to
 
 
 def get_reference_date():
@@ -1486,6 +1812,8 @@ def replace_short_words(phrase):
     replace shortened words with normal equivalents
     """
 
+    protected_second_unit = "__stringtime_second_unit__"
+
     def replace_fractional_words(match):
         raw_number = match.group("number")
         unit = match.group("unit")
@@ -1619,6 +1947,11 @@ def replace_short_words(phrase):
     # TODO - regexes might be better here. allow space or number in front
     # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
     phrase = re.sub(
+        r"\b(?P<number>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|few|several)\s+second\b",
+        lambda match: f"{match.group('number')} {protected_second_unit}",
+        phrase,
+    )
+    phrase = re.sub(
         r"\b(?P<number>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+and\s+a\s+half\s+(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
         replace_fractional_words,
         phrase,
@@ -1639,7 +1972,7 @@ def replace_short_words(phrase):
         phrase,
     )
     phrase = re.sub(
-        r"\b(?P<day_phrase>(?:(?:last|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday))\s+(?:at|@)\s+(?P<time_phrase>\d{1,2}:\d{2}(?:\s?(?:am|pm))?)\b",
+        r"\b(?P<day_phrase>(?:(?:last|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|today|tomorrow|yesterday)\s+(?:at|@)\s+(?P<time_phrase>\d{1,2}:\d{2}(?:\s?(?:am|pm))?)\b",
         rewrite_day_time_phrase,
         phrase,
     )
@@ -1659,6 +1992,7 @@ def replace_short_words(phrase):
     phrase = re.sub(r"\bcouple of\b", "2", phrase)
     phrase = re.sub(r"\ba few\b", "3", phrase)
     phrase = re.sub(r"\bfew\b", "3", phrase)
+    phrase = re.sub(r"\bseveral\b", "7", phrase)
     phrase = re.sub(
         r"\b(?P<count>\d+)\s+(?P<scale>decade|decades|century|centuries|millennium|millenium|millennia)\b",
         replace_scaled_year_units,
@@ -1714,6 +2048,7 @@ def replace_short_words(phrase):
         phrase = phrase.replace(source, target)
 
     phrase = re.sub(r"\b(?P<hour>\d{1,2})ish\b", normalize_ish_time, phrase)
+    phrase = phrase.replace(protected_second_unit, "second")
 
     return phrase
 
@@ -1766,24 +2101,12 @@ def quarter_start_month(quarter):
 def get_holiday_date(phrase):
     current_year = get_reference_date().get_year()
     year_offset = 0
+    relative_direction = None
+    original_phrase = phrase.strip()
 
-    if phrase.endswith(" next year"):
-        year_offset = 1
-        phrase = phrase[: -len(" next year")]
-    elif phrase.endswith(" last year"):
-        year_offset = -1
-        phrase = phrase[: -len(" last year")]
-    elif phrase.endswith(" this year"):
-        phrase = phrase[: -len(" this year")]
-
-    holiday_key = phrase.strip()
-    year = current_year + year_offset
-
-    if holiday_key in {"bank holiday", "next bank holiday"}:
+    if original_phrase in {"bank holiday", "next bank holiday"}:
         reference_date = get_reference_date().to_datetime().date()
-        if year_offset != 0:
-            reference_date = datetime.date(year, 1, 1)
-        if holiday_key == "next bank holiday":
+        if original_phrase == "next bank holiday":
             reference_date += datetime.timedelta(days=1)
 
         for search_year in range(reference_date.year, reference_date.year + 3):
@@ -1796,34 +2119,46 @@ def get_holiday_date(phrase):
                     return d
         return None
 
-    holiday_builders = {
-        "new year's day": lambda y: datetime.date(y, 1, 1),
-        "new years day": lambda y: datetime.date(y, 1, 1),
-        "new year's eve": lambda y: datetime.date(y, 12, 31),
-        "new years eve": lambda y: datetime.date(y, 12, 31),
-        "valentine's day": lambda y: datetime.date(y, 2, 14),
-        "valentines day": lambda y: datetime.date(y, 2, 14),
-        "st patrick's day": lambda y: datetime.date(y, 3, 17),
-        "st patricks day": lambda y: datetime.date(y, 3, 17),
-        "easter": lambda y: easter(y),
-        "memorial day": lambda y: last_weekday_of_month(y, 5, 0),
-        "independence day": lambda y: datetime.date(y, 7, 4),
-        "fourth of july": lambda y: datetime.date(y, 7, 4),
-        "labor day": lambda y: nth_weekday_of_month(y, 9, 0, 1),
-        "halloween": lambda y: datetime.date(y, 10, 31),
-        "thanksgiving": lambda y: nth_weekday_of_month(y, 11, 3, 4),
-        "black friday": lambda y: nth_weekday_of_month(y, 11, 3, 4)
-        + datetime.timedelta(days=1),
-        "christmas eve": lambda y: datetime.date(y, 12, 24),
-        "christmas": lambda y: datetime.date(y, 12, 25),
-        "christmas day": lambda y: datetime.date(y, 12, 25),
-        "boxing day": lambda y: datetime.date(y, 12, 26),
-    }
+    if phrase.endswith(" next year"):
+        year_offset = 1
+        phrase = phrase[: -len(" next year")]
+    elif phrase.endswith(" last year"):
+        year_offset = -1
+        phrase = phrase[: -len(" last year")]
+    elif phrase.endswith(" this year"):
+        phrase = phrase[: -len(" this year")]
 
-    if holiday_key not in holiday_builders:
+    if phrase.startswith("next "):
+        relative_direction = "next"
+        phrase = phrase[len("next ") :]
+    elif phrase.startswith("last "):
+        relative_direction = "last"
+        phrase = phrase[len("last ") :]
+
+    holiday_key = phrase.strip()
+    year = current_year + year_offset
+
+    resolver = get_registered_holiday_resolver(holiday_key)
+    if resolver is None:
         return None
 
-    holiday = holiday_builders[holiday_key](year)
+    if relative_direction is not None and year_offset == 0:
+        reference_date = get_reference_date().to_datetime().date()
+        holiday = resolver(current_year)
+        if holiday is None:
+            return None
+        if relative_direction == "next":
+            if holiday <= reference_date:
+                holiday = resolver(current_year + 1)
+        else:
+            if holiday >= reference_date:
+                holiday = resolver(current_year - 1)
+    else:
+        holiday = resolver(year)
+
+    if holiday is None:
+        return None
+
     d = get_reference_date()
     d.set_fullyear(holiday.year)
     d.set_month(holiday.month - 1)
@@ -1887,12 +2222,50 @@ def resolve_period_year_month(period):
         "november": 11,
         "december": 12,
     }
+    ordinal_months = {
+        "1st": 1,
+        "2nd": 2,
+        "3rd": 3,
+        "4th": 4,
+        "5th": 5,
+        "6th": 6,
+        "7th": 7,
+        "8th": 8,
+        "9th": 9,
+        "10th": 10,
+        "11th": 11,
+        "12th": 12,
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+        "seventh": 7,
+        "eighth": 8,
+        "ninth": 9,
+        "tenth": 10,
+        "eleventh": 11,
+        "twelfth": 12,
+    }
 
     if period in months:
         return reference_year, months[period]
 
     if period in {"month", "the month", "this month"}:
         return reference_year, reference_month
+
+    ordinal_month_match = re.fullmatch(
+        r"(?:the\s+)?(?P<month>1st|2nd|3rd|4th|5th|6th|7th|8th|9th|10th|11th|12th|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\s+month(?:\s+(?P<year>\d{4}))?",
+        period,
+    )
+    if ordinal_month_match is not None:
+        year = (
+            int(ordinal_month_match.group("year"))
+            if ordinal_month_match.group("year") is not None
+            else reference_year
+        )
+        return year, ordinal_months[ordinal_month_match.group("month")]
 
     if period == "next month":
         d = get_reference_date()
@@ -1907,6 +2280,28 @@ def resolve_period_year_month(period):
     if re.fullmatch(r"\d{4}", period):
         return int(period), 1
 
+    return None
+
+
+def resolve_year_phrase(period):
+    period = period.strip()
+    reference = get_reference_date()
+    current_century_start = (reference.get_year() // 100) * 100
+
+    if period in {"year", "the year", "this year"}:
+        return reference.get_year()
+    if period == "next year":
+        return reference.get_year() + 1
+    if period == "last year":
+        return reference.get_year() - 1
+    if period in {"century", "the century", "this century"}:
+        return current_century_start
+    if period == "next century":
+        return current_century_start + 100
+    if period == "last century":
+        return current_century_start - 100
+    if re.fullmatch(r"\d{4}", period):
+        return int(period)
     return None
 
 
@@ -1943,10 +2338,23 @@ def resolve_quarter_year(quarter_phrase):
 
 
 def get_ordinal_weekday_date(phrase):
-    match = re.fullmatch(
-        r"(?:the\s+)?(?P<occurrence>first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|last|penultimate)\s+(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?:in|of)\s+(?P<period>.+)",
-        phrase,
+    pattern = (
+        r"(?:the\s+)?(?P<occurrence>first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|last|penultimate)\s+"
+        r"(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?:in|of)\s+(?P<period>.+)"
     )
+    match = re.fullmatch(pattern, phrase)
+    if match is None:
+        year_prefixed = re.fullmatch(r"(?P<year>\d{4})\s+on\s+(?P<rest>.+)", phrase)
+        if year_prefixed is not None:
+            rest_match = re.fullmatch(pattern, year_prefixed.group("rest"))
+            if rest_match is not None:
+                period_text = rest_match.group("period")
+                if not re.search(r"\b\d{4}\b", period_text):
+                    phrase = (
+                        f"{rest_match.group('occurrence')} {rest_match.group('weekday')} "
+                        f"of {period_text} {year_prefixed.group('year')}"
+                    )
+                    match = re.fullmatch(pattern, phrase)
     if match is None:
         return None
 
@@ -1965,8 +2373,10 @@ def get_ordinal_weekday_date(phrase):
         "sunday": 6,
     }[weekday_name]
 
-    if year_match is not None:
-        year = int(period)
+    resolved_year = resolve_year_phrase(period)
+
+    if year_match is not None or resolved_year is not None:
+        year = int(period) if year_match is not None else resolved_year
         if occurrence in {"first", "1st"}:
             date_value = nth_weekday_of_year(year, weekday, 1)
         elif occurrence in {"second", "2nd"}:
@@ -2006,6 +2416,186 @@ def get_ordinal_weekday_date(phrase):
     d.set_fullyear(date_value.year)
     d.set_month(date_value.month - 1)
     d.set_date(date_value.day)
+    return d
+
+
+def get_ordinal_month_year_date(phrase):
+    phrase = re.sub(r"^on\s+", "", phrase)
+    ordinal_day_lookup = {
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+        "seventh": 7,
+        "eighth": 8,
+        "ninth": 9,
+        "tenth": 10,
+        "eleventh": 11,
+        "twelfth": 12,
+        "thirteenth": 13,
+        "fourteenth": 14,
+        "fifteenth": 15,
+        "sixteenth": 16,
+        "seventeenth": 17,
+        "eighteenth": 18,
+        "nineteenth": 19,
+        "twentieth": 20,
+        "thirtieth": 30,
+    }
+    month_lookup = {
+        "january": 1,
+        "february": 2,
+        "march": 3,
+        "april": 4,
+        "may": 5,
+        "june": 6,
+        "july": 7,
+        "august": 8,
+        "september": 9,
+        "october": 10,
+        "november": 11,
+        "december": 12,
+    }
+    ordinal_month_lookup = {
+        "1st": 1,
+        "2nd": 2,
+        "3rd": 3,
+        "4th": 4,
+        "5th": 5,
+        "6th": 6,
+        "7th": 7,
+        "8th": 8,
+        "9th": 9,
+        "10th": 10,
+        "11th": 11,
+        "12th": 12,
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+        "seventh": 7,
+        "eighth": 8,
+        "ninth": 9,
+        "tenth": 10,
+        "eleventh": 11,
+        "twelfth": 12,
+    }
+    word_year_lookup = {
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
+        "eleven": 11,
+        "twelve": 12,
+        "thirteen": 13,
+        "fourteen": 14,
+        "fifteen": 15,
+        "sixteen": 16,
+        "seventeen": 17,
+        "eighteen": 18,
+        "nineteen": 19,
+        "twenty": 20,
+        "thirty": 30,
+        "forty": 40,
+        "fifty": 50,
+        "sixty": 60,
+        "seventy": 70,
+        "eighty": 80,
+        "ninety": 90,
+    }
+
+    def parse_year_value(raw_year):
+        if re.fullmatch(r"\d{2}|\d{4}", raw_year):
+            year = int(raw_year)
+            if year < 100:
+                return year + 1900 if year > 30 else year + 2000
+            return year
+
+        parts = raw_year.split()
+        if len(parts) == 1 and parts[0] in word_year_lookup:
+            year = word_year_lookup[parts[0]]
+            return year + 1900 if year > 30 else year + 2000
+
+        if (
+            len(parts) == 2
+            and parts[0] in word_year_lookup
+            and parts[1] in word_year_lookup
+            and word_year_lookup[parts[0]] >= 20
+            and word_year_lookup[parts[1]] < 10
+        ):
+            year = word_year_lookup[parts[0]] + word_year_lookup[parts[1]]
+            return year + 1900 if year > 30 else year + 2000
+
+        return None
+
+    year_pattern = (
+        r"\d{2}|\d{4}|year|one|two|three|four|five|six|seven|eight|nine|ten|"
+        r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|"
+        r"nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|"
+        r"(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+"
+        r"(?:one|two|three|four|five|six|seven|eight|nine)"
+    )
+    day_pattern = (
+        r"\d{1,2}(?:st|nd|rd|th)?|first|second|third|fourth|fifth|sixth|"
+        r"seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|"
+        r"fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|"
+        r"thirtieth"
+    )
+    month_pattern = (
+        r"january|february|march|april|may|june|july|august|september|october|"
+        r"november|december|1st|2nd|3rd|4th|5th|6th|7th|8th|9th|10th|11th|12th|"
+        r"first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|"
+        r"eleventh|twelfth"
+    )
+
+    match = re.fullmatch(
+        rf"(?:the\s+)?(?P<day>{day_pattern})\s+of\s+(?:the\s+)?(?P<month>{month_pattern})(?:\s+(?P<year>{year_pattern}))?",
+        phrase,
+    )
+    if match is None:
+        match = re.fullmatch(
+            rf"(?:the\s+)?(?P<day>{day_pattern})\s+day\s+of\s+(?:the\s+)?(?P<month>{month_pattern})(?:\s+month)?(?:\s+of\s+(?P<year>{year_pattern}))?",
+            phrase,
+        )
+    if match is None:
+        return None
+
+    raw_day = match.group("day")
+    ordinal_match = re.fullmatch(r"(\d{1,2})(?:st|nd|rd|th)?", raw_day)
+    if ordinal_match is not None:
+        day = int(ordinal_match.group(1))
+    else:
+        day = ordinal_day_lookup.get(raw_day)
+        if day is None:
+            return None
+    raw_month = match.group("month")
+    month = month_lookup.get(raw_month, ordinal_month_lookup.get(raw_month))
+    if month is None:
+        return None
+
+    raw_year = match.group("year")
+    if raw_year is None or raw_year == "year":
+        year = get_reference_date().get_year()
+    else:
+        year = parse_year_value(raw_year)
+        if year is None:
+            return None
+
+    d = get_reference_date()
+    d.set_date(1)
+    d.set_fullyear(year)
+    d.set_month(month - 1)
+    d.set_date(day)
     return d
 
 
@@ -2062,7 +2652,7 @@ def get_quarter_phrase_date(phrase):
 
 def get_relative_weekday_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
     match = re.fullmatch(
-        r"(?:the\s+)?(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?P<relation>after next|before last)",
+        r"(?:the\s+)?(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?P<relation>after next|before last|gone|past)",
         phrase,
     )
     if match is None:
@@ -2081,12 +2671,152 @@ def get_relative_weekday_phrase_date(phrase, *args, timezone_aware=False, **kwar
     if d is None:
         return None
 
-    d.set_date(d.get_date() + (7 if relation == "after next" else -7))
+    if relation == "after next":
+        d.set_date(d.get_date() + 7)
+    elif relation == "before last":
+        d.set_date(d.get_date() - 7)
+    return d
+
+
+def get_counted_weekday_phrase_date(phrase):
+    match = re.fullmatch(
+        r"(?P<count>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+"
+        r"(?P<weekday>mondays?|tuesdays?|wednesdays?|thursdays?|fridays?|saturdays?|sundays?)\s+"
+        r"(?:(?:from\s+now)|hence)",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    count = parse_offset_number(match.group("count"))
+    if count is None or count < 1:
+        return None
+
+    weekday_name = match.group("weekday")
+    if weekday_name.endswith("s"):
+        weekday_name = weekday_name[:-1]
+
+    weekday = {
+        "monday": 0,
+        "tuesday": 1,
+        "wednesday": 2,
+        "thursday": 3,
+        "friday": 4,
+        "saturday": 5,
+        "sunday": 6,
+    }[weekday_name]
+
+    reference = get_reference_date()
+    days_ahead = (weekday - reference.to_datetime().weekday()) % 7
+    if days_ahead == 0:
+        days_ahead = 7
+    days_ahead += 7 * (count - 1)
+
+    d = clone_date(reference)
+    d.set_date(d.get_date() + days_ahead)
     return d
 
 
 def get_boundary_phrase_date(phrase):
     reference = get_reference_date()
+    month_lookup = {
+        "january": 1,
+        "february": 2,
+        "march": 3,
+        "april": 4,
+        "may": 5,
+        "june": 6,
+        "july": 7,
+        "august": 8,
+        "september": 9,
+        "october": 10,
+        "november": 11,
+        "december": 12,
+    }
+
+    match = re.fullmatch(
+        r"(?:the\s+)?(first|1st|last)\s+day\s+of\s+(?:the\s+month\s+of\s+)?(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)(?:\s+(?P<year>\d{4}))?",
+        phrase,
+    )
+    if match is not None:
+        target_month = month_lookup[match.group("month")]
+        target_year = (
+            int(match.group("year")) if match.group("year") is not None else reference.get_year()
+        )
+        d = clone_date(reference)
+        d.set_fullyear(target_year)
+        d.set_month(target_month - 1)
+        if match.group(1) in {"first", "1st"}:
+            d.set_date(1)
+        else:
+            d.set_date(stDate.get_month_length(target_month, target_year))
+        return d
+
+    match = re.fullmatch(
+        r"(?:the\s+)?second\s+to\s+last\s+day\s+of\s+(?:the\s+)?(?P<period>month|year)",
+        phrase,
+    )
+    if match is not None:
+        d = clone_date(reference)
+        if match.group("period") == "month":
+            d.set_date(stDate.get_month_length(d.get_month() + 1, d.get_year()) - 1)
+        else:
+            d.set_month(11)
+            d.set_date(30)
+        return d
+
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<position>first|1st|last|second\s+to\s+last)\s+day\s+of\s+(?:the\s+)?(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)(?:\s+(?P<year>next year|last year|this year|\d{4}))?",
+        phrase,
+    )
+    if match is not None:
+        target_month = month_lookup[match.group("month")]
+        raw_year = match.group("year")
+        if raw_year is None or raw_year == "this year":
+            target_year = reference.get_year()
+        elif raw_year == "next year":
+            target_year = reference.get_year() + 1
+        elif raw_year == "last year":
+            target_year = reference.get_year() - 1
+        else:
+            target_year = int(raw_year)
+
+        d = clone_date(reference)
+        d.set_fullyear(target_year)
+        d.set_month(target_month - 1)
+        if match.group("position") in {"first", "1st"}:
+            d.set_date(1)
+        elif match.group("position") == "second to last":
+            d.set_date(stDate.get_month_length(target_month, target_year) - 1)
+        else:
+            d.set_date(stDate.get_month_length(target_month, target_year))
+        return d
+
+    match = re.fullmatch(
+        r"(?:the\s+)?(start|end|close)\s+of\s+(?:the\s+)?(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)",
+        phrase,
+    )
+    if match is not None:
+        target_month = month_lookup[match.group("month")]
+        target_year = reference.get_year()
+        d = clone_date(reference)
+        d.set_fullyear(target_year)
+        d.set_month(target_month - 1)
+        if match.group(1) == "start":
+            d.set_date(1)
+        else:
+            d.set_date(stDate.get_month_length(target_month, target_year))
+
+        if d.to_datetime().replace(tzinfo=None) < reference.to_datetime().replace(tzinfo=None):
+            target_year += 1
+            d.set_fullyear(target_year)
+            d.set_month(target_month - 1)
+            if match.group(1) == "start":
+                d.set_date(1)
+            else:
+                d.set_date(stDate.get_month_length(target_month, target_year))
+
+        return d
 
     match = re.fullmatch(r"(start|end|close)\s+of\s+(?:the\s+)?(month|year)", phrase)
     if match is not None:
@@ -2106,6 +2836,27 @@ def get_boundary_phrase_date(phrase):
             d.set_month(0)
             d.set_date(1)
         else:
+            d.set_month(11)
+            d.set_date(31)
+        return d
+
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<position>first|1st|last)\s+day\s+of\s+(?:the\s+)?(?P<period>year|this year|next year|last year|century|this century|next century|last century|\d{4})",
+        phrase,
+    )
+    if match is not None:
+        target_year = resolve_year_phrase(match.group("period"))
+        if target_year is None:
+            return None
+
+        d = clone_date(reference)
+        d.set_fullyear(target_year)
+        if match.group("position") in {"first", "1st"}:
+            d.set_month(0)
+            d.set_date(1)
+        else:
+            if "century" in match.group("period"):
+                d.set_fullyear(target_year + 99)
             d.set_month(11)
             d.set_date(31)
         return d
@@ -2134,16 +2885,51 @@ def get_month_anchor_date(phrase):
         "november": 11,
         "december": 12,
     }
+    ordinal_month_lookup = {
+        "1st": 1,
+        "2nd": 2,
+        "3rd": 3,
+        "4th": 4,
+        "5th": 5,
+        "6th": 6,
+        "7th": 7,
+        "8th": 8,
+        "9th": 9,
+        "10th": 10,
+        "11th": 11,
+        "12th": 12,
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+        "seventh": 7,
+        "eighth": 8,
+        "ninth": 9,
+        "tenth": 10,
+        "eleventh": 11,
+        "twelfth": 12,
+    }
 
     match = re.fullmatch(
         r"(?:(?P<boundary>end of)\s+)?(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)(?:\s+(?P<edge>finishes|ends))?",
         phrase,
     )
-    if match is None:
-        return None
-
-    target_month = month_lookup[match.group("month")]
-    use_end_of_month = match.group("boundary") is not None or match.group("edge") is not None
+    use_end_of_month = False
+    if match is not None:
+        target_month = month_lookup[match.group("month")]
+        use_end_of_month = (
+            match.group("boundary") is not None or match.group("edge") is not None
+        )
+    else:
+        ordinal_match = re.fullmatch(
+            r"(?:the\s+)?(?P<month>1st|2nd|3rd|[4-9]th|10th|11th|12th|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\s+month",
+            phrase,
+        )
+        if ordinal_match is None:
+            return None
+        target_month = ordinal_month_lookup[ordinal_match.group("month")]
 
     reference = get_reference_date()
     reference_dt = reference.to_datetime().replace(tzinfo=None)
@@ -2166,6 +2952,272 @@ def get_month_anchor_date(phrase):
     return d
 
 
+def get_week_of_month_anchor_date(phrase):
+    week_lookup = {
+        "1st": 1,
+        "2nd": 2,
+        "3rd": 3,
+        "4th": 4,
+        "5th": 5,
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+    }
+
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<week>1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)\s+week\s+of\s+(?P<period>.+)",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    week_number = week_lookup[match.group("week")]
+    day = ((week_number - 1) * 7) + 1
+    reference = get_reference_date()
+    reference_dt = reference.to_datetime().replace(tzinfo=None)
+    d = clone_date(reference)
+
+    resolved_year = resolve_year_phrase(match.group("period"))
+    if resolved_year is not None:
+        d.set_fullyear(resolved_year)
+        d.set_month(0)
+        d.set_date(day)
+        return d
+
+    resolved = resolve_period_year_month(match.group("period"))
+    if resolved is None:
+        return None
+
+    year, month = resolved
+
+    def set_week_anchor_year(target_year):
+        if day > stDate.get_month_length(month, target_year):
+            return False
+        d.set_fullyear(target_year)
+        d.set_month(month - 1)
+        d.set_date(day)
+        return True
+
+    if not set_week_anchor_year(year):
+        return None
+
+    if d.to_datetime().replace(tzinfo=None) < reference_dt:
+        year += 1
+        if not set_week_anchor_year(year):
+            return None
+
+    return d
+
+
+def get_leap_year_anchor_date(phrase):
+    match = re.fullmatch(r"(?:the\s+)?(?P<which>next|last)\s+leap\s+year", phrase)
+    if match is None:
+        return None
+
+    reference = get_reference_date()
+    year = reference.get_year()
+    step = 1 if match.group("which") == "next" else -1
+    candidate = year + step
+
+    def is_leap(test_year):
+        return calendar.isleap(test_year)
+
+    while not is_leap(candidate):
+        candidate += step
+
+    d = clone_date(reference)
+    d.set_date(1)
+    d.set_fullyear(candidate)
+    d.set_month(0)
+    return d
+
+
+def get_leap_year_offset_date(phrase):
+    match = re.fullmatch(
+        r"(?P<count>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|several)\s+leap\s+years?\s+(?P<direction>ago|from now|hence)",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    count = parse_offset_number(match.group("count"))
+    if count is None:
+        return None
+
+    reference = get_reference_date()
+    year = reference.get_year()
+
+    if match.group("direction") == "ago":
+        candidate = year - 1
+        step = -1
+    else:
+        candidate = year + 1
+        step = 1
+
+    leap_years = []
+    while len(leap_years) < count:
+        if calendar.isleap(candidate):
+            leap_years.append(candidate)
+        candidate += step
+
+    target_year = leap_years[-1]
+    d = clone_date(reference)
+    d.set_date(1)
+    d.set_fullyear(target_year)
+    d.set_month(0)
+    return d
+
+
+def get_day_of_year_phrase_date(phrase):
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<day>\d+(?:st|nd|rd|th)|hundredth)\s+day\s+of\s+(?:the\s+)?(?P<period>year|the year|this year|next year|last year|\d{4})",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    raw_day = match.group("day")
+    if raw_day == "hundredth":
+        day_number = 100
+    else:
+        ordinal_match = re.fullmatch(r"(\d+)(?:st|nd|rd|th)", raw_day)
+        day_number = int(ordinal_match.group(1)) if ordinal_match is not None else int(raw_day)
+
+    year = resolve_year_phrase(match.group("period"))
+    if year is None:
+        return None
+
+    max_day = 366 if calendar.isleap(year) else 365
+    if day_number < 1 or day_number > max_day:
+        return None
+
+    target = datetime.date(year, 1, 1) + datetime.timedelta(days=day_number - 1)
+    d = get_reference_date()
+    d.set_fullyear(target.year)
+    d.set_month(target.month - 1)
+    d.set_date(target.day)
+    return d
+
+
+def get_ordinal_time_coordinate_date(phrase, *args, timezone_aware=False, **kwargs):
+    ordinal_lookup = {
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+        "seventh": 7,
+        "eighth": 8,
+        "ninth": 9,
+        "tenth": 10,
+        "eleventh": 11,
+        "twelfth": 12,
+        "thirteenth": 13,
+        "fourteenth": 14,
+        "fifteenth": 15,
+        "sixteenth": 16,
+        "seventeenth": 17,
+        "eighteenth": 18,
+        "nineteenth": 19,
+        "twentieth": 20,
+        "thirtieth": 30,
+    }
+    ordinal_pattern = (
+        r"\d+(?:st|nd|rd|th)|first|second|third|fourth|fifth|sixth|seventh|"
+        r"eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|"
+        r"sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth"
+    )
+
+    def parse_ordinal(raw_value):
+        match = re.fullmatch(r"(\d+)(?:st|nd|rd|th)", raw_value)
+        if match is not None:
+            return int(match.group(1))
+        return ordinal_lookup.get(raw_value)
+
+    match = re.fullmatch(
+        rf"(?:the\s+)?(?P<second>{ordinal_pattern})\s+second\s+of\s+(?:the\s+)?(?P<minute>{ordinal_pattern})\s+minute",
+        phrase,
+    )
+    if match is not None:
+        second = parse_ordinal(match.group("second"))
+        minute = parse_ordinal(match.group("minute"))
+        if second is None or minute is None:
+            return None
+        if not (1 <= second <= 59 and 1 <= minute <= 59):
+            return None
+
+        d = get_reference_date()
+        d.set_minutes(minute)
+        d.set_seconds(second)
+        return d
+
+    match = re.fullmatch(
+        rf"(?:the\s+)?(?P<second>{ordinal_pattern})\s+second\s+of\s+(?:the\s+)?(?P<minute>{ordinal_pattern})\s+minute\s+on\s+(?P<anchor>.+)",
+        phrase,
+    )
+    if match is not None:
+        second = parse_ordinal(match.group("second"))
+        minute = parse_ordinal(match.group("minute"))
+        if second is None or minute is None:
+            return None
+        if not (1 <= second <= 59 and 1 <= minute <= 59):
+            return None
+
+        anchor_date = parse_natural_date_strict(
+            match.group("anchor"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if anchor_date is None:
+            return None
+
+        d = clone_date(anchor_date)
+        d.set_minutes(minute)
+        d.set_seconds(second)
+        return d
+
+    match = re.fullmatch(
+        rf"(?:the\s+)?(?P<minute>{ordinal_pattern})\s+minute\s+on\s+(?P<anchor>.+)",
+        phrase,
+    )
+    if match is not None:
+        minute = parse_ordinal(match.group("minute"))
+        if minute is None or not (1 <= minute <= 59):
+            return None
+
+        anchor_date = parse_natural_date_strict(
+            match.group("anchor"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if anchor_date is None:
+            return None
+
+        d = clone_date(anchor_date)
+        d.set_minutes(minute)
+        d.set_seconds(0)
+        return d
+
+    match = re.fullmatch(rf"(?:the\s+)?(?P<hour>{ordinal_pattern})\s+hour", phrase)
+    if match is None:
+        return None
+
+    hour = parse_ordinal(match.group("hour"))
+    if hour is None or not (1 <= hour <= 23):
+        return None
+
+    d = get_reference_date()
+    d.set_hours(hour)
+    d.set_minutes(0)
+    d.set_seconds(0)
+    return d
+
+
 def get_part_of_day_time(part):
     return {
         "morning": (9, 0),
@@ -2177,7 +3229,28 @@ def get_part_of_day_time(part):
         "evening": (19, 0),
         "night": (21, 0),
         "lunchtime": (12, 30),
+        "dinnertime": (18, 0),
+        "teatime": (17, 0),
     }.get(part)
+
+
+def get_solar_event_time_for_date(date_obj, event):
+    # Approximate solar events by month in local civil time.
+    monthly_times = {
+        1: {"dawn": (7, 30), "sunrise": (8, 5), "sunset": (16, 25), "dusk": (17, 0), "twilight": (17, 0)},
+        2: {"dawn": (6, 45), "sunrise": (7, 20), "sunset": (17, 15), "dusk": (17, 50), "twilight": (17, 50)},
+        3: {"dawn": (5, 45), "sunrise": (6, 20), "sunset": (18, 5), "dusk": (18, 40), "twilight": (18, 40)},
+        4: {"dawn": (4, 45), "sunrise": (5, 25), "sunset": (19, 0), "dusk": (19, 35), "twilight": (19, 35)},
+        5: {"dawn": (4, 0), "sunrise": (4, 45), "sunset": (19, 45), "dusk": (20, 20), "twilight": (20, 20)},
+        6: {"dawn": (3, 30), "sunrise": (4, 15), "sunset": (20, 15), "dusk": (20, 50), "twilight": (20, 50)},
+        7: {"dawn": (3, 45), "sunrise": (4, 30), "sunset": (20, 10), "dusk": (20, 45), "twilight": (20, 45)},
+        8: {"dawn": (4, 30), "sunrise": (5, 15), "sunset": (19, 20), "dusk": (19, 55), "twilight": (19, 55)},
+        9: {"dawn": (5, 20), "sunrise": (6, 0), "sunset": (18, 20), "dusk": (18, 55), "twilight": (18, 55)},
+        10: {"dawn": (6, 10), "sunrise": (6, 45), "sunset": (17, 10), "dusk": (17, 45), "twilight": (17, 45)},
+        11: {"dawn": (6, 55), "sunrise": (7, 30), "sunset": (16, 15), "dusk": (16, 50), "twilight": (16, 50)},
+        12: {"dawn": (7, 25), "sunrise": (8, 0), "sunset": (15, 55), "dusk": (16, 30), "twilight": (16, 30)},
+    }
+    return monthly_times.get(date_obj.get_month() + 1, {}).get(event)
 
 
 def set_date_time(date_obj, hour, minute=0, second=0):
@@ -2188,8 +3261,106 @@ def set_date_time(date_obj, hour, minute=0, second=0):
     return d
 
 
+def get_solar_event_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
+    reference = get_reference_date()
+    phrase = re.sub(r"^on\s+", "", phrase)
+    event_pattern = r"dawn|sunrise|sunset|dusk|twilight"
+
+    match = re.fullmatch(rf"(?P<event>{event_pattern})", phrase)
+    if match is not None:
+        time_value = get_solar_event_time_for_date(reference, match.group("event"))
+        if time_value is None:
+            return None
+
+        d = set_date_time(reference, time_value[0], time_value[1])
+        if (
+            reference.get_hours(),
+            reference.get_minutes(),
+            reference.get_seconds(),
+        ) >= (time_value[0], time_value[1], 0):
+            d.set_date(d.get_date() + 1)
+            shifted_time = get_solar_event_time_for_date(d, match.group("event"))
+            if shifted_time is not None:
+                d.set_hours(shifted_time[0])
+                d.set_minutes(shifted_time[1])
+                d.set_seconds(0)
+        return d
+
+    for pattern in [
+        rf"(?P<event>{event_pattern})\s+on\s+(?P<date>.+)",
+        rf"(?P<date>.+?)\s+(?:at|@)\s+(?P<event>{event_pattern})",
+        rf"(?P<event>{event_pattern})\s+(?P<date>(?:on\s+)?.+)",
+    ]:
+        match = re.fullmatch(pattern, phrase)
+        if match is None:
+            continue
+
+        date_part = parse_natural_date_strict(
+            match.group("date"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if date_part is None:
+            normalized_date = re.sub(r"^the\s+", "", match.group("date"))
+            if normalized_date != match.group("date"):
+                date_part = parse_natural_date_strict(
+                    normalized_date,
+                    *args,
+                    timezone_aware=timezone_aware,
+                    **kwargs,
+                )
+        if date_part is None:
+            continue
+
+        time_value = get_solar_event_time_for_date(date_part, match.group("event"))
+        if time_value is None:
+            continue
+
+        return set_date_time(date_part, time_value[0], time_value[1])
+
+    return None
+
+
 def get_part_of_day_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
     reference = get_reference_date()
+    phrase = re.sub(r"^(?:on|at)\s+", "", phrase)
+    if phrase == "last night":
+        d = set_date_time(reference, 21, 0)
+        d.set_date(d.get_date() - 1)
+        return d
+
+    if phrase in {"night before yesterday", "the night before yesterday"}:
+        d = set_date_time(reference, 21, 0)
+        d.set_date(d.get_date() - 2)
+        return d
+
+    if phrase in {"night before last", "the night before last"}:
+        d = set_date_time(reference, 21, 0)
+        d.set_date(d.get_date() - 2)
+        return d
+
+    if phrase in {"other night", "the other night"}:
+        d = set_date_time(reference, 21, 0)
+        d.set_date(d.get_date() - 1)
+        return d
+
+    in_the_match = re.fullmatch(
+        r"in the (?P<part>morning|afternoon|evening|night)", phrase
+    )
+    if in_the_match is not None:
+        part = in_the_match.group("part")
+        time_value = get_part_of_day_time(part)
+        if time_value is not None:
+            d = set_date_time(reference, time_value[0], time_value[1])
+            if (
+                reference.get_hours(),
+                reference.get_minutes(),
+                reference.get_seconds(),
+            ) >= (time_value[0], time_value[1], 0):
+                d.set_date(d.get_date() + 1)
+            return d
+
     standalone_time = get_part_of_day_time(phrase)
     if standalone_time is not None:
         d = set_date_time(reference, standalone_time[0], standalone_time[1])
@@ -2201,15 +3372,11 @@ def get_part_of_day_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
             d.set_date(d.get_date() + 1)
         return d
 
-    if phrase == "in the morning":
-        d = set_date_time(reference, 9)
-        if reference.get_hours() >= 9:
-            d.set_date(d.get_date() + 1)
-        return d
-
     patterns = [
-        r"(?P<date>today|tomorrow|yesterday|this|(?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?P<part>morning|afternoon|evening|night|lunchtime|early in the morning|early morning|mid-morning|mid morning)",
-        r"(?P<part>morning|afternoon|evening|night|lunchtime|early in the morning|early morning|mid-morning|mid morning)\s+(?P<date>today|tomorrow|yesterday|(?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
+        r"(?P<date>today|tomorrow|yesterday|this|(?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?P<part>morning|afternoon|evening|night|lunchtime|dinnertime|teatime|early in the morning|early morning|mid-morning|mid morning)",
+        r"(?P<part>morning|afternoon|evening|night|lunchtime|dinnertime|teatime|early in the morning|early morning|mid-morning|mid morning)\s+(?P<date>today|tomorrow|yesterday|(?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
+        r"(?:the\s+)?(?P<part>morning|afternoon|evening|night|lunchtime|dinnertime|teatime)\s+of\s+(?P<date>.+)",
+        r"in\s+the\s+(?P<part>morning|afternoon|evening|night)\s+on\s+(?P<date>.+)",
     ]
 
     for pattern in patterns:
@@ -2330,6 +3497,17 @@ def get_sleep_phrase_date(phrase):
     return d
 
 
+def get_special_phrase_date(phrase):
+    if phrase != "y2k":
+        return None
+
+    d = get_reference_date()
+    d.set_fullyear(2000)
+    d.set_month(0)
+    d.set_date(1)
+    return d
+
+
 def get_named_clock_time(phrase):
     exact_aliases = {
         "chinese dentist": (2, 30),
@@ -2357,6 +3535,17 @@ def get_clock_phrase_date(phrase):
         "ten": 10,
         "eleven": 11,
         "twelve": 12,
+        "thirteen": 13,
+        "fourteen": 14,
+        "fifteen": 15,
+        "sixteen": 16,
+        "seventeen": 17,
+        "eighteen": 18,
+        "nineteen": 19,
+        "twenty": 20,
+        "twenty one": 21,
+        "twenty two": 22,
+        "twenty three": 23,
     }
 
     def parse_clock_hour(value):
@@ -2373,26 +3562,59 @@ def get_clock_phrase_date(phrase):
         d.set_seconds(0)
         return d
 
-    match = re.fullmatch(r"when the clock strikes (?P<hour>\d{1,2})", phrase)
+    match = re.fullmatch(
+        r"(?:when\s+)?the\s+clock\s+strikes\s+(?P<hour>\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)",
+        phrase,
+    )
+    if match is None:
+        match = re.fullmatch(
+            r"when the clock strikes (?P<hour>\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)",
+            phrase,
+        )
     if match is not None:
-        hour = int(match.group("hour")) % 24
+        hour = parse_clock_hour(match.group("hour"))
+        if hour is None:
+            return None
         d = get_reference_date()
         d.set_hours(hour)
         d.set_minutes(0)
         d.set_seconds(0)
         return d
 
-    match = re.fullmatch(r"(?:a\s+)?quarter\s+(?P<direction>past|to)\s+(?P<hour>\d{1,2})", phrase)
+    match = re.fullmatch(
+        r"(?P<ones>\d{1,2}|one|two|three|four|five|six|seven|eight|nine)\s+and\s+(?:20|twenty)\s+past\s+(?P<hour>\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)(?:\s+hundred\s+hours)?",
+        phrase,
+    )
+    if match is not None:
+        ones = parse_clock_hour(match.group("ones"))
+        hour = parse_clock_hour(match.group("hour"))
+        if ones is None or hour is None:
+            return None
+        d = get_reference_date()
+        d.set_hours(hour)
+        d.set_minutes(20 + ones)
+        d.set_seconds(0)
+        return d
+
+    match = re.fullmatch(
+        r"(?:a\s+)?quarter\s+(?P<direction>past|to)\s+"
+        r"(?P<hour>\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)",
+        phrase,
+    )
     if match is not None:
         minutes = 15
         direction = match.group("direction")
-        hour = int(match.group("hour")) % 24
+        hour = parse_clock_hour(match.group("hour"))
     else:
-        match = re.fullmatch(r"half\s+past\s+(?P<hour>\d{1,2})", phrase)
+        match = re.fullmatch(
+            r"half\s+past\s+"
+            r"(?P<hour>\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)",
+            phrase,
+        )
         if match is not None:
             minutes = 30
             direction = "past"
-            hour = int(match.group("hour")) % 24
+            hour = parse_clock_hour(match.group("hour"))
         else:
             match = re.fullmatch(
                 r"(?P<amount>a|an|\d+)\s+minutes?\s+(?P<direction>past|to)\s+(?P<hour>\d{1,2})",
@@ -2482,6 +3704,15 @@ def merge_date_parts(base_date, overlay_date):
     return d
 
 
+def merge_date_with_explicit_time(base_date, time_date):
+    d = clone_date(base_date)
+    d2 = time_date
+    d.set_hours(d2.get_hours())
+    d.set_minutes(d2.get_minutes())
+    d.set_seconds(d2.get_seconds())
+    return d
+
+
 def apply_relative_offset(base_date, unit, amount, sign=1):
     d = clone_date(base_date)
     amount = amount * sign
@@ -2506,26 +3737,15 @@ def apply_relative_offset(base_date, unit, amount, sign=1):
     return d
 
 
-def get_anchor_offset_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
-    phrase = replace_short_words(phrase)
-    number_pattern = (
-        r"(?P<number>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)"
-    )
-    unit_pattern = (
-        r"(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?|milliseconds?)"
-    )
+def parse_offset_number(raw_number):
+    ordinal_match = re.fullmatch(r"(\d+)(?:st|nd|rd|th)", raw_number)
+    if ordinal_match is not None:
+        return int(ordinal_match.group(1))
 
-    match = re.fullmatch(
-        rf"(?:in\s+)?{number_pattern}\s+{unit_pattern}\s+(?P<direction>from|after|before)\s+(?P<anchor>.+)",
-        phrase,
-    )
-    if match is None:
-        return None
-
-    raw_number = match.group("number")
-    amount = {
+    return {
         "a": 1,
         "an": 1,
+        "several": 7,
         "one": 1,
         "two": 2,
         "three": 3,
@@ -2539,18 +3759,105 @@ def get_anchor_offset_phrase_date(phrase, *args, timezone_aware=False, **kwargs)
         "eleven": 11,
         "twelve": 12,
     }.get(raw_number, int(raw_number) if raw_number.isdigit() else None)
-    if amount is None:
+
+
+def parse_compound_offset(offset_text):
+    number_pattern = r"(\d+(?:st|nd|rd|th)?|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)"
+    unit_pattern = r"(years?|months?|weeks?|days?|hours?|minutes?|seconds?|milliseconds?)"
+    components = []
+
+    for raw_number, raw_unit in re.findall(
+        rf"{number_pattern}\s+{unit_pattern}", offset_text
+    ):
+        amount = parse_offset_number(raw_number)
+        if amount is None:
+            return None
+        unit = raw_unit[:-1] if raw_unit.endswith("s") else raw_unit
+        components.append((unit, amount))
+
+    if not components:
         return None
 
-    unit = match.group("unit")
-    if unit.endswith("s"):
-        unit = unit[:-1]
+    normalized = re.sub(
+        rf"{number_pattern}\s+{unit_pattern}",
+        "",
+        offset_text,
+    )
+    normalized = re.sub(r"\b(?:and|,)\b", "", normalized)
+    if normalized.strip():
+        return None
+
+    return components
+
+
+def apply_relative_offsets(base_date, components, sign=1):
+    d = clone_date(base_date)
+    for unit, amount in components:
+        d = apply_relative_offset(d, unit, amount, sign=sign)
+    return d
+
+
+def get_anchor_offset_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
+    phrase = re.sub(r"^(?:the\s+)?day\s+before\s+", "1 day before ", phrase)
+    phrase = re.sub(r"^(?:the\s+)?day\s+after\s+", "1 day after ", phrase)
+
+    shortcut_match = re.fullmatch(
+        r"(?P<offset>.+?)\s+(?P<anchor>today|tomorrow|yesterday)",
+        phrase,
+    )
+    if shortcut_match is not None:
+        components = parse_compound_offset(
+            replace_short_words(shortcut_match.group("offset").strip())
+        )
+        if components is not None:
+            anchor_date = parse_natural_date_strict(
+                shortcut_match.group("anchor"),
+                *args,
+                timezone_aware=timezone_aware,
+                **kwargs,
+            )
+            if anchor_date is not None:
+                return apply_relative_offsets(anchor_date, components, 1)
+
+    on_anchor_match = re.fullmatch(
+        r"(?P<offset>.+?)\s+on\s+(?P<anchor>(?:the\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|today|tomorrow|yesterday)",
+        phrase,
+    )
+    if on_anchor_match is not None:
+        components = parse_compound_offset(
+            replace_short_words(on_anchor_match.group("offset").strip())
+        )
+        if components is not None:
+            anchor_date = parse_natural_date_strict(
+                on_anchor_match.group("anchor"),
+                *args,
+                timezone_aware=timezone_aware,
+                **kwargs,
+            )
+            if anchor_date is not None:
+                return apply_relative_offsets(anchor_date, components, 1)
+
+    match = re.fullmatch(
+        r"(?:(?:in)\s+)?(?P<offset>.+?)\s+(?P<direction>from|after|before)\s+(?P<anchor>.+)",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    offset_text = replace_short_words(
+        re.sub(r"^(?:the)\s+", "", match.group("offset").strip())
+    )
+    components = parse_compound_offset(offset_text)
+    if components is None:
+        return None
 
     direction = match.group("direction")
     sign = -1 if direction == "before" else 1
 
     anchor_text = match.group("anchor").strip()
     anchor_date = get_month_anchor_date(anchor_text)
+    if anchor_date is None:
+        anchor_date = get_leap_year_anchor_date(anchor_text)
     if anchor_date is None:
         anchor_date = parse_natural_date_strict(
             anchor_text,
@@ -2561,7 +3868,73 @@ def get_anchor_offset_phrase_date(phrase, *args, timezone_aware=False, **kwargs)
     if anchor_date is None:
         return None
 
-    return apply_relative_offset(anchor_date, unit, amount, sign)
+    return apply_relative_offsets(anchor_date, components, sign)
+
+
+def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
+    date_then_time_patterns = [
+        r"(?P<head>.+?)\s+(?:at|@)\s+(?P<tail>\d{1,2}(?::\d{2})?(?:am|pm)|noon|midnight|midday)",
+        r"(?P<head>.+?)\s+(?:at|@)\s+(?P<tail>lunchtime|dinnertime|teatime|morning|afternoon|evening|night|early in the morning|early morning|mid-morning|mid morning)",
+        r"(?P<head>.+?)\s+(?:at|@)\s+(?P<tail>\d{1,2}(?::\d{2})?ish)",
+        r"(?P<head>.+?)\s+(?:at|@)\s+(?P<tail>(?:about|around)\s+\d{1,2}(?::\d{2})?ish)",
+        r"(?P<head>.+?)\s+(?:at|@)\s+(?P<tail>(?:about|around)\s+\d{1,2}(?::\d{2})?(?:am|pm))",
+    ]
+    time_then_date_patterns = [
+        r"(?P<time>.+?)\s+(?P<date>(?:on\s+)?(?:today|tomorrow|yesterday|this)\b.+)",
+        r"(?P<time>.+?)\s+(?P<date>(?:on\s+)?(?:(?:next|last)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.+)",
+    ]
+
+    for pattern in date_then_time_patterns:
+        match = re.fullmatch(pattern, phrase)
+        if match is None:
+            continue
+
+        head_date = parse_natural_date_strict(
+            match.group("head"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if head_date is None:
+            continue
+
+        tail_date = parse_natural_date_strict(
+            match.group("tail"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if tail_date is None:
+            continue
+
+        return merge_date_with_explicit_time(head_date, tail_date)
+
+    for pattern in time_then_date_patterns:
+        match = re.fullmatch(pattern, phrase)
+        if match is None:
+            continue
+
+        time_date = parse_natural_date_strict(
+            match.group("time"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if time_date is None:
+            continue
+
+        date_part = parse_natural_date_strict(
+            match.group("date"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if date_part is None:
+            continue
+
+        return merge_date_with_explicit_time(date_part, time_date)
+
+    return None
 
 
 def parse_natural_date_strict(date, *args, **kwargs):
@@ -2591,19 +3964,38 @@ def parse_natural_date_strict(date, *args, **kwargs):
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
     phrase = apply_word_aliases(phrase)
+    phrase = normalize_phrase(phrase)
+    phrase = apply_literal_aliases(phrase)
     quarter_date = get_quarter_phrase_date(phrase)
     relative_weekday_date = get_relative_weekday_phrase_date(
         phrase, *args, timezone_aware=timezone_aware
     )
     boundary_date = get_boundary_phrase_date(phrase)
+    month_anchor_date = get_month_anchor_date(phrase)
+    week_of_month_anchor_date = get_week_of_month_anchor_date(phrase)
+    leap_year_anchor_date = get_leap_year_anchor_date(phrase)
+    leap_year_offset_date = get_leap_year_offset_date(phrase)
+    day_of_year_date = get_day_of_year_phrase_date(phrase)
+    ordinal_time_coordinate_date = get_ordinal_time_coordinate_date(
+        phrase, *args, timezone_aware=timezone_aware
+    )
+    counted_weekday_date = get_counted_weekday_phrase_date(phrase)
+    ordinal_month_year_date = get_ordinal_month_year_date(phrase)
     ordinal_weekday_date = get_ordinal_weekday_date(phrase)
     business_date = get_business_phrase_date(phrase)
     sleep_date = get_sleep_phrase_date(phrase)
+    special_phrase_date = get_special_phrase_date(phrase)
     clock_date = get_clock_phrase_date(phrase)
     compound_clock_date = get_compound_clock_phrase_date(
         phrase, *args, timezone_aware=timezone_aware
     )
+    solar_event_date = get_solar_event_phrase_date(
+        phrase, *args, timezone_aware=timezone_aware
+    )
     anchor_offset_date = get_anchor_offset_phrase_date(
+        phrase, *args, timezone_aware=timezone_aware
+    )
+    composed_date_time = get_composed_date_time_phrase_date(
         phrase, *args, timezone_aware=timezone_aware
     )
     normalized_phrase = replace_short_words(phrase)
@@ -2613,6 +4005,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     )
 
     holiday_date = get_holiday_date(phrase)
+    if special_phrase_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(special_phrase_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
     if holiday_date is not None:
         return attach_parse_metadata(
             apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware),
@@ -2655,6 +4060,134 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if boundary_date is not None:
         return attach_parse_metadata(
             apply_timezone(boundary_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if month_anchor_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(month_anchor_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="period",
+                representative_granularity="month",
+            ),
+        )
+
+    if week_of_month_anchor_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(
+                week_of_month_anchor_date, tzinfo, timezone_aware=timezone_aware
+            ),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="period",
+                representative_granularity="week",
+            ),
+        )
+
+    if leap_year_anchor_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(
+                leap_year_anchor_date, tzinfo, timezone_aware=timezone_aware
+            ),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="period",
+                representative_granularity="year",
+            ),
+        )
+
+    if leap_year_offset_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(
+                leap_year_offset_date, tzinfo, timezone_aware=timezone_aware
+            ),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="relative_offset",
+                representative_granularity="year",
+            ),
+        )
+
+    if day_of_year_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(day_of_year_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="period",
+                representative_granularity="day",
+            ),
+        )
+
+    if ordinal_time_coordinate_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(
+                ordinal_time_coordinate_date, tzinfo, timezone_aware=timezone_aware
+            ),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="instant",
+                representative_granularity="second",
+            ),
+        )
+
+    if counted_weekday_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(counted_weekday_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="relative_offset",
+                representative_granularity="week",
+            ),
+        )
+
+    if ordinal_month_year_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(
+                ordinal_month_year_date, tzinfo, timezone_aware=timezone_aware
+            ),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
@@ -2732,9 +4265,35 @@ def parse_natural_date_strict(date, *args, **kwargs):
             ),
         )
 
+    if solar_event_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(solar_event_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
     if anchor_offset_date is not None:
         return attach_parse_metadata(
             apply_timezone(anchor_offset_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if composed_date_time is not None:
+        return attach_parse_metadata(
+            apply_timezone(composed_date_time, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
@@ -2834,6 +4393,50 @@ def is_extraction_anchor(token, next_token=None):
         "on",
         "at",
         "@",
+        "start",
+        "end",
+        "close",
+        "beginning",
+        "noon",
+        "midday",
+        "midnight",
+        "clock",
+        "quarter",
+        "mid",
+        "middle",
+        "when",
+        "night",
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+        "eleventh",
+        "twelfth",
+        "thirteenth",
+        "fourteenth",
+        "fifteenth",
+        "sixteenth",
+        "seventeenth",
+        "eighteenth",
+        "nineteenth",
+        "twentieth",
+        "thirtieth",
+        "hundredth",
+        "hundreth",
+        "penultimate",
+        "now",
+        "right",
+        "immediately",
+        "straight",
+        "once",
+        "asap",
+        "here",
         "today",
         "2day",
         "tdy",
@@ -2841,38 +4444,71 @@ def is_extraction_anchor(token, next_token=None):
         "2moz",
         "2moro",
         "2morro",
+        "2mrw",
         "tmrw",
         "tmr",
         "tomo",
+        "tomoro",
+        "tmoro",
+        "tmorow",
         "tomoz",
+        "tonight",
+        "2nite",
+        "tonite",
+        "tnite",
         "yesterday",
         "yday",
         "yest",
         "ystd",
+        "ystrday",
+        "ystrdy",
+        "yestday",
         "after",
         "before",
+        "b4",
         "next",
         "last",
         "this",
         "nite",
         "eob",
+        "eop",
+        "cob",
+        "cop",
         "eom",
         "eoy",
+        "coy",
         "christmas",
+        "xmas",
         "easter",
         "thanksgiving",
         "halloween",
+        "pancake",
+        "shrove",
         "labor",
         "memorial",
         "black",
         "boxing",
         "bank",
         "holiday",
+        "morrow",
+        "y2k",
+        "lunch",
+        "dinner",
+        "tea",
+        "first",
+        "dawn",
+        "sunrise",
+        "sunset",
+        "dusk",
+        "twilight",
+        "other",
         "half",
+        "second-last",
         "valentine's",
         "valentines",
         "new",
         "st",
+        "leap",
     }
     days = {
         "monday",
@@ -2918,7 +4554,16 @@ def is_extraction_anchor(token, next_token=None):
         "milliseconds",
     }
 
-    if token in direct_tokens or token in days or token in months:
+    if token in direct_tokens or token in days or token in months or token in HOLIDAY_FIRST_TOKENS:
+        return True
+
+    if token == "month" and next_token == "end":
+        return True
+
+    if token == "t" and next_token == "minus":
+        return True
+
+    if token == "t-minus":
         return True
 
     if token in TIMEZONE_OFFSETS or build_tzinfo(token) is not None:
@@ -2940,6 +4585,9 @@ def is_extraction_anchor(token, next_token=None):
     if re.fullmatch(r"\d+(?:\.\d+)?", token) and next_token in units:
         return True
 
+    if re.fullmatch(r"\d{4}", token) and next_token == "on":
+        return True
+
     if token in {
         "a",
         "an",
@@ -2955,10 +4603,135 @@ def is_extraction_anchor(token, next_token=None):
         "ten",
         "eleven",
         "twelve",
-    } and next_token in units:
+    } and next_token in units.union(
+        {
+            "monday",
+            "mondays",
+            "tuesday",
+            "tuesdays",
+            "wednesday",
+            "wednesdays",
+            "thursday",
+            "thursdays",
+            "friday",
+            "fridays",
+            "saturday",
+            "saturdays",
+            "sunday",
+            "sundays",
+            "quarter",
+        }
+    ):
+        return True
+
+    if (
+        token in {
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+        }
+        or re.fullmatch(r"\d{1,2}", token)
+    ) and next_token == "and":
+        return True
+
+    if token in {
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+        "eleventh",
+        "twelfth",
+        "thirteenth",
+        "fourteenth",
+        "fifteenth",
+        "sixteenth",
+        "seventeenth",
+        "eighteenth",
+        "nineteenth",
+        "twentieth",
+        "thirtieth",
+        "hundredth",
+        "penultimate",
+    } and next_token in units.union(days).union({"day", "week", "month", "year"}):
+        return True
+
+    if token == "the" and (
+        next_token in {
+        "other",
+        "night",
+        "nite",
+        "day",
+        "clock",
+        "start",
+        "end",
+        "beginning",
+        "close",
+        "bank",
+        "morrow",
+        "next",
+        "mid",
+        "middle",
+        "last",
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+        "eleventh",
+        "twelfth",
+        "thirteenth",
+        "fourteenth",
+        "fifteenth",
+        "sixteenth",
+        "seventeenth",
+        "eighteenth",
+        "nineteenth",
+        "twentieth",
+        "thirtieth",
+        "hundredth",
+        "hundreth",
+        "twelth",
+        "penultimate",
+        "second-last",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+        }
+        or (next_token is not None and re.fullmatch(r"\d+(?:st|nd|rd|th)", next_token))
+    ):
+        return True
+
+    if token == "day" and next_token in {"before", "after"}:
+        return True
+
+    if token == "night" and next_token in {"before", "b4"}:
         return True
 
     if token == "few" and next_token in units:
+        return True
+
+    if token == "several" and next_token in units.union({"leap"}):
         return True
 
     if token == "couple" and next_token == "of":
@@ -2967,7 +4740,7 @@ def is_extraction_anchor(token, next_token=None):
     return False
 
 
-def extract_dates(text, *args, max_tokens=12, **kwargs):
+def extract_dates(text, *args, max_tokens=24, **kwargs):
     matches = []
     tokens = list(EXTRACTION_TOKEN_RE.finditer(text))
     parse_kwargs = dict(kwargs)
@@ -3168,6 +4941,61 @@ def nearest_phrase_for(value, *, relative_to=None):
     if not candidates:
         return None
     return candidates[0].phrase
+
+
+def until(*args, from_=None, to=None, **kwargs):
+    used_default_start = from_ is None and "from" not in kwargs
+    from_, to = resolve_duration_arguments(
+        *args, from_=from_, to=to, kwargs=kwargs
+    )
+    start = coerce_value_date(from_, argument_name="from_", default_now=True)
+    end = coerce_value_date(to, argument_name="to")
+    if used_default_start:
+        end = maybe_roll_until_target_forward(end, start)
+    return format_duration_string(start.to_datetime(), end.to_datetime())
+
+
+def after(*args, from_=None, to=None, **kwargs):
+    from_, to = resolve_duration_arguments(
+        *args, from_=from_, to=to, kwargs=kwargs
+    )
+    start = coerce_value_date(from_, argument_name="from_")
+    end = coerce_value_date(to, argument_name="to")
+    return format_duration_string(start.to_datetime(), end.to_datetime())
+
+
+def is_before(a, b):
+    first = coerce_value_date(a, argument_name="a")
+    second = coerce_value_date(b, argument_name="b")
+    return comparable_datetime(first) < comparable_datetime(second)
+
+
+def is_after(a, b):
+    first = coerce_value_date(a, argument_name="a")
+    second = coerce_value_date(b, argument_name="b")
+    return comparable_datetime(first) > comparable_datetime(second)
+
+
+def is_same_day(a, b):
+    first = coerce_value_date(a, argument_name="a")
+    second = coerce_value_date(b, argument_name="b")
+    return comparable_datetime(first).date() == comparable_datetime(second).date()
+
+
+def is_same_time(a, b):
+    first = coerce_value_date(a, argument_name="a")
+    second = coerce_value_date(b, argument_name="b")
+    first_dt = comparable_datetime(first)
+    second_dt = comparable_datetime(second)
+    return (
+        first_dt.hour,
+        first_dt.minute,
+        first_dt.second,
+    ) == (
+        second_dt.hour,
+        second_dt.minute,
+        second_dt.second,
+    )
 
 
 def Phrase(value, *, relative_to=None):

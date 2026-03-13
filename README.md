@@ -10,7 +10,7 @@ A grammar for deriving Date objects from phrases.
 ## Usage
 
 ```bash
-from stringtime import Date, Phrase, nearest_phrase_for, nearest_phrases_for, phrase_for, phrases_for
+from stringtime import Date, Phrase, after, is_after, is_before, is_same_day, is_same_time, nearest_phrase_for, nearest_phrases_for, phrase_for, phrases_for, until
 
 d = Date('an hour from now')
 d.day  # the day of the week 0-6
@@ -43,6 +43,23 @@ phrases_for("2021-01-01 17:05:55", relative_to="2020-12-25 17:05:55")
 # nearest lookup is available for datetimes that do not have an exact registry hit
 nearest_phrase_for("2021-01-01 12:34:56", relative_to="2020-12-25 17:05:55")
 nearest_phrases_for("2037-06-01 12:34:56", relative_to="2020-12-25 17:05:55")
+
+# plain-English durations between two dates
+until(Date("valentines"))
+# '1 month, 2 weeks and 6 days'
+
+# Python reserves "from", so the keyword form is from_=
+until(from_="2020-01-01 10:00:00", to="2024-04-15 10:05:00")
+# '4 years, 3 months, 2 weeks and 5 minutes'
+
+after(from_=Date("valentines"), to=Date("the last friday in March"))
+# '1 month, 1 week and 6 days'
+
+# readable comparisons
+is_before("2020-01-01 00:00:00", "2020-01-01 00:00:01")
+is_after(Date("tomorrow"), Date("today"))
+is_same_day("2020-12-25 01:00:00", "2020-12-25 23:59:59")
+is_same_time("2020-12-25 17:05:55", "2021-02-14 17:05:55")
 
 # extract date phrases from longer sentences
 matches = Date("I will do it in an hour from now.", extract=True)
