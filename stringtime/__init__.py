@@ -1694,6 +1694,65 @@ def get_sleep_phrase_date(phrase):
     return d
 
 
+def get_clock_phrase_date(phrase):
+    exact_aliases = {
+        "chinese dentist": (2, 30),
+        "cowboy time": (9, 50),
+        "midnight": (0, 0),
+        "noon": (12, 0),
+        "high noon": (12, 0),
+    }
+
+    if phrase in exact_aliases:
+        hour, minute = exact_aliases[phrase]
+        d = get_reference_date()
+        d.set_hours(hour)
+        d.set_minutes(minute)
+        d.set_seconds(0)
+        return d
+
+    match = re.fullmatch(r"when the clock strikes (?P<hour>\d{1,2})", phrase)
+    if match is not None:
+        hour = int(match.group("hour")) % 24
+        d = get_reference_date()
+        d.set_hours(hour)
+        d.set_minutes(0)
+        d.set_seconds(0)
+        return d
+
+    match = re.fullmatch(r"(?:a\s+)?quarter\s+(?P<direction>past|to)\s+(?P<hour>\d{1,2})", phrase)
+    if match is not None:
+        minutes = 15
+        direction = match.group("direction")
+        hour = int(match.group("hour")) % 24
+    else:
+        match = re.fullmatch(r"half\s+past\s+(?P<hour>\d{1,2})", phrase)
+        if match is not None:
+            minutes = 30
+            direction = "past"
+            hour = int(match.group("hour")) % 24
+        else:
+            match = re.fullmatch(
+                r"(?P<amount>a|an|\d+)\s+minutes?\s+(?P<direction>past|to)\s+(?P<hour>\d{1,2})",
+                phrase,
+            )
+            if match is None:
+                return None
+            minutes = 1 if match.group("amount") in {"a", "an"} else int(match.group("amount"))
+            direction = match.group("direction")
+            hour = int(match.group("hour")) % 24
+
+    d = get_reference_date()
+    if direction == "past":
+        d.set_hours(hour)
+        d.set_minutes(minutes)
+    else:
+        d.set_hours((hour - 1) % 24)
+        d.set_minutes(60 - minutes)
+    d.set_seconds(0)
+    return d
+
+
 def merge_date_parts(base_date, overlay_date):
     now = get_reference_date()
     d = base_date
@@ -1743,6 +1802,7 @@ def parse_natural_date_strict(date, *args, **kwargs):
     phrase = normalize_phrase(phrase)
     business_date = get_business_phrase_date(phrase)
     sleep_date = get_sleep_phrase_date(phrase)
+    clock_date = get_clock_phrase_date(phrase)
     normalized_phrase = replace_short_words(phrase)
     phrase = normalized_phrase
 
@@ -1776,6 +1836,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if sleep_date is not None:
         return attach_parse_metadata(
             apply_timezone(sleep_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if clock_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(clock_date, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
