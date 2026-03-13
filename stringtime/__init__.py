@@ -1603,6 +1603,67 @@ def get_holiday_date(phrase):
     return d
 
 
+def is_business_day(date_obj):
+    return date_obj.to_datetime().weekday() < 5
+
+
+def shift_business_days(date_obj, days):
+    d = clone_date(date_obj)
+    if days == 0:
+        return d
+
+    direction = 1 if days > 0 else -1
+    remaining = abs(days)
+
+    while remaining > 0:
+        d.set_date(d.get_date() + direction)
+        if is_business_day(d):
+            remaining -= 1
+
+    return d
+
+
+def build_day_boundary_date(hour, *, day_offset=0, next_if_past=False):
+    d = get_reference_date()
+
+    if day_offset != 0:
+        d.set_date(d.get_date() + day_offset)
+    elif next_if_past and d.get_hours() >= hour:
+        d.set_date(d.get_date() + 1)
+
+    d.set_hours(hour)
+    d.set_minutes(0)
+    d.set_seconds(0)
+    return d
+
+
+def get_business_phrase_date(phrase):
+    if phrase == "next working day":
+        return shift_business_days(get_reference_date(), 1)
+
+    if phrase in {"end of business", "end of play", "eop"}:
+        return build_day_boundary_date(17)
+
+    if phrase in {"end of business tomorrow", "end of play tomorrow", "eop tomorrow"}:
+        return build_day_boundary_date(17, day_offset=1)
+
+    if phrase in {"first thing", "first thing in the morning"}:
+        return build_day_boundary_date(9, next_if_past=True)
+
+    match = re.fullmatch(
+        r"(?P<count>\d+)\s+(?:business|working)\s+days?\s+(?P<direction>from now|ago)",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    count = int(match.group("count"))
+    if match.group("direction") == "ago":
+        count *= -1
+
+    return shift_business_days(get_reference_date(), count)
+
+
 def merge_date_parts(base_date, overlay_date):
     now = get_reference_date()
     d = base_date
@@ -1650,6 +1711,7 @@ def parse_natural_date_strict(date, *args, **kwargs):
 
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
+    business_date = get_business_phrase_date(phrase)
     normalized_phrase = replace_short_words(phrase)
     phrase = normalized_phrase
 
@@ -1657,6 +1719,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if holiday_date is not None:
         return attach_parse_metadata(
             apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if business_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(business_date, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,

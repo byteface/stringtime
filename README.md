@@ -78,6 +78,13 @@ Here's a list of example phrases that can be used...
 "5 hours from now"
 "20 minutes hence"
 "10 minutes ago"
+"3 business days from now"
+"next working day"
+"end of business tomorrow"
+"end of play"
+"EOP"
+"first thing in the morning"
+"first thing"
 "10 hours and 30 minutes from now"
 "In a minute and 10 seconds"
 "In a minute and a half"
@@ -134,6 +141,9 @@ suite uses the same idea by freezing the reference date to
 Each returned `Date` also exposes `parse_metadata` with the original input,
 what matched, whether the parse was exact or fuzzy, and whether parsing fell
 back to `dateutil`.
+
+Business-day phrases currently treat Monday-Friday as working days and skip
+weekends only.
 
 If anything is broken or you feel is missing please raise an issue or make a pull request.
 
