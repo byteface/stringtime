@@ -1842,6 +1842,40 @@ def get_quarter_phrase_date(phrase):
     return None
 
 
+def get_boundary_phrase_date(phrase):
+    reference = get_reference_date()
+
+    match = re.fullmatch(r"(start|end|close)\s+of\s+(?:the\s+)?(month|year)", phrase)
+    if match is not None:
+        boundary = "end" if match.group(1) == "close" else match.group(1)
+        period = match.group(2)
+        d = clone_date(reference)
+
+        if period == "month":
+            if boundary == "start":
+                d.set_date(1)
+            else:
+                last_day = stDate.get_month_length(d.get_month() + 1, d.get_year())
+                d.set_date(last_day)
+            return d
+
+        if boundary == "start":
+            d.set_month(0)
+            d.set_date(1)
+        else:
+            d.set_month(11)
+            d.set_date(31)
+        return d
+
+    match = re.fullmatch(r"start\s+of\s+(?:the\s+)?(this|next|last)\s+quarter", phrase)
+    if match is not None:
+        quarter_date = get_quarter_phrase_date(f"first day of {match.group(1)} quarter")
+        if quarter_date is not None:
+            return quarter_date
+
+    return None
+
+
 def get_part_of_day_time(part):
     return {
         "morning": (9, 0),
@@ -2200,6 +2234,7 @@ def parse_natural_date_strict(date, *args, **kwargs):
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
     quarter_date = get_quarter_phrase_date(phrase)
+    boundary_date = get_boundary_phrase_date(phrase)
     ordinal_weekday_date = get_ordinal_weekday_date(phrase)
     business_date = get_business_phrase_date(phrase)
     sleep_date = get_sleep_phrase_date(phrase)
@@ -2230,6 +2265,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if quarter_date is not None:
         return attach_parse_metadata(
             apply_timezone(quarter_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if boundary_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(boundary_date, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
