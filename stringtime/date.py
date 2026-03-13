@@ -103,6 +103,7 @@ class Date:
         # year, monthIndex, day, hours, minutes, seconds, milliseconds
 
         self.formatter = formatter
+        self.parse_metadata = None
         if isinstance(date, int):
             self._date = datetime.datetime.fromtimestamp(date)
             return

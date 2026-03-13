@@ -1,7 +1,8 @@
 __version__ = "0.0.6"
-__all__ = ["Date", "DateMatch", "extract_dates"]
+__all__ = ["Date", "DateMatch", "ParseMetadata", "extract_dates"]
 
 import datetime
+import contextvars
 import re
 import warnings
 from dataclasses import dataclass
@@ -69,6 +70,7 @@ TIMEZONE_OFFSETS = {
 
 EXTRACTION_TOKEN_RE = re.compile(r"[A-Za-z0-9@:+'.-]+")
 TIME_TOKEN_RE = re.compile(r"\d{1,2}(?::\d{2})?(?:am|pm)?$", re.IGNORECASE)
+CURRENT_REFERENCE = contextvars.ContextVar("stringtime_reference", default=None)
 
 
 def build_tzinfo(token):
@@ -142,6 +144,65 @@ class DateMatch:
     start: int
     end: int
     date: stDate
+
+
+@dataclass
+class ParseMetadata:
+    input_text: str
+    matched_text: str
+    normalized_text: str
+    exact: bool
+    fuzzy: bool
+    used_dateutil: bool
+
+
+def clone_date(date_obj):
+    cloned = stDate()
+    cloned._date = date_obj.to_datetime().replace()
+    return cloned
+
+
+def coerce_reference_date(value):
+    if value is None:
+        return None
+    if isinstance(value, stDate):
+        return clone_date(value)
+    if isinstance(value, datetime.datetime):
+        d = stDate()
+        d._date = value.replace()
+        return d
+    if isinstance(value, datetime.date):
+        d = stDate()
+        d._date = datetime.datetime.combine(value, datetime.time())
+        return d
+    if isinstance(value, (str, int)):
+        return stDate(value)
+    raise TypeError("relative_to must be a string, int, date, datetime, or Date")
+
+
+def get_reference_date():
+    reference = CURRENT_REFERENCE.get()
+    if reference is None:
+        return stDate()
+    return clone_date(reference)
+
+
+def attach_parse_metadata(date_obj, metadata):
+    date_obj.parse_metadata = metadata
+    return date_obj
+
+
+def build_parse_metadata(
+    input_text, matched_text, normalized_text, *, exact, fuzzy, used_dateutil
+):
+    return ParseMetadata(
+        input_text=input_text,
+        matched_text=matched_text,
+        normalized_text=normalized_text,
+        exact=exact,
+        fuzzy=fuzzy,
+        used_dateutil=used_dateutil,
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -429,7 +490,7 @@ class DateFactory:
         Returns:
             _type_: _description_
         """
-        d = stDate()
+        d = get_reference_date()
         if year is not None:
             d.set_year(year)
         if month is not None:
@@ -474,7 +535,7 @@ class DateFactory:
         """
         # print("Creating date!!", year, month, week, day, hour, minute, second)
         # TODO - should maybe optionally pass and remember the phrase on a new 'description' prop on Date...?
-        d = stDate()
+        d = get_reference_date()
         if year is not None:
             stlog(
                 f"Increasing years by {year}",
@@ -983,7 +1044,7 @@ def p_single_date_yesterday(p):
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
         params = {
-            "day": stDate().get_date() - 1,
+            "day": get_reference_date().get_date() - 1,
             "hour": p[3],
             "minute": 0,
             "second": 0,
@@ -996,7 +1057,7 @@ def p_single_date_yesterday(p):
         elif p[4] == "am" and hour == 12:
             hour = 0
         params = {
-            "day": stDate().get_date() - 1,
+            "day": get_reference_date().get_date() - 1,
             "hour": hour,
             "minute": 0,
             "second": 0,
@@ -1017,7 +1078,7 @@ def p_single_date_2moro(p):
         p[0] = DateFactory.create_date_with_offsets(**params)
     if len(p) == 4:
         params = {
-            "day": stDate().get_date() + 1,
+            "day": get_reference_date().get_date() + 1,
             "hour": p[3],
             "minute": 0,
             "second": 0,
@@ -1030,7 +1091,7 @@ def p_single_date_2moro(p):
         elif p[4] == "am" and hour == 12:
             hour = 0
         params = {
-            "day": stDate().get_date() + 1,
+            "day": get_reference_date().get_date() + 1,
             "hour": hour,
             "minute": 0,
             "second": 0,
@@ -1047,7 +1108,7 @@ def p_single_date_day(p):
     """
     if len(p) == 2:
         day_to_find = p[1]
-        d = stDate()
+        d = get_reference_date()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
             d.set_date(d.get_date() + 1)
@@ -1055,8 +1116,8 @@ def p_single_date_day(p):
         p[0] = d
     if len(p) == 3:
         day_to_find = p[2]
-        d = stDate()
-        now = stDate()
+        d = get_reference_date()
+        now = get_reference_date()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
             if p[1] == "last":
@@ -1088,7 +1149,7 @@ def p_this_or_next_period(p):
     date_or : PAST_PHRASE TIME
     """
     if len(p) == 3:
-        d = stDate()
+        d = get_reference_date()
         if p[1] == "last":
             if p[2] == "week":
                 d.set_date(d.get_date() - 7)
@@ -1109,7 +1170,7 @@ def p_before_yesterday(p):
     date_before_yesterday : THE BEFORE_YESTERDAY
     date_before_yesterday : THE TIME BEFORE_YESTERDAY
     """
-    d = stDate()
+    d = get_reference_date()
     d.set_date(d.get_date() - 2)
     p[0] = d
 
@@ -1119,7 +1180,7 @@ def p_after_tomorrow(p):
     date_after_tomorrow : AFTER_TOMORROW
     date_after_tomorrow : THE TIME AFTER_TOMORROW
     """
-    d = stDate()
+    d = get_reference_date()
     d.set_date(d.get_date() + 2)
     p[0] = d
 
@@ -1136,12 +1197,12 @@ def p_single_date_end(p):
     date_end : THE NUMBER DATE_END OF MONTH
     """
     if len(p) == 3:
-        d = stDate()
+        d = get_reference_date()
         d.set_date(p[1])
         p[0] = d
     if len(p) == 4:
         # print('p-:', p[1], p[2], p[3])
-        d = stDate()
+        d = get_reference_date()
         d.set_date(p[2])
         if p[1] == "the":  # the-2-nd
             d.set_date(p[2])
@@ -1152,7 +1213,7 @@ def p_single_date_end(p):
         p[0] = d
     if len(p) == 5:
         # print('p--:', p[1], p[2], p[3], p[4])
-        d = stDate()
+        d = get_reference_date()
         if p[1] == "on":  # on-the-1-st
             d.set_date(p[3])
         elif p[3] == "of":  # 18-th-of-march
@@ -1165,7 +1226,7 @@ def p_single_date_end(p):
             d.set_date(p[3])
         p[0] = d
     if len(p) == 6:
-        d = stDate()  # the-18-th-of-january
+        d = get_reference_date()  # the-18-th-of-january
         m = d.get_month_index_by_name(p[5])
         d.set_month(m)
         d.set_date(p[2])
@@ -1181,7 +1242,7 @@ def p_month_relative_date(p):
     date_month_relative : PAST_PHRASE TIME ON THE NUMBER DATE_END
     date_month_relative : PHRASE TIME ON THE NUMBER DATE_END
     """
-    d = stDate()
+    d = get_reference_date()
 
     if len(p) == 6:
         day = p[1]
@@ -1492,7 +1553,7 @@ def last_weekday_of_month(year, month, weekday):
 
 
 def get_holiday_date(phrase):
-    current_year = stDate().get_year()
+    current_year = get_reference_date().get_year()
     year_offset = 0
 
     if phrase.endswith(" next year"):
@@ -1535,7 +1596,7 @@ def get_holiday_date(phrase):
         return None
 
     holiday = holiday_builders[holiday_key](year)
-    d = stDate()
+    d = get_reference_date()
     d.set_fullyear(holiday.year)
     d.set_month(holiday.month - 1)
     d.set_date(holiday.day)
@@ -1543,7 +1604,7 @@ def get_holiday_date(phrase):
 
 
 def merge_date_parts(base_date, overlay_date):
-    now = stDate()
+    now = get_reference_date()
     d = base_date
     d2 = overlay_date
 
@@ -1565,22 +1626,46 @@ def merge_date_parts(base_date, overlay_date):
 
 def parse_natural_date_strict(date, *args, **kwargs):
     timezone_aware = kwargs.pop("timezone_aware", False)
+    fuzzy = kwargs.pop("fuzzy", False)
+    matched_text = kwargs.pop("matched_text", None)
 
     if not isinstance(date, str):
         return None
 
+    raw_text = date.strip()
     phrase = date.lower().strip()
     phrase = phrase.strip(" \t\r\n,.;:!?()[]{}\"'")
     if phrase == "":
-        return None
+        return attach_parse_metadata(
+            get_reference_date(),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
 
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
-    phrase = replace_short_words(phrase)
+    normalized_phrase = replace_short_words(phrase)
+    phrase = normalized_phrase
 
     holiday_date = get_holiday_date(phrase)
     if holiday_date is not None:
-        return apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware)
+        return attach_parse_metadata(
+            apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
 
     for splitter in (" at ", " @ ", " on "):
         if splitter not in phrase:
@@ -1600,14 +1685,33 @@ def parse_natural_date_strict(date, *args, **kwargs):
         if tail_date is None:
             continue
 
-        return apply_timezone(
-            merge_date_parts(holiday_date, tail_date),
-            tzinfo,
-            timezone_aware=timezone_aware,
+        merged = apply_timezone(
+            merge_date_parts(holiday_date, tail_date), tzinfo, timezone_aware=timezone_aware
+        )
+        return attach_parse_metadata(
+            merged,
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
         )
 
     if is_now(phrase):
-        return apply_timezone(stDate(), tzinfo, timezone_aware=timezone_aware)
+        return attach_parse_metadata(
+            apply_timezone(get_reference_date(), tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
 
     try:
         parsed = yacc.parse(phrase)
@@ -1617,7 +1721,17 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if not parsed:
         return None
 
-    return apply_timezone(parsed[0], tzinfo, timezone_aware=timezone_aware)
+    return attach_parse_metadata(
+        apply_timezone(parsed[0], tzinfo, timezone_aware=timezone_aware),
+        build_parse_metadata(
+            raw_text,
+            matched_text or raw_text,
+            normalized_phrase,
+            exact=not fuzzy,
+            fuzzy=fuzzy,
+            used_dateutil=False,
+        ),
+    )
 
 
 def is_extraction_anchor(token, next_token=None):
@@ -1722,48 +1836,62 @@ def extract_dates(text, *args, max_tokens=12, **kwargs):
     tokens = list(EXTRACTION_TOKEN_RE.finditer(text))
     parse_kwargs = dict(kwargs)
     timezone_aware = parse_kwargs.pop("timezone_aware", False)
+    relative_to = parse_kwargs.pop("relative_to", None)
+    reference = coerce_reference_date(relative_to)
 
-    i = 0
-    while i < len(tokens):
-        token = tokens[i].group(0)
-        next_token = tokens[i + 1].group(0) if i + 1 < len(tokens) else None
+    token = CURRENT_REFERENCE.set(reference)
+    try:
+        i = 0
+        while i < len(tokens):
+            token_text = tokens[i].group(0)
+            next_token = tokens[i + 1].group(0) if i + 1 < len(tokens) else None
 
-        if not is_extraction_anchor(token, next_token):
-            i += 1
-            continue
-
-        best_match = None
-        max_j = min(len(tokens), i + max_tokens)
-
-        for j in range(max_j, i, -1):
-            candidate = text[tokens[i].start() : tokens[j - 1].end()]
-            parsed = parse_natural_date_strict(
-                candidate, *args, timezone_aware=timezone_aware, **parse_kwargs
-            )
-            if parsed is None:
+            if not is_extraction_anchor(token_text, next_token):
+                i += 1
                 continue
 
-            best_match = DateMatch(
-                text=candidate.strip(" \t\r\n,.;:!?()[]{}\"'"),
-                start=tokens[i].start(),
-                end=tokens[j - 1].end(),
-                date=parsed,
-            )
-            break
+            best_match = None
+            max_j = min(len(tokens), i + max_tokens)
 
-        if best_match is None:
-            i += 1
-            continue
+            for j in range(max_j, i, -1):
+                candidate = text[tokens[i].start() : tokens[j - 1].end()]
+                parsed = parse_natural_date_strict(
+                    candidate,
+                    *args,
+                    timezone_aware=timezone_aware,
+                    fuzzy=True,
+                    matched_text=candidate.strip(" \t\r\n,.;:!?()[]{}\"'"),
+                    **parse_kwargs,
+                )
+                if parsed is None:
+                    continue
 
-        matches.append(best_match)
+                best_match = DateMatch(
+                    text=candidate.strip(" \t\r\n,.;:!?()[]{}\"'"),
+                    start=tokens[i].start(),
+                    end=tokens[j - 1].end(),
+                    date=parsed,
+                )
+                break
 
-        while i < len(tokens) and tokens[i].start() < best_match.end:
-            i += 1
+            if best_match is None:
+                i += 1
+                continue
+
+            matches.append(best_match)
+
+            while i < len(tokens) and tokens[i].start() < best_match.end:
+                i += 1
+    finally:
+        CURRENT_REFERENCE.reset(token)
 
     return matches
 
 
 def get_date(date, *args, **kwargs):
+    relative_to = kwargs.pop("relative_to", None)
+    reference = coerce_reference_date(relative_to)
+    token = CURRENT_REFERENCE.set(reference)
     try:
         parsed = parse_natural_date_strict(date, *args, **kwargs)
         if parsed is not None:
@@ -1773,12 +1901,47 @@ def get_date(date, *args, **kwargs):
         # if debug raise the error
         if DEBUG:
             raise e
-        return stDate(date, *args, **kwargs)
+        fallback = stDate(date, *args, **kwargs)
+        return attach_parse_metadata(
+            fallback,
+            build_parse_metadata(
+                str(date),
+                str(date),
+                str(date).strip().lower(),
+                exact=False,
+                fuzzy=False,
+                used_dateutil=True,
+            ),
+        )
     except Exception as e:
         if DEBUG:
             raise e
-        return stDate()
-    return stDate(date, *args, **kwargs)
+        fallback = stDate()
+        return attach_parse_metadata(
+            fallback,
+            build_parse_metadata(
+                str(date),
+                str(date),
+                str(date).strip().lower(),
+                exact=False,
+                fuzzy=False,
+                used_dateutil=True,
+            ),
+        )
+    finally:
+        CURRENT_REFERENCE.reset(token)
+    fallback = stDate(date, *args, **kwargs)
+    return attach_parse_metadata(
+        fallback,
+        build_parse_metadata(
+            str(date),
+            str(date),
+            str(date).strip().lower(),
+            exact=False,
+            fuzzy=False,
+            used_dateutil=True,
+        ),
+    )
 
 
 def Date(date=None, *args, length: int = None, **kwargs):

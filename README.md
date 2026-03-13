@@ -26,10 +26,22 @@ d = Date("Sat Oct 11 17:13:46 UTC 2003")
 d = Date("tomorrow at 5pm UTC", timezone_aware=True)
 d.to_datetime().isoformat()  # '2020-12-26T17:00:00+00:00'
 
+# change what relative phrases are based on instead of using "now"
+d = Date("an hour from now", relative_to="2021-06-01 10:30:00")
+str(d)  # '2021-06-01 11:30:00'
+
+# relative_to can also be another parsed Date
+d = Date("an hour from now", relative_to=Date("47 hours ago"))
+
 # extract date phrases from longer sentences
 matches = Date("I will do it in an hour from now.", extract=True)
 matches[0].text  # 'in an hour from now'
 str(matches[0].date)  # '2020-12-25 18:05:55'
+
+# each parsed Date includes parse metadata
+d = Date("Sat Oct 11 17:13:46 UTC 2003")
+d.parse_metadata.used_dateutil  # True
+d.parse_metadata.exact  # False
 
 ```
 
@@ -112,6 +124,16 @@ To see what else is underway check the tests/test_stringtime.py file.
 
 For longer text, use `extract=True` or call `extract_dates(text)` directly to get
 all matching spans back with their parsed dates.
+
+Relative phrases are based on the current time by default, but you can override
+that with `relative_to=`. It accepts a `stringtime.Date`, Python
+`datetime.datetime`, `datetime.date`, string, or timestamp integer. The test
+suite uses the same idea by freezing the reference date to
+`2020-12-25 17:05:55` so relative phrases produce stable results.
+
+Each returned `Date` also exposes `parse_metadata` with the original input,
+what matched, whether the parse was exact or fuzzy, and whether parsing fell
+back to `dateutil`.
 
 If anything is broken or you feel is missing please raise an issue or make a pull request.
 

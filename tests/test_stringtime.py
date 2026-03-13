@@ -355,6 +355,57 @@ class TestCaseStrict:
     def test_extract_dates_returns_empty_when_no_phrase_found(self):
         assert extract_dates("There are no schedules in this sentence.") == []
 
+    def test_relative_to_string_changes_reference_now(self):
+        d = Date("an hour from now", relative_to="2021-06-01 10:30:00")
+
+        assert str(d) == "2021-06-01 11:30:00"
+
+    def test_relative_to_datetime_changes_reference_now(self):
+        d = Date(
+            "tomorrow at 5pm",
+            relative_to=datetime.datetime(2021, 6, 1, 10, 30, 0),
+        )
+
+        assert str(d) == "2021-06-02 17:00:00"
+
+    def test_relative_to_applies_to_sentence_extraction(self):
+        matches = extract_dates(
+            "I will do it in an hour from now.",
+            relative_to="2021-06-01 10:30:00",
+        )
+
+        assert len(matches) == 1
+        assert str(matches[0].date) == "2021-06-01 11:30:00"
+
+    def test_empty_string_uses_relative_to_reference(self):
+        d = Date("", relative_to="2021-06-01 10:30:00")
+
+        assert str(d) == "2021-06-01 10:30:00"
+
+    def test_parse_metadata_for_exact_parser_match(self):
+        d = Date("an hour from now")
+
+        assert d.parse_metadata.matched_text == "an hour from now"
+        assert d.parse_metadata.exact is True
+        assert d.parse_metadata.fuzzy is False
+        assert d.parse_metadata.used_dateutil is False
+
+    def test_parse_metadata_for_dateutil_fallback(self):
+        d = Date("Sat Oct 11 17:13:46 UTC 2003")
+
+        assert d.parse_metadata.matched_text == "Sat Oct 11 17:13:46 UTC 2003"
+        assert d.parse_metadata.exact is False
+        assert d.parse_metadata.fuzzy is False
+        assert d.parse_metadata.used_dateutil is True
+
+    def test_parse_metadata_for_extracted_match(self):
+        matches = extract_dates("I will do it in an hour from now after lunch.")
+
+        assert matches[0].date.parse_metadata.matched_text == "in an hour from now"
+        assert matches[0].date.parse_metadata.exact is False
+        assert matches[0].date.parse_metadata.fuzzy is True
+        assert matches[0].date.parse_metadata.used_dateutil is False
+
 
 class TestCaseLazy:
     # tests that are not asserting anything
