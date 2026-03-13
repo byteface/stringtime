@@ -1694,17 +1694,23 @@ def get_sleep_phrase_date(phrase):
     return d
 
 
-def get_clock_phrase_date(phrase):
+def get_named_clock_time(phrase):
     exact_aliases = {
         "chinese dentist": (2, 30),
         "cowboy time": (9, 50),
         "midnight": (0, 0),
         "noon": (12, 0),
+        "midday": (12, 0),
         "high noon": (12, 0),
     }
 
-    if phrase in exact_aliases:
-        hour, minute = exact_aliases[phrase]
+    return exact_aliases.get(phrase)
+
+
+def get_clock_phrase_date(phrase):
+    named_time = get_named_clock_time(phrase)
+    if named_time is not None:
+        hour, minute = named_time
         d = get_reference_date()
         d.set_hours(hour)
         d.set_minutes(minute)
@@ -1751,6 +1757,40 @@ def get_clock_phrase_date(phrase):
         d.set_minutes(60 - minutes)
     d.set_seconds(0)
     return d
+
+
+def get_compound_clock_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
+    patterns = [
+        r"(?P<date>today|tomorrow|yesterday)\s+(?:at\s+)?(?P<time>noon|midnight|midday)",
+        r"(?P<time>noon|midnight|midday)\s+(?P<date>today|tomorrow|yesterday)",
+        r"(?P<time>noon|midnight|midday)\s+on\s+(?P<date>.+)",
+    ]
+
+    for pattern in patterns:
+        match = re.fullmatch(pattern, phrase)
+        if match is None:
+            continue
+
+        time_value = get_named_clock_time(match.group("time"))
+        if time_value is None:
+            continue
+
+        date_part = parse_natural_date_strict(
+            match.group("date"),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if date_part is None:
+            continue
+
+        d = clone_date(date_part)
+        d.set_hours(time_value[0])
+        d.set_minutes(time_value[1])
+        d.set_seconds(0)
+        return d
+
+    return None
 
 
 def merge_date_parts(base_date, overlay_date):
@@ -1803,6 +1843,9 @@ def parse_natural_date_strict(date, *args, **kwargs):
     business_date = get_business_phrase_date(phrase)
     sleep_date = get_sleep_phrase_date(phrase)
     clock_date = get_clock_phrase_date(phrase)
+    compound_clock_date = get_compound_clock_phrase_date(
+        phrase, *args, timezone_aware=timezone_aware
+    )
     normalized_phrase = replace_short_words(phrase)
     phrase = normalized_phrase
 
@@ -1849,6 +1892,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if clock_date is not None:
         return attach_parse_metadata(
             apply_timezone(clock_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if compound_clock_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(compound_clock_date, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
