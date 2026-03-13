@@ -123,6 +123,10 @@ class TestCaseStrict:
             ("the 2nd Tuesday of next month", "2021-01-12 17:05:55"),
             ("the last Friday in June", "2020-06-26 17:05:55"),
             ("third Thursday of 2026", "2026-01-15 17:05:55"),
+            ("the last Tuesday in 2026", "2026-12-29 17:05:55"),
+            ("the last Wednesday in 2026", "2026-12-30 17:05:55"),
+            ("the last Thursday in 2026", "2026-12-31 17:05:55"),
+            ("the last Friday in 2026", "2026-12-25 17:05:55"),
             ("the penultimate Wednesday of the month", "2020-12-23 17:05:55"),
             ("start of Q2", "2020-04-01 17:05:55"),
             ("end of Q4", "2020-12-31 17:05:55"),
@@ -132,11 +136,16 @@ class TestCaseStrict:
             ("in the morning", "2020-12-26 09:00:00"),
             ("tomorrow night", "2020-12-26 21:00:00"),
             ("2moro night", "2020-12-26 21:00:00"),
+            ("2day at noon", "2020-12-25 12:00:00"),
+            ("tdy at noon", "2020-12-25 12:00:00"),
+            ("tmrw nite", "2020-12-26 21:00:00"),
+            ("tomo night", "2020-12-26 21:00:00"),
             ("Friday afternoon", "2020-12-25 15:00:00"),
             ("lunchtime tomorrow", "2020-12-26 12:30:00"),
             ("this evening", "2020-12-25 19:00:00"),
             ("next Tuesday evening", "2020-12-29 19:00:00"),
             ("the Wednesday after next", "2021-01-06 17:05:55"),
+            ("Tuesday before last", "2020-12-15 17:05:55"),
             ("mid-morning", "2020-12-26 10:00:00"),
             ("early in the morning", "2020-12-26 06:00:00"),
             ("half five", "2020-12-25 05:30:00"),
@@ -146,10 +155,18 @@ class TestCaseStrict:
             ("next bank holiday", "2020-12-28 17:05:55"),
             ("end of month", "2020-12-31 17:05:55"),
             ("end of the month", "2020-12-31 17:05:55"),
+            ("eom", "2020-12-31 17:05:55"),
             ("start of next quarter", "2021-01-01 17:05:55"),
             ("start of the next quarter", "2021-01-01 17:05:55"),
             ("close of year", "2020-12-31 17:05:55"),
+            ("eoy", "2020-12-31 17:05:55"),
+            ("5 days from tomorrow", "2020-12-31 17:05:55"),
+            ("3 days from next wednesday", "2021-01-02 17:05:55"),
+            ("2 days before next wednesday", "2020-12-28 17:05:55"),
+            ("an hour after 3 oclock", "2020-12-25 04:00:00"),
+            ("15 minutes before midnight", "2020-12-24 23:45:00"),
             ("end of business tomorrow", "2020-12-26 17:00:00"),
+            ("eob tomorrow", "2020-12-26 17:00:00"),
             ("end of play", "2020-12-25 17:00:00"),
             ("EOP", "2020-12-25 17:00:00"),
             ("first thing in the morning", "2020-12-26 09:00:00"),
@@ -170,6 +187,21 @@ class TestCaseStrict:
             ("before yesterday", "2020-12-23 17:05:55"),
             ("the day after tomorrow", "2020-12-27 17:05:55"),
             ("3 days", "2020-12-28 17:05:55"),
+            ("couple of weeks", "2021-01-08 17:05:55"),
+            ("couple of weeks ago", "2020-12-11 17:05:55"),
+            ("couple of minutes ago", "2020-12-25 17:03:55"),
+            ("couple of hours ago", "2020-12-25 15:05:55"),
+            ("couple of months ago", "2020-10-25 17:05:55"),
+            ("couple of years ago", "2018-12-25 17:05:55"),
+            ("few weeks ago", "2020-12-04 17:05:55"),
+            ("few minutes ago", "2020-12-25 17:02:55"),
+            ("few hours ago", "2020-12-25 14:05:55"),
+            ("few months ago", "2020-09-25 17:05:55"),
+            ("few years ago", "2017-12-25 17:05:55"),
+            ("few seconds ago", "2020-12-25 17:05:52"),
+            ("few centuries ago", "1720-12-25 17:05:55"),
+            ("couple of weeks before december", "2021-11-17 17:05:55"),
+            ("few days after february finishes", "2021-03-03 17:05:55"),
             ("A few days", "2020-12-28 17:05:55"),
             ("A few hours", "2020-12-25 20:05:55"),
             ("A few months away", "2021-03-25 17:05:55"),
@@ -374,6 +406,57 @@ class TestCaseStrict:
         assert matches[0].text == "in an hour from now"
         assert str(matches[0].date) == "2020-12-25 18:05:55"
 
+    def test_extract_dates_prefers_full_anchor_offset_phrase(self):
+        matches = extract_dates(
+            "I will take a big walk in 5 days from tomorrow i think."
+        )
+
+        assert len(matches) == 1
+        assert matches[0].text == "in 5 days from tomorrow"
+        assert str(matches[0].date) == "2020-12-31 17:05:55"
+
+    def test_extract_dates_prefers_full_relative_weekday_phrase(self):
+        matches = extract_dates(
+            "Tuesday before last is good for me I think."
+        )
+
+        assert len(matches) == 1
+        assert matches[0].text == "Tuesday before last"
+        assert str(matches[0].date) == "2020-12-15 17:05:55"
+
+    def test_extract_dates_handles_slang_aliases(self):
+        matches = extract_dates("can you come 2moz at 7ish")
+
+        assert len(matches) == 1
+        assert matches[0].text == "2moz at 7ish"
+        assert str(matches[0].date) == "2020-12-26 07:00:00"
+
+    def test_extract_dates_handles_more_alias_variants(self):
+        matches = extract_dates("let's catch up tmrw nite or at eob tomorrow")
+
+        assert [match.text for match in matches] == [
+            "tmrw nite",
+            "eob tomorrow",
+        ]
+        assert [str(match.date) for match in matches] == [
+            "2020-12-26 21:00:00",
+            "2020-12-26 17:00:00",
+        ]
+
+    def test_extract_dates_prefers_full_anchor_offset_with_article(self):
+        matches = extract_dates("a week before the 15th works for me")
+
+        assert len(matches) == 1
+        assert matches[0].text == "a week before the 15th"
+        assert str(matches[0].date) == "2020-12-08 17:05:55"
+
+    def test_extract_dates_prefers_full_couple_anchor_offset_phrase(self):
+        matches = extract_dates("let's aim for couple of weeks before december")
+
+        assert len(matches) == 1
+        assert matches[0].text == "couple of weeks before december"
+        assert str(matches[0].date) == "2021-11-17 17:05:55"
+
     def test_extract_dates_multiple_phrases_from_sentence(self):
         matches = extract_dates(
             "Let's meet next Friday at 9am PST, or Christmas Eve at 5pm UTC."
@@ -445,6 +528,8 @@ class TestCaseStrict:
         assert d.parse_metadata.exact is True
         assert d.parse_metadata.fuzzy is False
         assert d.parse_metadata.used_dateutil is False
+        assert d.parse_metadata.semantic_kind == "relative_offset"
+        assert d.parse_metadata.representative_granularity == "second"
 
     def test_parse_metadata_for_dateutil_fallback(self):
         d = Date("Sat Oct 11 17:13:46 UTC 2003")
@@ -461,6 +546,24 @@ class TestCaseStrict:
         assert matches[0].date.parse_metadata.exact is False
         assert matches[0].date.parse_metadata.fuzzy is True
         assert matches[0].date.parse_metadata.used_dateutil is False
+
+    def test_parse_metadata_marks_day_phrase_as_period(self):
+        d = Date("Friday")
+
+        assert d.parse_metadata.semantic_kind == "period"
+        assert d.parse_metadata.representative_granularity == "day"
+
+    def test_parse_metadata_marks_boundary_phrase(self):
+        d = Date("end of month", relative_to="2020-12-25 17:05:55")
+
+        assert d.parse_metadata.semantic_kind == "boundary"
+        assert d.parse_metadata.representative_granularity == "month"
+
+    def test_parse_metadata_marks_part_of_day_phrase(self):
+        d = Date("tomorrow night", relative_to="2020-12-25 17:05:55")
+
+        assert d.parse_metadata.semantic_kind == "period"
+        assert d.parse_metadata.representative_granularity == "part_of_day"
 
 
 class TestCaseLazy:

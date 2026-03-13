@@ -7,6 +7,9 @@ testp:
 cov:
 	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -p pytest_cov --cov=stringtime --cov-report=term-missing tests/
 
+registry:
+	python3 scripts/build_phrase_registry.py
+
 lint:
 	black stringtime tests
 	isort stringtime tests

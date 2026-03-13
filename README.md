@@ -10,7 +10,7 @@ A grammar for deriving Date objects from phrases.
 ## Usage
 
 ```bash
-from stringtime import Date
+from stringtime import Date, Phrase, nearest_phrase_for, nearest_phrases_for, phrase_for, phrases_for
 
 d = Date('an hour from now')
 d.day  # the day of the week 0-6
@@ -33,6 +33,17 @@ str(d)  # '2021-06-01 11:30:00'
 # relative_to can also be another parsed Date
 d = Date("an hour from now", relative_to=Date("47 hours ago"))
 
+# reverse lookup from a datetime/date string to a known phrase
+Phrase("2021-01-01 17:05:55", relative_to="2020-12-25 17:05:55")
+# 'start of next quarter'
+
+phrase_for("2021-01-01 17:05:55", relative_to="2020-12-25 17:05:55")
+phrases_for("2021-01-01 17:05:55", relative_to="2020-12-25 17:05:55")
+
+# nearest lookup is available for datetimes that do not have an exact registry hit
+nearest_phrase_for("2021-01-01 12:34:56", relative_to="2020-12-25 17:05:55")
+nearest_phrases_for("2037-06-01 12:34:56", relative_to="2020-12-25 17:05:55")
+
 # extract date phrases from longer sentences
 matches = Date("I will do it in an hour from now.", extract=True)
 matches[0].text  # 'in an hour from now'
@@ -53,6 +64,30 @@ python3 -m pip install stringtime
 ```
 
 Requires Python 3.10 or newer.
+
+## CLI
+
+```bash
+stringtime "an hour from now"
+stringtime --relative-to "2020-12-25 17:05:55" "tomorrow night"
+stringtime --extract "I will do it in 5 days from tomorrow."
+stringtime --reverse --relative-to "2020-12-25 17:05:55" "2021-01-01 17:05:55"
+stringtime --nearest --all --json "2021-01-01 12:34:56"
+stringtime --metadata --json "Friday"
+```
+
+Useful flags:
+
+```bash
+--extract         find date phrases inside longer text
+--reverse         reverse an exact datetime into a known phrase
+--nearest         find the nearest known reverse phrase
+--all             return all matches/candidates in extract or reverse modes
+--relative-to     set the reference datetime for relative phrases
+--timezone-aware  keep timezone info when the phrase includes a timezone suffix
+--metadata        include parse metadata in the output
+--json            print structured JSON output
+```
 
 ## Usage and API
 
@@ -128,6 +163,11 @@ Here's a list of example phrases that can be used...
 "end of month"
 "start of next quarter"
 "close of year"
+"5 days from tomorrow"
+"3 days from next Wednesday"
+"2 days before next Wednesday"
+"an hour after 3 oclock"
+"15 minutes before midnight"
 "10 hours and 30 minutes from now"
 "In a minute and 10 seconds"
 "In a minute and a half"
@@ -187,6 +227,41 @@ back to `dateutil`.
 
 Business-day phrases currently treat Monday-Friday as working days and skip
 weekends only.
+
+## Phrase Registry
+
+There is now a phrase-registry builder that expands many known template
+families, parses them against a fixed reference date, and writes out both a
+flat corpus and a reverse map of `datetime -> phrases`.
+
+Generate it with:
+
+```bash
+make registry
+```
+
+That produces:
+
+```bash
+data/phrase_registry.json
+data/phrase_reverse_map.json
+data/phrase_reverse_records.json
+data/phrase_registry_failures.json
+```
+
+The default build uses `relative_to="2020-12-25 17:05:55"` so relative phrases
+are deterministic. The reverse outputs now include a canonical phrase choice
+per datetime along with the full set of known variants, which is the starting
+point for turning datetimes back into natural phrases. The runtime helpers
+`Phrase(...)`, `phrase_for(...)`, and `phrases_for(...)` use that same exact
+registry data for reverse lookup. `nearest_phrase_for(...)` and
+`nearest_phrases_for(...)` provide an in-memory nearest-date search on top of
+the same registry when there is no exact match.
+
+The registry also now distinguishes between semantic kinds such as `instant`,
+`period`, `boundary`, and `relative_offset`. See
+[SEMANTIC_REGISTRY.md](/Users/byteface/Desktop/projects/stringtime/SEMANTIC_REGISTRY.md)
+for the current model and next steps.
 
 If anything is broken or you feel is missing please raise an issue or make a pull request.
 
