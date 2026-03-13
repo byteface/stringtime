@@ -1,9 +1,10 @@
 __version__ = "0.0.6"
-__all__ = ["Date"]
+__all__ = ["Date", "DateMatch", "extract_dates"]
 
 import datetime
 import re
 import warnings
+from dataclasses import dataclass
 
 import ply.lex as lex
 import ply.yacc as yacc
@@ -66,6 +67,9 @@ TIMEZONE_OFFSETS = {
     "awst": 8 * 60,
 }
 
+EXTRACTION_TOKEN_RE = re.compile(r"[A-Za-z0-9@:+'.-]+")
+TIME_TOKEN_RE = re.compile(r"\d{1,2}(?::\d{2})?(?:am|pm)?$", re.IGNORECASE)
+
 
 def build_tzinfo(token):
     token = token.lower()
@@ -120,6 +124,24 @@ def normalize_timezone_phrase(phrase):
         r"\1 at \2",
         phrase,
     )
+
+
+def normalize_phrase(phrase):
+    phrase = normalize_timezone_phrase(phrase)
+    phrase = re.sub(
+        r"^(in\s+.+?)\s+from now$",
+        r"\1",
+        phrase,
+    )
+    return phrase
+
+
+@dataclass
+class DateMatch:
+    text: str
+    start: int
+    end: int
+    date: stDate
 
 
 # -----------------------------------------------------------------------------
@@ -831,25 +853,7 @@ def p_twice(p):
     # i.e. '(2 days time) (at 4pm)'
     # i.e. date_day date = 'wednesday @ 5pm'
 
-    now = stDate()
-    d = p[1]
-    d2 = p[2]
-
-    if d2.get_year() != now.get_year():
-        d.set_year(d2.get_year())
-    if d2.get_month() != now.get_month():
-        d.set_month(d2.get_month())
-    if d2.get_date() != now.get_date():
-        d.set_date(d2.get_date())
-    if d2.get_hours() != now.get_hours():
-        d.set_hours(d2.get_hours())
-    if d2.get_minutes() != now.get_minutes():
-        d.set_minutes(d2.get_minutes())
-    if d2.get_seconds() != now.get_seconds():
-        d.set_seconds(d2.get_seconds())
-
-    # not quite right. but almost...
-    p[0] = d  # p[2]  #[p[1], p[2]]
+    p[0] = merge_date_parts(p[1], p[2])
 
 
 # in : PHRASE WORD_NUMBER TIME?? not getting converted
@@ -1538,24 +1542,233 @@ def get_holiday_date(phrase):
     return d
 
 
+def merge_date_parts(base_date, overlay_date):
+    now = stDate()
+    d = base_date
+    d2 = overlay_date
+
+    if d2.get_year() != now.get_year():
+        d.set_year(d2.get_year())
+    if d2.get_month() != now.get_month():
+        d.set_month(d2.get_month())
+    if d2.get_date() != now.get_date():
+        d.set_date(d2.get_date())
+    if d2.get_hours() != now.get_hours():
+        d.set_hours(d2.get_hours())
+    if d2.get_minutes() != now.get_minutes():
+        d.set_minutes(d2.get_minutes())
+    if d2.get_seconds() != now.get_seconds():
+        d.set_seconds(d2.get_seconds())
+
+    return d
+
+
+def parse_natural_date_strict(date, *args, **kwargs):
+    timezone_aware = kwargs.pop("timezone_aware", False)
+
+    if not isinstance(date, str):
+        return None
+
+    phrase = date.lower().strip()
+    phrase = phrase.strip(" \t\r\n,.;:!?()[]{}\"'")
+    if phrase == "":
+        return None
+
+    phrase, tzinfo = extract_timezone_suffix(phrase)
+    phrase = normalize_phrase(phrase)
+    phrase = replace_short_words(phrase)
+
+    holiday_date = get_holiday_date(phrase)
+    if holiday_date is not None:
+        return apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware)
+
+    for splitter in (" at ", " @ ", " on "):
+        if splitter not in phrase:
+            continue
+
+        head, tail = phrase.split(splitter, 1)
+        holiday_date = get_holiday_date(head.strip())
+        if holiday_date is None:
+            continue
+
+        time_phrase = f"at {tail.strip()}" if splitter.strip() != "on" else tail.strip()
+        tail_date = parse_natural_date_strict(
+            time_phrase,
+            *args,
+            timezone_aware=timezone_aware,
+        )
+        if tail_date is None:
+            continue
+
+        return apply_timezone(
+            merge_date_parts(holiday_date, tail_date),
+            tzinfo,
+            timezone_aware=timezone_aware,
+        )
+
+    if is_now(phrase):
+        return apply_timezone(stDate(), tzinfo, timezone_aware=timezone_aware)
+
+    try:
+        parsed = yacc.parse(phrase)
+    except Exception:
+        return None
+
+    if not parsed:
+        return None
+
+    return apply_timezone(parsed[0], tzinfo, timezone_aware=timezone_aware)
+
+
+def is_extraction_anchor(token, next_token=None):
+    token = token.lower()
+    next_token = next_token.lower() if next_token is not None else None
+
+    direct_tokens = {
+        "in",
+        "on",
+        "at",
+        "@",
+        "today",
+        "tomorrow",
+        "yesterday",
+        "after",
+        "before",
+        "next",
+        "last",
+        "this",
+        "christmas",
+        "easter",
+        "thanksgiving",
+        "halloween",
+        "labor",
+        "memorial",
+        "black",
+        "boxing",
+        "valentine's",
+        "valentines",
+        "new",
+        "st",
+    }
+    days = {
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    }
+    months = {
+        "january",
+        "february",
+        "march",
+        "april",
+        "may",
+        "june",
+        "july",
+        "august",
+        "september",
+        "october",
+        "november",
+        "december",
+    }
+    units = {
+        "year",
+        "years",
+        "month",
+        "months",
+        "week",
+        "weeks",
+        "day",
+        "days",
+        "hour",
+        "hours",
+        "minute",
+        "minutes",
+        "second",
+        "seconds",
+        "millisecond",
+        "milliseconds",
+    }
+
+    if token in direct_tokens or token in days or token in months:
+        return True
+
+    if token in TIMEZONE_OFFSETS or build_tzinfo(token) is not None:
+        return True
+
+    if TIME_TOKEN_RE.fullmatch(token):
+        return True
+
+    if re.fullmatch(r"\d+(?:st|nd|rd|th)", token):
+        return True
+
+    if re.fullmatch(r"\d+(?::\d{2})?", token) and next_token in {
+        "am",
+        "pm",
+        "oclock",
+    }:
+        return True
+
+    if re.fullmatch(r"\d+(?:\.\d+)?", token) and next_token in units:
+        return True
+
+    return False
+
+
+def extract_dates(text, *args, max_tokens=12, **kwargs):
+    matches = []
+    tokens = list(EXTRACTION_TOKEN_RE.finditer(text))
+    parse_kwargs = dict(kwargs)
+    timezone_aware = parse_kwargs.pop("timezone_aware", False)
+
+    i = 0
+    while i < len(tokens):
+        token = tokens[i].group(0)
+        next_token = tokens[i + 1].group(0) if i + 1 < len(tokens) else None
+
+        if not is_extraction_anchor(token, next_token):
+            i += 1
+            continue
+
+        best_match = None
+        max_j = min(len(tokens), i + max_tokens)
+
+        for j in range(max_j, i, -1):
+            candidate = text[tokens[i].start() : tokens[j - 1].end()]
+            parsed = parse_natural_date_strict(
+                candidate, *args, timezone_aware=timezone_aware, **parse_kwargs
+            )
+            if parsed is None:
+                continue
+
+            best_match = DateMatch(
+                text=candidate.strip(" \t\r\n,.;:!?()[]{}\"'"),
+                start=tokens[i].start(),
+                end=tokens[j - 1].end(),
+                date=parsed,
+            )
+            break
+
+        if best_match is None:
+            i += 1
+            continue
+
+        matches.append(best_match)
+
+        while i < len(tokens) and tokens[i].start() < best_match.end:
+            i += 1
+
+    return matches
+
+
 def get_date(date, *args, **kwargs):
     try:
-        timezone_aware = kwargs.pop("timezone_aware", False)
-        phrase = date.lower()
-        phrase = phrase.strip()
-        phrase, tzinfo = extract_timezone_suffix(phrase)
-        phrase = normalize_timezone_phrase(phrase)
-        phrase = replace_short_words(phrase)
-        holiday_date = get_holiday_date(phrase)
-        if holiday_date is not None:
-            return apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware)
-        if is_now(phrase):
-            return apply_timezone(
-                stDate(), tzinfo, timezone_aware=timezone_aware
-            )
-        return apply_timezone(
-            yacc.parse(phrase)[0], tzinfo, timezone_aware=timezone_aware
-        )
+        parsed = parse_natural_date_strict(date, *args, **kwargs)
+        if parsed is not None:
+            return parsed
+        kwargs.pop("timezone_aware", None)
     except TypeError as e:
         # if debug raise the error
         if DEBUG:
@@ -1565,6 +1778,7 @@ def get_date(date, *args, **kwargs):
         if DEBUG:
             raise e
         return stDate()
+    return stDate(date, *args, **kwargs)
 
 
 def Date(date=None, *args, length: int = None, **kwargs):
@@ -1593,4 +1807,7 @@ def Date(date=None, *args, length: int = None, **kwargs):
             return dates
         return [first_date, second_date]
     """
+    extract = kwargs.pop("extract", False)
+    if extract:
+        return extract_dates(date, *args, **kwargs)
     return get_date(date, *args, **kwargs)

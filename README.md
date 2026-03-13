@@ -26,6 +26,11 @@ d = Date("Sat Oct 11 17:13:46 UTC 2003")
 d = Date("tomorrow at 5pm UTC", timezone_aware=True)
 d.to_datetime().isoformat()  # '2020-12-26T17:00:00+00:00'
 
+# extract date phrases from longer sentences
+matches = Date("I will do it in an hour from now.", extract=True)
+matches[0].text  # 'in an hour from now'
+str(matches[0].date)  # '2020-12-25 18:05:55'
+
 ```
 
 ## Installation
@@ -104,6 +109,9 @@ Here's a list of example phrases that can be used...
 ```
 
 To see what else is underway check the tests/test_stringtime.py file.
+
+For longer text, use `extract=True` or call `extract_dates(text)` directly to get
+all matching spans back with their parsed dates.
 
 If anything is broken or you feel is missing please raise an issue or make a pull request.
 

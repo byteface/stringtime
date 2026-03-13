@@ -11,7 +11,7 @@ import os
 import pytest
 
 import stringtime
-from stringtime import Date
+from stringtime import Date, extract_dates
 
 
 def check_phrase(p: str):
@@ -315,6 +315,45 @@ class TestCaseStrict:
         d = Date("tomorrow at 5pm UTC+2", timezone_aware=True)
 
         assert d.to_datetime().isoformat() == "2020-12-26T17:00:00+02:00"
+
+    def test_extract_dates_single_phrase_from_sentence(self):
+        matches = extract_dates("I will do it in an hour from now after lunch.")
+
+        assert len(matches) == 1
+        assert matches[0].text == "in an hour from now"
+        assert str(matches[0].date) == "2020-12-25 18:05:55"
+
+    def test_extract_dates_multiple_phrases_from_sentence(self):
+        matches = extract_dates(
+            "Let's meet next Friday at 9am PST, or Christmas Eve at 5pm UTC."
+        )
+
+        assert [match.text for match in matches] == [
+            "next Friday at 9am PST",
+            "Christmas Eve at 5pm UTC",
+        ]
+        assert [str(match.date) for match in matches] == [
+            "2021-01-01 09:00:00",
+            "2020-12-24 17:00:00",
+        ]
+
+    def test_extract_dates_can_return_timezone_aware_matches(self):
+        matches = extract_dates(
+            "Let's meet tomorrow at 5pm UTC.",
+            timezone_aware=True,
+        )
+
+        assert len(matches) == 1
+        assert matches[0].date.to_datetime().isoformat() == "2020-12-26T17:00:00+00:00"
+
+    def test_date_extract_mode_returns_matches(self):
+        matches = Date("I will do it in an hour from now.", extract=True)
+
+        assert len(matches) == 1
+        assert matches[0].text == "in an hour from now"
+
+    def test_extract_dates_returns_empty_when_no_phrase_found(self):
+        assert extract_dates("There are no schedules in this sentence.") == []
 
 
 class TestCaseLazy:
