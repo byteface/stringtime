@@ -22,6 +22,10 @@ d.get_month(to_string=True) # the month name, e.g. 'January'
 # also wraps dateutil.parser so can parse full date strings
 d = Date("Sat Oct 11 17:13:46 UTC 2003")
 
+# opt into timezone-aware output when the phrase includes a timezone suffix
+d = Date("tomorrow at 5pm UTC", timezone_aware=True)
+d.to_datetime().isoformat()  # '2020-12-26T17:00:00+00:00'
+
 ```
 
 ## Installation
@@ -92,6 +96,9 @@ Here's a list of example phrases that can be used...
 "The 12th of last month"
 "next month on the first"
 "last month on the 16th at 2am"
+"tomorrow at 5pm UTC"
+"next Friday 9am PST"
+"tomorrow at 5pm UTC+2"
 "32nd", # would move into the next month
 "The 18th of March"
 ```

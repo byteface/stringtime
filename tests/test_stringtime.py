@@ -103,6 +103,15 @@ class TestCaseStrict:
             ("asap", "2020-12-25 17:05:55"),
             ("here and now", "2020-12-25 17:05:55"),
             ("2 weeks from now", "2021-01-08 17:05:55"),
+            ("Christmas", "2020-12-25 17:05:55"),
+            ("Christmas Eve", "2020-12-24 17:05:55"),
+            ("New Year's Day", "2020-01-01 17:05:55"),
+            ("Easter", "2020-04-12 17:05:55"),
+            ("Easter next year", "2021-04-04 17:05:55"),
+            ("Thanksgiving", "2020-11-26 17:05:55"),
+            ("Black Friday", "2020-11-27 17:05:55"),
+            ("Halloween", "2020-10-31 17:05:55"),
+            ("Labor Day", "2020-09-07 17:05:55"),
             ("12th", "2020-12-12 17:05:55"),
             ("the other day", "2020-12-23 17:05:55"),
             ("the day before yesterday", "2020-12-23 17:05:55"),
@@ -216,6 +225,9 @@ class TestCaseStrict:
             ("last month on the 16th @ 2am", "2020-11-16 02:00:00"),
             ("next month on the first @ 3pm", "2021-01-01 15:00:00"),
             ("friday at 5:30", "2020-12-25 05:30:00"),
+            ("tomorrow at 5pm UTC", "2020-12-26 17:00:00"),
+            ("next Friday 9am PST", "2021-01-01 09:00:00"),
+            ("tomorrow at 5pm UTC+2", "2020-12-26 17:00:00"),
             # ("In 4 hours time", "2020-12-25 21:05:55"),
             # ("In 4 hours and 30 minutes time", "2020-12-25 21:35:55"),
             # ("In 4 hours and 30 minutes and 10 seconds time", "2020-12-25 21:35:15"),
@@ -286,6 +298,23 @@ class TestCaseStrict:
     def test_present(self, mocker, test_input, expected):
         # mocker.patch("stringtime.DEBUG", False)
         assert str(check_phrase(test_input)) == expected
+
+    def test_timezone_aware_output_utc(self):
+        d = Date("tomorrow at 5pm UTC", timezone_aware=True)
+
+        assert d.to_datetime().isoformat() == "2020-12-26T17:00:00+00:00"
+        assert d.tzinfo.utcoffset(None) == datetime.timedelta(0)
+
+    def test_timezone_aware_output_named_zone(self):
+        d = Date("next Friday 9am PST", timezone_aware=True)
+
+        assert d.to_datetime().isoformat() == "2021-01-01T09:00:00-08:00"
+        assert d.tzinfo.tzname(None) == "PST"
+
+    def test_timezone_aware_output_with_offset_suffix(self):
+        d = Date("tomorrow at 5pm UTC+2", timezone_aware=True)
+
+        assert d.to_datetime().isoformat() == "2020-12-26T17:00:00+02:00"
 
 
 class TestCaseLazy:

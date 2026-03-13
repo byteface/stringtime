@@ -590,6 +590,14 @@ class Date:
         """Converts the time portion of a Date object to a string"""
         return self._date.strftime("%X")
 
+    def to_datetime(self):
+        """Returns the underlying Python datetime."""
+        return self._date
+
+    def astimezone(self, tz=None):
+        """Converts the underlying datetime to another timezone."""
+        return self._date.astimezone(tz)
+
     def UTC(self):
         """Returns the number of milliseconds in a date since midnight of January 1, 1970, according to UTC time"""
         return self._date.utcnow()
@@ -665,6 +673,10 @@ class Date:
     @date.setter
     def date(self, date):
         self.set_date(date)
+
+    @property
+    def tzinfo(self):
+        return self._date.tzinfo
 
     def __repr__(self):
         return "<Date: {}>".format(self)

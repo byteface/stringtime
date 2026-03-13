@@ -107,62 +107,66 @@ Rule 95    date_past -> PHRASE TIME AND NUMBER HALF PAST_PHRASE
 Rule 96    date_yesterday -> YESTERDAY
 Rule 97    date_yesterday -> YESTERDAY AT NUMBER
 Rule 98    date_yesterday -> YESTERDAY AT WORD_NUMBER
-Rule 99    date_2moro -> TOMORROW
-Rule 100   date_2moro -> TOMORROW AT NUMBER
-Rule 101   date_2moro -> TOMORROW AT WORD_NUMBER
-Rule 102   date_day -> DAY
-Rule 103   date_day -> ON DAY
-Rule 104   date_day -> PHRASE DAY
-Rule 105   date_day -> PAST_PHRASE DAY
-Rule 106   date_or -> PAST_PHRASE TIME
-Rule 107   date_before_yesterday -> BEFORE_YESTERDAY
-Rule 108   date_before_yesterday -> THE BEFORE_YESTERDAY
-Rule 109   date_before_yesterday -> THE TIME BEFORE_YESTERDAY
-Rule 110   date_after_tomorrow -> AFTER_TOMORROW
-Rule 111   date_after_tomorrow -> THE TIME AFTER_TOMORROW
-Rule 112   date_end -> NUMBER DATE_END
-Rule 113   date_end -> THE NUMBER DATE_END
-Rule 114   date_end -> MONTH NUMBER DATE_END
-Rule 115   date_end -> NUMBER DATE_END OF MONTH
-Rule 116   date_end -> ON THE NUMBER DATE_END
-Rule 117   date_end -> MONTH THE NUMBER DATE_END
-Rule 118   date_end -> THE NUMBER DATE_END OF MONTH
-Rule 119   date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME
-Rule 120   date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME
-Rule 121   date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME
-Rule 122   date_month_relative -> NUMBER DATE_END OF PHRASE TIME
-Rule 123   date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END
-Rule 124   date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END
+Rule 99    date_yesterday -> YESTERDAY AT NUMBER AM
+Rule 100   date_yesterday -> YESTERDAY AT NUMBER PM
+Rule 101   date_2moro -> TOMORROW
+Rule 102   date_2moro -> TOMORROW AT NUMBER
+Rule 103   date_2moro -> TOMORROW AT WORD_NUMBER
+Rule 104   date_2moro -> TOMORROW AT NUMBER AM
+Rule 105   date_2moro -> TOMORROW AT NUMBER PM
+Rule 106   date_day -> DAY
+Rule 107   date_day -> ON DAY
+Rule 108   date_day -> PHRASE DAY
+Rule 109   date_day -> PAST_PHRASE DAY
+Rule 110   date_or -> PAST_PHRASE TIME
+Rule 111   date_before_yesterday -> BEFORE_YESTERDAY
+Rule 112   date_before_yesterday -> THE BEFORE_YESTERDAY
+Rule 113   date_before_yesterday -> THE TIME BEFORE_YESTERDAY
+Rule 114   date_after_tomorrow -> AFTER_TOMORROW
+Rule 115   date_after_tomorrow -> THE TIME AFTER_TOMORROW
+Rule 116   date_end -> NUMBER DATE_END
+Rule 117   date_end -> THE NUMBER DATE_END
+Rule 118   date_end -> MONTH NUMBER DATE_END
+Rule 119   date_end -> NUMBER DATE_END OF MONTH
+Rule 120   date_end -> ON THE NUMBER DATE_END
+Rule 121   date_end -> MONTH THE NUMBER DATE_END
+Rule 122   date_end -> THE NUMBER DATE_END OF MONTH
+Rule 123   date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME
+Rule 124   date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME
+Rule 125   date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME
+Rule 126   date_month_relative -> NUMBER DATE_END OF PHRASE TIME
+Rule 127   date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END
+Rule 128   date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END
 
 Terminals, with rules where they appear
 
 A                    : 
-AFTER_TOMORROW       : 110 111
-AM                   : 22 26 35 37
+AFTER_TOMORROW       : 114 115
+AM                   : 22 26 35 37 99 104
 AND                  : 46 47 48 49 50 51 52 53 54 55 56 57 58 59 71 72 73 74 77 78 79 80 83 84 85 86 90 91 92 93 94 95
-AT                   : 24 25 26 30 31 37 38 97 98 100 101
-BEFORE_YESTERDAY     : 107 108 109
+AT                   : 24 25 26 30 31 37 38 97 98 99 100 102 103 104 105
+BEFORE_YESTERDAY     : 111 112 113
 COLON                : 20 21 21
-DATE_END             : 112 113 114 115 116 117 118 119 120 121 122 123 124
-DAY                  : 102 103 104 105
+DATE_END             : 116 117 118 119 120 121 122 123 124 125 126 127 128
+DAY                  : 106 107 108 109
 DECIMAL              : 28 34 43 69 88
 HALF                 : 48 49 50 51 56 57 58 59 94 95
 MINUS                : 81 82 83 84 85 86
-MONTH                : 114 115 117 118
-NUMBER               : 20 20 21 21 21 27 30 33 35 36 37 38 42 46 48 49 50 51 52 52 53 54 56 57 58 59 68 71 71 72 73 75 77 77 78 79 81 83 83 84 85 87 90 90 91 92 94 95 97 100 112 113 114 115 116 117 118 119 120 121 122 123 124
-OF                   : 115 118 119 120 121 122
-ON                   : 103 116 123 124
-PAST_PHRASE          : 87 88 89 90 91 92 93 94 95 105 106 119 120 123
-PHRASE               : 40 41 42 43 44 45 45 46 47 51 52 53 54 55 56 57 58 59 59 68 69 70 71 72 73 74 95 104 121 122 124
+MONTH                : 118 119 121 122
+NUMBER               : 20 20 21 21 21 27 30 33 35 36 37 38 42 46 48 49 50 51 52 52 53 54 56 57 58 59 68 71 71 72 73 75 77 77 78 79 81 83 83 84 85 87 90 90 91 92 94 95 97 99 100 102 104 105 116 117 118 119 120 121 122 123 124 125 126 127 128
+OF                   : 119 122 123 124 125 126
+ON                   : 107 120 127 128
+PAST_PHRASE          : 87 88 89 90 91 92 93 94 95 109 110 123 124 127
+PHRASE               : 40 41 42 43 44 45 45 46 47 51 52 53 54 55 56 57 58 59 59 68 69 70 71 72 73 74 95 108 125 126 128
 PLUS                 : 75 76 77 78 79 80
-PM                   : 23 25 36 38
-THE                  : 108 109 111 113 116 117 118 119 121 123 124
-TIME                 : 32 33 34 39 40 41 42 43 44 45 46 46 47 47 48 49 50 50 51 52 52 53 53 54 54 55 55 56 57 58 58 59 68 69 70 71 71 72 72 73 73 74 74 75 76 77 77 78 78 79 79 80 80 81 82 83 83 84 84 85 85 86 86 87 88 89 90 90 91 91 92 92 93 93 94 95 106 109 111 119 120 121 122 123 124
+PM                   : 23 25 36 38 100 105
+THE                  : 112 113 115 117 120 121 122 123 125 127 128
+TIME                 : 32 33 34 39 40 41 42 43 44 45 46 46 47 47 48 49 50 50 51 52 52 53 53 54 54 55 55 56 57 58 58 59 68 69 70 71 71 72 72 73 73 74 74 75 76 77 77 78 78 79 79 80 80 81 82 83 83 84 84 85 85 86 86 87 88 89 90 90 91 91 92 92 93 93 94 95 110 113 115 123 124 125 126 127 128
 TODAY                : 
-TOMORROW             : 99 100 101
-WORD_NUMBER          : 29 31 39 44 47 48 49 50 53 54 55 55 56 57 58 70 72 73 74 74 76 78 79 80 80 82 84 85 86 86 89 91 92 93 93 94 98 101
+TOMORROW             : 101 102 103 104 105
+WORD_NUMBER          : 29 31 39 44 47 48 49 50 53 54 55 55 56 57 58 70 72 73 74 74 76 78 79 80 80 82 84 85 86 86 89 91 92 93 93 94 98 103
 YEAR                 : 
-YESTERDAY            : 96 97 98
+YESTERDAY            : 96 97 98 99 100
 error                : 
 
 Nonterminals, with rules where they appear
@@ -274,32 +278,36 @@ state 0
     (96) date_yesterday -> . YESTERDAY
     (97) date_yesterday -> . YESTERDAY AT NUMBER
     (98) date_yesterday -> . YESTERDAY AT WORD_NUMBER
-    (99) date_2moro -> . TOMORROW
-    (100) date_2moro -> . TOMORROW AT NUMBER
-    (101) date_2moro -> . TOMORROW AT WORD_NUMBER
-    (102) date_day -> . DAY
-    (103) date_day -> . ON DAY
-    (104) date_day -> . PHRASE DAY
-    (105) date_day -> . PAST_PHRASE DAY
-    (112) date_end -> . NUMBER DATE_END
-    (113) date_end -> . THE NUMBER DATE_END
-    (114) date_end -> . MONTH NUMBER DATE_END
-    (115) date_end -> . NUMBER DATE_END OF MONTH
-    (116) date_end -> . ON THE NUMBER DATE_END
-    (117) date_end -> . MONTH THE NUMBER DATE_END
-    (118) date_end -> . THE NUMBER DATE_END OF MONTH
-    (106) date_or -> . PAST_PHRASE TIME
-    (119) date_month_relative -> . THE NUMBER DATE_END OF PAST_PHRASE TIME
-    (120) date_month_relative -> . NUMBER DATE_END OF PAST_PHRASE TIME
-    (121) date_month_relative -> . THE NUMBER DATE_END OF PHRASE TIME
-    (122) date_month_relative -> . NUMBER DATE_END OF PHRASE TIME
-    (123) date_month_relative -> . PAST_PHRASE TIME ON THE NUMBER DATE_END
-    (124) date_month_relative -> . PHRASE TIME ON THE NUMBER DATE_END
-    (107) date_before_yesterday -> . BEFORE_YESTERDAY
-    (108) date_before_yesterday -> . THE BEFORE_YESTERDAY
-    (109) date_before_yesterday -> . THE TIME BEFORE_YESTERDAY
-    (110) date_after_tomorrow -> . AFTER_TOMORROW
-    (111) date_after_tomorrow -> . THE TIME AFTER_TOMORROW
+    (99) date_yesterday -> . YESTERDAY AT NUMBER AM
+    (100) date_yesterday -> . YESTERDAY AT NUMBER PM
+    (101) date_2moro -> . TOMORROW
+    (102) date_2moro -> . TOMORROW AT NUMBER
+    (103) date_2moro -> . TOMORROW AT WORD_NUMBER
+    (104) date_2moro -> . TOMORROW AT NUMBER AM
+    (105) date_2moro -> . TOMORROW AT NUMBER PM
+    (106) date_day -> . DAY
+    (107) date_day -> . ON DAY
+    (108) date_day -> . PHRASE DAY
+    (109) date_day -> . PAST_PHRASE DAY
+    (116) date_end -> . NUMBER DATE_END
+    (117) date_end -> . THE NUMBER DATE_END
+    (118) date_end -> . MONTH NUMBER DATE_END
+    (119) date_end -> . NUMBER DATE_END OF MONTH
+    (120) date_end -> . ON THE NUMBER DATE_END
+    (121) date_end -> . MONTH THE NUMBER DATE_END
+    (122) date_end -> . THE NUMBER DATE_END OF MONTH
+    (110) date_or -> . PAST_PHRASE TIME
+    (123) date_month_relative -> . THE NUMBER DATE_END OF PAST_PHRASE TIME
+    (124) date_month_relative -> . NUMBER DATE_END OF PAST_PHRASE TIME
+    (125) date_month_relative -> . THE NUMBER DATE_END OF PHRASE TIME
+    (126) date_month_relative -> . NUMBER DATE_END OF PHRASE TIME
+    (127) date_month_relative -> . PAST_PHRASE TIME ON THE NUMBER DATE_END
+    (128) date_month_relative -> . PHRASE TIME ON THE NUMBER DATE_END
+    (111) date_before_yesterday -> . BEFORE_YESTERDAY
+    (112) date_before_yesterday -> . THE BEFORE_YESTERDAY
+    (113) date_before_yesterday -> . THE TIME BEFORE_YESTERDAY
+    (114) date_after_tomorrow -> . AFTER_TOMORROW
+    (115) date_after_tomorrow -> . THE TIME AFTER_TOMORROW
     (60) date_twice -> . date date
     (61) date_twice -> . date_day date
     (62) date_twice -> . date date_day
@@ -446,10 +454,10 @@ state 3
     (57) date -> . WORD_NUMBER TIME AND NUMBER HALF PHRASE
     (58) date -> . WORD_NUMBER TIME AND NUMBER HALF TIME PHRASE
     (59) date -> . PHRASE TIME AND NUMBER HALF PHRASE
-    (102) date_day -> . DAY
-    (103) date_day -> . ON DAY
-    (104) date_day -> . PHRASE DAY
-    (105) date_day -> . PAST_PHRASE DAY
+    (106) date_day -> . DAY
+    (107) date_day -> . ON DAY
+    (108) date_day -> . PHRASE DAY
+    (109) date_day -> . PAST_PHRASE DAY
 
   ! shift/reduce conflict for NUMBER resolved as shift
   ! shift/reduce conflict for DECIMAL resolved as shift
@@ -760,10 +768,10 @@ state 17
     (66) date_twice -> timestamp . date_day
     (22) timestamp_adpt -> timestamp . AM
     (23) timestamp_adpt -> timestamp . PM
-    (102) date_day -> . DAY
-    (103) date_day -> . ON DAY
-    (104) date_day -> . PHRASE DAY
-    (105) date_day -> . PAST_PHRASE DAY
+    (106) date_day -> . DAY
+    (107) date_day -> . ON DAY
+    (108) date_day -> . PHRASE DAY
+    (109) date_day -> . PAST_PHRASE DAY
 
   ! shift/reduce conflict for PHRASE resolved as shift
     NUMBER          reduce using rule 18 (date_list -> timestamp .)
@@ -787,10 +795,10 @@ state 18
 
     (19) date_list -> timestamp_adpt .
     (67) date_twice -> timestamp_adpt . date_day
-    (102) date_day -> . DAY
-    (103) date_day -> . ON DAY
-    (104) date_day -> . PHRASE DAY
-    (105) date_day -> . PAST_PHRASE DAY
+    (106) date_day -> . DAY
+    (107) date_day -> . ON DAY
+    (108) date_day -> . PHRASE DAY
+    (109) date_day -> . PAST_PHRASE DAY
 
   ! shift/reduce conflict for PHRASE resolved as shift
     NUMBER          reduce using rule 19 (date_list -> timestamp_adpt .)
@@ -820,10 +828,10 @@ state 19
     (87) date_past -> NUMBER . TIME PAST_PHRASE
     (90) date_past -> NUMBER . TIME AND NUMBER TIME PAST_PHRASE
     (92) date_past -> NUMBER . TIME AND WORD_NUMBER TIME PAST_PHRASE
-    (112) date_end -> NUMBER . DATE_END
-    (115) date_end -> NUMBER . DATE_END OF MONTH
-    (120) date_month_relative -> NUMBER . DATE_END OF PAST_PHRASE TIME
-    (122) date_month_relative -> NUMBER . DATE_END OF PHRASE TIME
+    (116) date_end -> NUMBER . DATE_END
+    (119) date_end -> NUMBER . DATE_END OF MONTH
+    (124) date_month_relative -> NUMBER . DATE_END OF PAST_PHRASE TIME
+    (126) date_month_relative -> NUMBER . DATE_END OF PHRASE TIME
     (20) timestamp -> NUMBER . COLON NUMBER
     (21) timestamp -> NUMBER . COLON NUMBER COLON NUMBER
 
@@ -955,8 +963,8 @@ state 24
     (72) in -> PHRASE . WORD_NUMBER TIME AND NUMBER TIME
     (73) in -> PHRASE . NUMBER TIME AND WORD_NUMBER TIME
     (74) in -> PHRASE . WORD_NUMBER TIME AND WORD_NUMBER TIME
-    (104) date_day -> PHRASE . DAY
-    (124) date_month_relative -> PHRASE . TIME ON THE NUMBER DATE_END
+    (108) date_day -> PHRASE . DAY
+    (128) date_month_relative -> PHRASE . TIME ON THE NUMBER DATE_END
 
     TIME            shift and go to state 69
     NUMBER          shift and go to state 70
@@ -967,9 +975,9 @@ state 24
 
 state 25
 
-    (105) date_day -> PAST_PHRASE . DAY
-    (106) date_or -> PAST_PHRASE . TIME
-    (123) date_month_relative -> PAST_PHRASE . TIME ON THE NUMBER DATE_END
+    (109) date_day -> PAST_PHRASE . DAY
+    (110) date_or -> PAST_PHRASE . TIME
+    (127) date_month_relative -> PAST_PHRASE . TIME ON THE NUMBER DATE_END
 
     DAY             shift and go to state 74
     TIME            shift and go to state 75
@@ -1006,6 +1014,8 @@ state 28
     (96) date_yesterday -> YESTERDAY .
     (97) date_yesterday -> YESTERDAY . AT NUMBER
     (98) date_yesterday -> YESTERDAY . AT WORD_NUMBER
+    (99) date_yesterday -> YESTERDAY . AT NUMBER AM
+    (100) date_yesterday -> YESTERDAY . AT NUMBER PM
 
   ! shift/reduce conflict for AT resolved as shift
     NUMBER          reduce using rule 96 (date_yesterday -> YESTERDAY .)
@@ -1021,39 +1031,41 @@ state 28
 
 state 29
 
-    (99) date_2moro -> TOMORROW .
-    (100) date_2moro -> TOMORROW . AT NUMBER
-    (101) date_2moro -> TOMORROW . AT WORD_NUMBER
+    (101) date_2moro -> TOMORROW .
+    (102) date_2moro -> TOMORROW . AT NUMBER
+    (103) date_2moro -> TOMORROW . AT WORD_NUMBER
+    (104) date_2moro -> TOMORROW . AT NUMBER AM
+    (105) date_2moro -> TOMORROW . AT NUMBER PM
 
   ! shift/reduce conflict for AT resolved as shift
-    NUMBER          reduce using rule 99 (date_2moro -> TOMORROW .)
-    DECIMAL         reduce using rule 99 (date_2moro -> TOMORROW .)
-    WORD_NUMBER     reduce using rule 99 (date_2moro -> TOMORROW .)
-    TIME            reduce using rule 99 (date_2moro -> TOMORROW .)
-    PHRASE          reduce using rule 99 (date_2moro -> TOMORROW .)
-    $end            reduce using rule 99 (date_2moro -> TOMORROW .)
+    NUMBER          reduce using rule 101 (date_2moro -> TOMORROW .)
+    DECIMAL         reduce using rule 101 (date_2moro -> TOMORROW .)
+    WORD_NUMBER     reduce using rule 101 (date_2moro -> TOMORROW .)
+    TIME            reduce using rule 101 (date_2moro -> TOMORROW .)
+    PHRASE          reduce using rule 101 (date_2moro -> TOMORROW .)
+    $end            reduce using rule 101 (date_2moro -> TOMORROW .)
     AT              shift and go to state 81
 
-  ! AT              [ reduce using rule 99 (date_2moro -> TOMORROW .) ]
+  ! AT              [ reduce using rule 101 (date_2moro -> TOMORROW .) ]
 
 
 state 30
 
-    (102) date_day -> DAY .
+    (106) date_day -> DAY .
 
-    NUMBER          reduce using rule 102 (date_day -> DAY .)
-    DECIMAL         reduce using rule 102 (date_day -> DAY .)
-    WORD_NUMBER     reduce using rule 102 (date_day -> DAY .)
-    AT              reduce using rule 102 (date_day -> DAY .)
-    TIME            reduce using rule 102 (date_day -> DAY .)
-    PHRASE          reduce using rule 102 (date_day -> DAY .)
-    $end            reduce using rule 102 (date_day -> DAY .)
+    NUMBER          reduce using rule 106 (date_day -> DAY .)
+    DECIMAL         reduce using rule 106 (date_day -> DAY .)
+    WORD_NUMBER     reduce using rule 106 (date_day -> DAY .)
+    AT              reduce using rule 106 (date_day -> DAY .)
+    TIME            reduce using rule 106 (date_day -> DAY .)
+    PHRASE          reduce using rule 106 (date_day -> DAY .)
+    $end            reduce using rule 106 (date_day -> DAY .)
 
 
 state 31
 
-    (103) date_day -> ON . DAY
-    (116) date_end -> ON . THE NUMBER DATE_END
+    (107) date_day -> ON . DAY
+    (120) date_end -> ON . THE NUMBER DATE_END
 
     DAY             shift and go to state 82
     THE             shift and go to state 83
@@ -1061,13 +1073,13 @@ state 31
 
 state 32
 
-    (113) date_end -> THE . NUMBER DATE_END
-    (118) date_end -> THE . NUMBER DATE_END OF MONTH
-    (119) date_month_relative -> THE . NUMBER DATE_END OF PAST_PHRASE TIME
-    (121) date_month_relative -> THE . NUMBER DATE_END OF PHRASE TIME
-    (108) date_before_yesterday -> THE . BEFORE_YESTERDAY
-    (109) date_before_yesterday -> THE . TIME BEFORE_YESTERDAY
-    (111) date_after_tomorrow -> THE . TIME AFTER_TOMORROW
+    (117) date_end -> THE . NUMBER DATE_END
+    (122) date_end -> THE . NUMBER DATE_END OF MONTH
+    (123) date_month_relative -> THE . NUMBER DATE_END OF PAST_PHRASE TIME
+    (125) date_month_relative -> THE . NUMBER DATE_END OF PHRASE TIME
+    (112) date_before_yesterday -> THE . BEFORE_YESTERDAY
+    (113) date_before_yesterday -> THE . TIME BEFORE_YESTERDAY
+    (115) date_after_tomorrow -> THE . TIME AFTER_TOMORROW
 
     NUMBER          shift and go to state 84
     BEFORE_YESTERDAY shift and go to state 86
@@ -1076,8 +1088,8 @@ state 32
 
 state 33
 
-    (114) date_end -> MONTH . NUMBER DATE_END
-    (117) date_end -> MONTH . THE NUMBER DATE_END
+    (118) date_end -> MONTH . NUMBER DATE_END
+    (121) date_end -> MONTH . THE NUMBER DATE_END
 
     NUMBER          shift and go to state 87
     THE             shift and go to state 88
@@ -1085,28 +1097,28 @@ state 33
 
 state 34
 
-    (107) date_before_yesterday -> BEFORE_YESTERDAY .
+    (111) date_before_yesterday -> BEFORE_YESTERDAY .
 
-    NUMBER          reduce using rule 107 (date_before_yesterday -> BEFORE_YESTERDAY .)
-    DECIMAL         reduce using rule 107 (date_before_yesterday -> BEFORE_YESTERDAY .)
-    WORD_NUMBER     reduce using rule 107 (date_before_yesterday -> BEFORE_YESTERDAY .)
-    AT              reduce using rule 107 (date_before_yesterday -> BEFORE_YESTERDAY .)
-    TIME            reduce using rule 107 (date_before_yesterday -> BEFORE_YESTERDAY .)
-    PHRASE          reduce using rule 107 (date_before_yesterday -> BEFORE_YESTERDAY .)
-    $end            reduce using rule 107 (date_before_yesterday -> BEFORE_YESTERDAY .)
+    NUMBER          reduce using rule 111 (date_before_yesterday -> BEFORE_YESTERDAY .)
+    DECIMAL         reduce using rule 111 (date_before_yesterday -> BEFORE_YESTERDAY .)
+    WORD_NUMBER     reduce using rule 111 (date_before_yesterday -> BEFORE_YESTERDAY .)
+    AT              reduce using rule 111 (date_before_yesterday -> BEFORE_YESTERDAY .)
+    TIME            reduce using rule 111 (date_before_yesterday -> BEFORE_YESTERDAY .)
+    PHRASE          reduce using rule 111 (date_before_yesterday -> BEFORE_YESTERDAY .)
+    $end            reduce using rule 111 (date_before_yesterday -> BEFORE_YESTERDAY .)
 
 
 state 35
 
-    (110) date_after_tomorrow -> AFTER_TOMORROW .
+    (114) date_after_tomorrow -> AFTER_TOMORROW .
 
-    NUMBER          reduce using rule 110 (date_after_tomorrow -> AFTER_TOMORROW .)
-    DECIMAL         reduce using rule 110 (date_after_tomorrow -> AFTER_TOMORROW .)
-    WORD_NUMBER     reduce using rule 110 (date_after_tomorrow -> AFTER_TOMORROW .)
-    AT              reduce using rule 110 (date_after_tomorrow -> AFTER_TOMORROW .)
-    TIME            reduce using rule 110 (date_after_tomorrow -> AFTER_TOMORROW .)
-    PHRASE          reduce using rule 110 (date_after_tomorrow -> AFTER_TOMORROW .)
-    $end            reduce using rule 110 (date_after_tomorrow -> AFTER_TOMORROW .)
+    NUMBER          reduce using rule 114 (date_after_tomorrow -> AFTER_TOMORROW .)
+    DECIMAL         reduce using rule 114 (date_after_tomorrow -> AFTER_TOMORROW .)
+    WORD_NUMBER     reduce using rule 114 (date_after_tomorrow -> AFTER_TOMORROW .)
+    AT              reduce using rule 114 (date_after_tomorrow -> AFTER_TOMORROW .)
+    TIME            reduce using rule 114 (date_after_tomorrow -> AFTER_TOMORROW .)
+    PHRASE          reduce using rule 114 (date_after_tomorrow -> AFTER_TOMORROW .)
+    $end            reduce using rule 114 (date_after_tomorrow -> AFTER_TOMORROW .)
 
 
 state 36
@@ -1248,7 +1260,7 @@ state 44
     (47) date -> PHRASE . TIME AND WORD_NUMBER TIME
     (51) date -> PHRASE . TIME AND NUMBER HALF
     (59) date -> PHRASE . TIME AND NUMBER HALF PHRASE
-    (104) date_day -> PHRASE . DAY
+    (108) date_day -> PHRASE . DAY
 
     TIME            shift and go to state 93
     DAY             shift and go to state 73
@@ -1256,14 +1268,14 @@ state 44
 
 state 45
 
-    (103) date_day -> ON . DAY
+    (107) date_day -> ON . DAY
 
     DAY             shift and go to state 82
 
 
 state 46
 
-    (105) date_day -> PAST_PHRASE . DAY
+    (109) date_day -> PAST_PHRASE . DAY
 
     DAY             shift and go to state 74
 
@@ -1398,7 +1410,7 @@ state 54
 
 state 55
 
-    (104) date_day -> PHRASE . DAY
+    (108) date_day -> PHRASE . DAY
 
     DAY             shift and go to state 73
 
@@ -1478,18 +1490,18 @@ state 59
 
 state 60
 
-    (112) date_end -> NUMBER DATE_END .
-    (115) date_end -> NUMBER DATE_END . OF MONTH
-    (120) date_month_relative -> NUMBER DATE_END . OF PAST_PHRASE TIME
-    (122) date_month_relative -> NUMBER DATE_END . OF PHRASE TIME
+    (116) date_end -> NUMBER DATE_END .
+    (119) date_end -> NUMBER DATE_END . OF MONTH
+    (124) date_month_relative -> NUMBER DATE_END . OF PAST_PHRASE TIME
+    (126) date_month_relative -> NUMBER DATE_END . OF PHRASE TIME
 
-    NUMBER          reduce using rule 112 (date_end -> NUMBER DATE_END .)
-    DECIMAL         reduce using rule 112 (date_end -> NUMBER DATE_END .)
-    WORD_NUMBER     reduce using rule 112 (date_end -> NUMBER DATE_END .)
-    AT              reduce using rule 112 (date_end -> NUMBER DATE_END .)
-    TIME            reduce using rule 112 (date_end -> NUMBER DATE_END .)
-    PHRASE          reduce using rule 112 (date_end -> NUMBER DATE_END .)
-    $end            reduce using rule 112 (date_end -> NUMBER DATE_END .)
+    NUMBER          reduce using rule 116 (date_end -> NUMBER DATE_END .)
+    DECIMAL         reduce using rule 116 (date_end -> NUMBER DATE_END .)
+    WORD_NUMBER     reduce using rule 116 (date_end -> NUMBER DATE_END .)
+    AT              reduce using rule 116 (date_end -> NUMBER DATE_END .)
+    TIME            reduce using rule 116 (date_end -> NUMBER DATE_END .)
+    PHRASE          reduce using rule 116 (date_end -> NUMBER DATE_END .)
+    $end            reduce using rule 116 (date_end -> NUMBER DATE_END .)
     OF              shift and go to state 97
 
 
@@ -1649,7 +1661,7 @@ state 69
     (51) date -> PHRASE TIME . AND NUMBER HALF
     (59) date -> PHRASE TIME . AND NUMBER HALF PHRASE
     (95) date_past -> PHRASE TIME . AND NUMBER HALF PAST_PHRASE
-    (124) date_month_relative -> PHRASE TIME . ON THE NUMBER DATE_END
+    (128) date_month_relative -> PHRASE TIME . ON THE NUMBER DATE_END
 
   ! shift/reduce conflict for PHRASE resolved as shift
   ! shift/reduce conflict for ON resolved as shift
@@ -1696,42 +1708,42 @@ state 72
 
 state 73
 
-    (104) date_day -> PHRASE DAY .
+    (108) date_day -> PHRASE DAY .
 
-    NUMBER          reduce using rule 104 (date_day -> PHRASE DAY .)
-    DECIMAL         reduce using rule 104 (date_day -> PHRASE DAY .)
-    WORD_NUMBER     reduce using rule 104 (date_day -> PHRASE DAY .)
-    AT              reduce using rule 104 (date_day -> PHRASE DAY .)
-    TIME            reduce using rule 104 (date_day -> PHRASE DAY .)
-    PHRASE          reduce using rule 104 (date_day -> PHRASE DAY .)
-    $end            reduce using rule 104 (date_day -> PHRASE DAY .)
+    NUMBER          reduce using rule 108 (date_day -> PHRASE DAY .)
+    DECIMAL         reduce using rule 108 (date_day -> PHRASE DAY .)
+    WORD_NUMBER     reduce using rule 108 (date_day -> PHRASE DAY .)
+    AT              reduce using rule 108 (date_day -> PHRASE DAY .)
+    TIME            reduce using rule 108 (date_day -> PHRASE DAY .)
+    PHRASE          reduce using rule 108 (date_day -> PHRASE DAY .)
+    $end            reduce using rule 108 (date_day -> PHRASE DAY .)
 
 
 state 74
 
-    (105) date_day -> PAST_PHRASE DAY .
+    (109) date_day -> PAST_PHRASE DAY .
 
-    NUMBER          reduce using rule 105 (date_day -> PAST_PHRASE DAY .)
-    DECIMAL         reduce using rule 105 (date_day -> PAST_PHRASE DAY .)
-    WORD_NUMBER     reduce using rule 105 (date_day -> PAST_PHRASE DAY .)
-    AT              reduce using rule 105 (date_day -> PAST_PHRASE DAY .)
-    TIME            reduce using rule 105 (date_day -> PAST_PHRASE DAY .)
-    PHRASE          reduce using rule 105 (date_day -> PAST_PHRASE DAY .)
-    $end            reduce using rule 105 (date_day -> PAST_PHRASE DAY .)
+    NUMBER          reduce using rule 109 (date_day -> PAST_PHRASE DAY .)
+    DECIMAL         reduce using rule 109 (date_day -> PAST_PHRASE DAY .)
+    WORD_NUMBER     reduce using rule 109 (date_day -> PAST_PHRASE DAY .)
+    AT              reduce using rule 109 (date_day -> PAST_PHRASE DAY .)
+    TIME            reduce using rule 109 (date_day -> PAST_PHRASE DAY .)
+    PHRASE          reduce using rule 109 (date_day -> PAST_PHRASE DAY .)
+    $end            reduce using rule 109 (date_day -> PAST_PHRASE DAY .)
 
 
 state 75
 
-    (106) date_or -> PAST_PHRASE TIME .
-    (123) date_month_relative -> PAST_PHRASE TIME . ON THE NUMBER DATE_END
+    (110) date_or -> PAST_PHRASE TIME .
+    (127) date_month_relative -> PAST_PHRASE TIME . ON THE NUMBER DATE_END
 
-    NUMBER          reduce using rule 106 (date_or -> PAST_PHRASE TIME .)
-    DECIMAL         reduce using rule 106 (date_or -> PAST_PHRASE TIME .)
-    WORD_NUMBER     reduce using rule 106 (date_or -> PAST_PHRASE TIME .)
-    AT              reduce using rule 106 (date_or -> PAST_PHRASE TIME .)
-    TIME            reduce using rule 106 (date_or -> PAST_PHRASE TIME .)
-    PHRASE          reduce using rule 106 (date_or -> PAST_PHRASE TIME .)
-    $end            reduce using rule 106 (date_or -> PAST_PHRASE TIME .)
+    NUMBER          reduce using rule 110 (date_or -> PAST_PHRASE TIME .)
+    DECIMAL         reduce using rule 110 (date_or -> PAST_PHRASE TIME .)
+    WORD_NUMBER     reduce using rule 110 (date_or -> PAST_PHRASE TIME .)
+    AT              reduce using rule 110 (date_or -> PAST_PHRASE TIME .)
+    TIME            reduce using rule 110 (date_or -> PAST_PHRASE TIME .)
+    PHRASE          reduce using rule 110 (date_or -> PAST_PHRASE TIME .)
+    $end            reduce using rule 110 (date_or -> PAST_PHRASE TIME .)
     ON              shift and go to state 115
 
 
@@ -1775,6 +1787,8 @@ state 80
 
     (97) date_yesterday -> YESTERDAY AT . NUMBER
     (98) date_yesterday -> YESTERDAY AT . WORD_NUMBER
+    (99) date_yesterday -> YESTERDAY AT . NUMBER AM
+    (100) date_yesterday -> YESTERDAY AT . NUMBER PM
 
     NUMBER          shift and go to state 120
     WORD_NUMBER     shift and go to state 121
@@ -1782,8 +1796,10 @@ state 80
 
 state 81
 
-    (100) date_2moro -> TOMORROW AT . NUMBER
-    (101) date_2moro -> TOMORROW AT . WORD_NUMBER
+    (102) date_2moro -> TOMORROW AT . NUMBER
+    (103) date_2moro -> TOMORROW AT . WORD_NUMBER
+    (104) date_2moro -> TOMORROW AT . NUMBER AM
+    (105) date_2moro -> TOMORROW AT . NUMBER PM
 
     NUMBER          shift and go to state 122
     WORD_NUMBER     shift and go to state 123
@@ -1791,38 +1807,38 @@ state 81
 
 state 82
 
-    (103) date_day -> ON DAY .
+    (107) date_day -> ON DAY .
 
-    NUMBER          reduce using rule 103 (date_day -> ON DAY .)
-    DECIMAL         reduce using rule 103 (date_day -> ON DAY .)
-    WORD_NUMBER     reduce using rule 103 (date_day -> ON DAY .)
-    AT              reduce using rule 103 (date_day -> ON DAY .)
-    TIME            reduce using rule 103 (date_day -> ON DAY .)
-    PHRASE          reduce using rule 103 (date_day -> ON DAY .)
-    $end            reduce using rule 103 (date_day -> ON DAY .)
+    NUMBER          reduce using rule 107 (date_day -> ON DAY .)
+    DECIMAL         reduce using rule 107 (date_day -> ON DAY .)
+    WORD_NUMBER     reduce using rule 107 (date_day -> ON DAY .)
+    AT              reduce using rule 107 (date_day -> ON DAY .)
+    TIME            reduce using rule 107 (date_day -> ON DAY .)
+    PHRASE          reduce using rule 107 (date_day -> ON DAY .)
+    $end            reduce using rule 107 (date_day -> ON DAY .)
 
 
 state 83
 
-    (116) date_end -> ON THE . NUMBER DATE_END
+    (120) date_end -> ON THE . NUMBER DATE_END
 
     NUMBER          shift and go to state 124
 
 
 state 84
 
-    (113) date_end -> THE NUMBER . DATE_END
-    (118) date_end -> THE NUMBER . DATE_END OF MONTH
-    (119) date_month_relative -> THE NUMBER . DATE_END OF PAST_PHRASE TIME
-    (121) date_month_relative -> THE NUMBER . DATE_END OF PHRASE TIME
+    (117) date_end -> THE NUMBER . DATE_END
+    (122) date_end -> THE NUMBER . DATE_END OF MONTH
+    (123) date_month_relative -> THE NUMBER . DATE_END OF PAST_PHRASE TIME
+    (125) date_month_relative -> THE NUMBER . DATE_END OF PHRASE TIME
 
     DATE_END        shift and go to state 125
 
 
 state 85
 
-    (109) date_before_yesterday -> THE TIME . BEFORE_YESTERDAY
-    (111) date_after_tomorrow -> THE TIME . AFTER_TOMORROW
+    (113) date_before_yesterday -> THE TIME . BEFORE_YESTERDAY
+    (115) date_after_tomorrow -> THE TIME . AFTER_TOMORROW
 
     BEFORE_YESTERDAY shift and go to state 126
     AFTER_TOMORROW  shift and go to state 127
@@ -1830,27 +1846,27 @@ state 85
 
 state 86
 
-    (108) date_before_yesterday -> THE BEFORE_YESTERDAY .
+    (112) date_before_yesterday -> THE BEFORE_YESTERDAY .
 
-    NUMBER          reduce using rule 108 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
-    DECIMAL         reduce using rule 108 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
-    WORD_NUMBER     reduce using rule 108 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
-    AT              reduce using rule 108 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
-    TIME            reduce using rule 108 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
-    PHRASE          reduce using rule 108 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
-    $end            reduce using rule 108 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
+    NUMBER          reduce using rule 112 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
+    DECIMAL         reduce using rule 112 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
+    WORD_NUMBER     reduce using rule 112 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
+    AT              reduce using rule 112 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
+    TIME            reduce using rule 112 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
+    PHRASE          reduce using rule 112 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
+    $end            reduce using rule 112 (date_before_yesterday -> THE BEFORE_YESTERDAY .)
 
 
 state 87
 
-    (114) date_end -> MONTH NUMBER . DATE_END
+    (118) date_end -> MONTH NUMBER . DATE_END
 
     DATE_END        shift and go to state 128
 
 
 state 88
 
-    (117) date_end -> MONTH THE . NUMBER DATE_END
+    (121) date_end -> MONTH THE . NUMBER DATE_END
 
     NUMBER          shift and go to state 129
 
@@ -1997,9 +2013,9 @@ state 96
 
 state 97
 
-    (115) date_end -> NUMBER DATE_END OF . MONTH
-    (120) date_month_relative -> NUMBER DATE_END OF . PAST_PHRASE TIME
-    (122) date_month_relative -> NUMBER DATE_END OF . PHRASE TIME
+    (119) date_end -> NUMBER DATE_END OF . MONTH
+    (124) date_month_relative -> NUMBER DATE_END OF . PAST_PHRASE TIME
+    (126) date_month_relative -> NUMBER DATE_END OF . PHRASE TIME
 
     MONTH           shift and go to state 135
     PAST_PHRASE     shift and go to state 136
@@ -2202,7 +2218,7 @@ state 110
 
 state 111
 
-    (124) date_month_relative -> PHRASE TIME ON . THE NUMBER DATE_END
+    (128) date_month_relative -> PHRASE TIME ON . THE NUMBER DATE_END
 
     THE             shift and go to state 144
 
@@ -2254,7 +2270,7 @@ state 114
 
 state 115
 
-    (123) date_month_relative -> PAST_PHRASE TIME ON . THE NUMBER DATE_END
+    (127) date_month_relative -> PAST_PHRASE TIME ON . THE NUMBER DATE_END
 
     THE             shift and go to state 147
 
@@ -2326,6 +2342,8 @@ state 119
 state 120
 
     (97) date_yesterday -> YESTERDAY AT NUMBER .
+    (99) date_yesterday -> YESTERDAY AT NUMBER . AM
+    (100) date_yesterday -> YESTERDAY AT NUMBER . PM
 
     NUMBER          reduce using rule 97 (date_yesterday -> YESTERDAY AT NUMBER .)
     DECIMAL         reduce using rule 97 (date_yesterday -> YESTERDAY AT NUMBER .)
@@ -2334,6 +2352,8 @@ state 120
     TIME            reduce using rule 97 (date_yesterday -> YESTERDAY AT NUMBER .)
     PHRASE          reduce using rule 97 (date_yesterday -> YESTERDAY AT NUMBER .)
     $end            reduce using rule 97 (date_yesterday -> YESTERDAY AT NUMBER .)
+    AM              shift and go to state 152
+    PM              shift and go to state 153
 
 
 state 121
@@ -2351,98 +2371,102 @@ state 121
 
 state 122
 
-    (100) date_2moro -> TOMORROW AT NUMBER .
+    (102) date_2moro -> TOMORROW AT NUMBER .
+    (104) date_2moro -> TOMORROW AT NUMBER . AM
+    (105) date_2moro -> TOMORROW AT NUMBER . PM
 
-    NUMBER          reduce using rule 100 (date_2moro -> TOMORROW AT NUMBER .)
-    DECIMAL         reduce using rule 100 (date_2moro -> TOMORROW AT NUMBER .)
-    WORD_NUMBER     reduce using rule 100 (date_2moro -> TOMORROW AT NUMBER .)
-    AT              reduce using rule 100 (date_2moro -> TOMORROW AT NUMBER .)
-    TIME            reduce using rule 100 (date_2moro -> TOMORROW AT NUMBER .)
-    PHRASE          reduce using rule 100 (date_2moro -> TOMORROW AT NUMBER .)
-    $end            reduce using rule 100 (date_2moro -> TOMORROW AT NUMBER .)
+    NUMBER          reduce using rule 102 (date_2moro -> TOMORROW AT NUMBER .)
+    DECIMAL         reduce using rule 102 (date_2moro -> TOMORROW AT NUMBER .)
+    WORD_NUMBER     reduce using rule 102 (date_2moro -> TOMORROW AT NUMBER .)
+    AT              reduce using rule 102 (date_2moro -> TOMORROW AT NUMBER .)
+    TIME            reduce using rule 102 (date_2moro -> TOMORROW AT NUMBER .)
+    PHRASE          reduce using rule 102 (date_2moro -> TOMORROW AT NUMBER .)
+    $end            reduce using rule 102 (date_2moro -> TOMORROW AT NUMBER .)
+    AM              shift and go to state 154
+    PM              shift and go to state 155
 
 
 state 123
 
-    (101) date_2moro -> TOMORROW AT WORD_NUMBER .
+    (103) date_2moro -> TOMORROW AT WORD_NUMBER .
 
-    NUMBER          reduce using rule 101 (date_2moro -> TOMORROW AT WORD_NUMBER .)
-    DECIMAL         reduce using rule 101 (date_2moro -> TOMORROW AT WORD_NUMBER .)
-    WORD_NUMBER     reduce using rule 101 (date_2moro -> TOMORROW AT WORD_NUMBER .)
-    AT              reduce using rule 101 (date_2moro -> TOMORROW AT WORD_NUMBER .)
-    TIME            reduce using rule 101 (date_2moro -> TOMORROW AT WORD_NUMBER .)
-    PHRASE          reduce using rule 101 (date_2moro -> TOMORROW AT WORD_NUMBER .)
-    $end            reduce using rule 101 (date_2moro -> TOMORROW AT WORD_NUMBER .)
+    NUMBER          reduce using rule 103 (date_2moro -> TOMORROW AT WORD_NUMBER .)
+    DECIMAL         reduce using rule 103 (date_2moro -> TOMORROW AT WORD_NUMBER .)
+    WORD_NUMBER     reduce using rule 103 (date_2moro -> TOMORROW AT WORD_NUMBER .)
+    AT              reduce using rule 103 (date_2moro -> TOMORROW AT WORD_NUMBER .)
+    TIME            reduce using rule 103 (date_2moro -> TOMORROW AT WORD_NUMBER .)
+    PHRASE          reduce using rule 103 (date_2moro -> TOMORROW AT WORD_NUMBER .)
+    $end            reduce using rule 103 (date_2moro -> TOMORROW AT WORD_NUMBER .)
 
 
 state 124
 
-    (116) date_end -> ON THE NUMBER . DATE_END
+    (120) date_end -> ON THE NUMBER . DATE_END
 
-    DATE_END        shift and go to state 152
+    DATE_END        shift and go to state 156
 
 
 state 125
 
-    (113) date_end -> THE NUMBER DATE_END .
-    (118) date_end -> THE NUMBER DATE_END . OF MONTH
-    (119) date_month_relative -> THE NUMBER DATE_END . OF PAST_PHRASE TIME
-    (121) date_month_relative -> THE NUMBER DATE_END . OF PHRASE TIME
+    (117) date_end -> THE NUMBER DATE_END .
+    (122) date_end -> THE NUMBER DATE_END . OF MONTH
+    (123) date_month_relative -> THE NUMBER DATE_END . OF PAST_PHRASE TIME
+    (125) date_month_relative -> THE NUMBER DATE_END . OF PHRASE TIME
 
-    NUMBER          reduce using rule 113 (date_end -> THE NUMBER DATE_END .)
-    DECIMAL         reduce using rule 113 (date_end -> THE NUMBER DATE_END .)
-    WORD_NUMBER     reduce using rule 113 (date_end -> THE NUMBER DATE_END .)
-    AT              reduce using rule 113 (date_end -> THE NUMBER DATE_END .)
-    TIME            reduce using rule 113 (date_end -> THE NUMBER DATE_END .)
-    PHRASE          reduce using rule 113 (date_end -> THE NUMBER DATE_END .)
-    $end            reduce using rule 113 (date_end -> THE NUMBER DATE_END .)
-    OF              shift and go to state 153
+    NUMBER          reduce using rule 117 (date_end -> THE NUMBER DATE_END .)
+    DECIMAL         reduce using rule 117 (date_end -> THE NUMBER DATE_END .)
+    WORD_NUMBER     reduce using rule 117 (date_end -> THE NUMBER DATE_END .)
+    AT              reduce using rule 117 (date_end -> THE NUMBER DATE_END .)
+    TIME            reduce using rule 117 (date_end -> THE NUMBER DATE_END .)
+    PHRASE          reduce using rule 117 (date_end -> THE NUMBER DATE_END .)
+    $end            reduce using rule 117 (date_end -> THE NUMBER DATE_END .)
+    OF              shift and go to state 157
 
 
 state 126
 
-    (109) date_before_yesterday -> THE TIME BEFORE_YESTERDAY .
+    (113) date_before_yesterday -> THE TIME BEFORE_YESTERDAY .
 
-    NUMBER          reduce using rule 109 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
-    DECIMAL         reduce using rule 109 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
-    WORD_NUMBER     reduce using rule 109 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
-    AT              reduce using rule 109 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
-    TIME            reduce using rule 109 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
-    PHRASE          reduce using rule 109 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
-    $end            reduce using rule 109 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
+    NUMBER          reduce using rule 113 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
+    DECIMAL         reduce using rule 113 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
+    WORD_NUMBER     reduce using rule 113 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
+    AT              reduce using rule 113 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
+    TIME            reduce using rule 113 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
+    PHRASE          reduce using rule 113 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
+    $end            reduce using rule 113 (date_before_yesterday -> THE TIME BEFORE_YESTERDAY .)
 
 
 state 127
 
-    (111) date_after_tomorrow -> THE TIME AFTER_TOMORROW .
+    (115) date_after_tomorrow -> THE TIME AFTER_TOMORROW .
 
-    NUMBER          reduce using rule 111 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
-    DECIMAL         reduce using rule 111 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
-    WORD_NUMBER     reduce using rule 111 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
-    AT              reduce using rule 111 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
-    TIME            reduce using rule 111 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
-    PHRASE          reduce using rule 111 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
-    $end            reduce using rule 111 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
+    NUMBER          reduce using rule 115 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
+    DECIMAL         reduce using rule 115 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
+    WORD_NUMBER     reduce using rule 115 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
+    AT              reduce using rule 115 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
+    TIME            reduce using rule 115 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
+    PHRASE          reduce using rule 115 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
+    $end            reduce using rule 115 (date_after_tomorrow -> THE TIME AFTER_TOMORROW .)
 
 
 state 128
 
-    (114) date_end -> MONTH NUMBER DATE_END .
+    (118) date_end -> MONTH NUMBER DATE_END .
 
-    NUMBER          reduce using rule 114 (date_end -> MONTH NUMBER DATE_END .)
-    DECIMAL         reduce using rule 114 (date_end -> MONTH NUMBER DATE_END .)
-    WORD_NUMBER     reduce using rule 114 (date_end -> MONTH NUMBER DATE_END .)
-    AT              reduce using rule 114 (date_end -> MONTH NUMBER DATE_END .)
-    TIME            reduce using rule 114 (date_end -> MONTH NUMBER DATE_END .)
-    PHRASE          reduce using rule 114 (date_end -> MONTH NUMBER DATE_END .)
-    $end            reduce using rule 114 (date_end -> MONTH NUMBER DATE_END .)
+    NUMBER          reduce using rule 118 (date_end -> MONTH NUMBER DATE_END .)
+    DECIMAL         reduce using rule 118 (date_end -> MONTH NUMBER DATE_END .)
+    WORD_NUMBER     reduce using rule 118 (date_end -> MONTH NUMBER DATE_END .)
+    AT              reduce using rule 118 (date_end -> MONTH NUMBER DATE_END .)
+    TIME            reduce using rule 118 (date_end -> MONTH NUMBER DATE_END .)
+    PHRASE          reduce using rule 118 (date_end -> MONTH NUMBER DATE_END .)
+    $end            reduce using rule 118 (date_end -> MONTH NUMBER DATE_END .)
 
 
 state 129
 
-    (117) date_end -> MONTH THE NUMBER . DATE_END
+    (121) date_end -> MONTH THE NUMBER . DATE_END
 
-    DATE_END        shift and go to state 154
+    DATE_END        shift and go to state 158
 
 
 state 130
@@ -2450,8 +2474,8 @@ state 130
     (52) date -> NUMBER TIME AND . NUMBER TIME PHRASE
     (53) date -> NUMBER TIME AND . WORD_NUMBER TIME PHRASE
 
-    NUMBER          shift and go to state 155
-    WORD_NUMBER     shift and go to state 156
+    NUMBER          shift and go to state 159
+    WORD_NUMBER     shift and go to state 160
 
 
 state 131
@@ -2463,8 +2487,8 @@ state 131
     (57) date -> WORD_NUMBER TIME AND . NUMBER HALF PHRASE
     (58) date -> WORD_NUMBER TIME AND . NUMBER HALF TIME PHRASE
 
-    NUMBER          shift and go to state 158
-    WORD_NUMBER     shift and go to state 157
+    NUMBER          shift and go to state 162
+    WORD_NUMBER     shift and go to state 161
 
 
 state 132
@@ -2474,7 +2498,7 @@ state 132
     (51) date -> PHRASE TIME AND . NUMBER HALF
     (59) date -> PHRASE TIME AND . NUMBER HALF PHRASE
 
-    NUMBER          shift and go to state 159
+    NUMBER          shift and go to state 163
     WORD_NUMBER     shift and go to state 143
 
 
@@ -2483,7 +2507,7 @@ state 133
     (52) date -> NUMBER TIME AND NUMBER . TIME PHRASE
     (90) date_past -> NUMBER TIME AND NUMBER . TIME PAST_PHRASE
 
-    TIME            shift and go to state 160
+    TIME            shift and go to state 164
 
 
 state 134
@@ -2491,41 +2515,41 @@ state 134
     (53) date -> NUMBER TIME AND WORD_NUMBER . TIME PHRASE
     (92) date_past -> NUMBER TIME AND WORD_NUMBER . TIME PAST_PHRASE
 
-    TIME            shift and go to state 161
+    TIME            shift and go to state 165
 
 
 state 135
 
-    (115) date_end -> NUMBER DATE_END OF MONTH .
+    (119) date_end -> NUMBER DATE_END OF MONTH .
 
-    NUMBER          reduce using rule 115 (date_end -> NUMBER DATE_END OF MONTH .)
-    DECIMAL         reduce using rule 115 (date_end -> NUMBER DATE_END OF MONTH .)
-    WORD_NUMBER     reduce using rule 115 (date_end -> NUMBER DATE_END OF MONTH .)
-    AT              reduce using rule 115 (date_end -> NUMBER DATE_END OF MONTH .)
-    TIME            reduce using rule 115 (date_end -> NUMBER DATE_END OF MONTH .)
-    PHRASE          reduce using rule 115 (date_end -> NUMBER DATE_END OF MONTH .)
-    $end            reduce using rule 115 (date_end -> NUMBER DATE_END OF MONTH .)
+    NUMBER          reduce using rule 119 (date_end -> NUMBER DATE_END OF MONTH .)
+    DECIMAL         reduce using rule 119 (date_end -> NUMBER DATE_END OF MONTH .)
+    WORD_NUMBER     reduce using rule 119 (date_end -> NUMBER DATE_END OF MONTH .)
+    AT              reduce using rule 119 (date_end -> NUMBER DATE_END OF MONTH .)
+    TIME            reduce using rule 119 (date_end -> NUMBER DATE_END OF MONTH .)
+    PHRASE          reduce using rule 119 (date_end -> NUMBER DATE_END OF MONTH .)
+    $end            reduce using rule 119 (date_end -> NUMBER DATE_END OF MONTH .)
 
 
 state 136
 
-    (120) date_month_relative -> NUMBER DATE_END OF PAST_PHRASE . TIME
+    (124) date_month_relative -> NUMBER DATE_END OF PAST_PHRASE . TIME
 
-    TIME            shift and go to state 162
+    TIME            shift and go to state 166
 
 
 state 137
 
-    (122) date_month_relative -> NUMBER DATE_END OF PHRASE . TIME
+    (126) date_month_relative -> NUMBER DATE_END OF PHRASE . TIME
 
-    TIME            shift and go to state 163
+    TIME            shift and go to state 167
 
 
 state 138
 
     (21) timestamp -> NUMBER COLON NUMBER COLON . NUMBER
 
-    NUMBER          shift and go to state 164
+    NUMBER          shift and go to state 168
 
 
 state 139
@@ -2533,7 +2557,7 @@ state 139
     (55) date -> WORD_NUMBER TIME AND WORD_NUMBER . TIME PHRASE
     (93) date_past -> WORD_NUMBER TIME AND WORD_NUMBER . TIME PAST_PHRASE
 
-    TIME            shift and go to state 165
+    TIME            shift and go to state 169
 
 
 state 140
@@ -2546,8 +2570,8 @@ state 140
     (91) date_past -> WORD_NUMBER TIME AND NUMBER . TIME PAST_PHRASE
     (94) date_past -> WORD_NUMBER TIME AND NUMBER . HALF PAST_PHRASE
 
-    HALF            shift and go to state 167
-    TIME            shift and go to state 166
+    HALF            shift and go to state 171
+    TIME            shift and go to state 170
 
 
 state 141
@@ -2555,7 +2579,7 @@ state 141
     (48) date -> WORD_NUMBER AND NUMBER HALF . TIME
     (56) date -> WORD_NUMBER AND NUMBER HALF . TIME PHRASE
 
-    TIME            shift and go to state 168
+    TIME            shift and go to state 172
 
 
 state 142
@@ -2565,22 +2589,22 @@ state 142
     (59) date -> PHRASE TIME AND NUMBER . HALF PHRASE
     (95) date_past -> PHRASE TIME AND NUMBER . HALF PAST_PHRASE
 
-    TIME            shift and go to state 169
-    HALF            shift and go to state 170
+    TIME            shift and go to state 173
+    HALF            shift and go to state 174
 
 
 state 143
 
     (47) date -> PHRASE TIME AND WORD_NUMBER . TIME
 
-    TIME            shift and go to state 171
+    TIME            shift and go to state 175
 
 
 state 144
 
-    (124) date_month_relative -> PHRASE TIME ON THE . NUMBER DATE_END
+    (128) date_month_relative -> PHRASE TIME ON THE . NUMBER DATE_END
 
-    NUMBER          shift and go to state 172
+    NUMBER          shift and go to state 176
 
 
 state 145
@@ -2588,8 +2612,8 @@ state 145
     (71) in -> PHRASE NUMBER TIME AND . NUMBER TIME
     (73) in -> PHRASE NUMBER TIME AND . WORD_NUMBER TIME
 
-    NUMBER          shift and go to state 173
-    WORD_NUMBER     shift and go to state 174
+    NUMBER          shift and go to state 177
+    WORD_NUMBER     shift and go to state 178
 
 
 state 146
@@ -2597,15 +2621,15 @@ state 146
     (72) in -> PHRASE WORD_NUMBER TIME AND . NUMBER TIME
     (74) in -> PHRASE WORD_NUMBER TIME AND . WORD_NUMBER TIME
 
-    NUMBER          shift and go to state 176
-    WORD_NUMBER     shift and go to state 175
+    NUMBER          shift and go to state 180
+    WORD_NUMBER     shift and go to state 179
 
 
 state 147
 
-    (123) date_month_relative -> PAST_PHRASE TIME ON THE . NUMBER DATE_END
+    (127) date_month_relative -> PAST_PHRASE TIME ON THE . NUMBER DATE_END
 
-    NUMBER          shift and go to state 177
+    NUMBER          shift and go to state 181
 
 
 state 148
@@ -2613,8 +2637,8 @@ state 148
     (77) adder -> PLUS NUMBER TIME AND . NUMBER TIME
     (79) adder -> PLUS NUMBER TIME AND . WORD_NUMBER TIME
 
-    NUMBER          shift and go to state 178
-    WORD_NUMBER     shift and go to state 179
+    NUMBER          shift and go to state 182
+    WORD_NUMBER     shift and go to state 183
 
 
 state 149
@@ -2622,8 +2646,8 @@ state 149
     (78) adder -> PLUS WORD_NUMBER TIME AND . NUMBER TIME
     (80) adder -> PLUS WORD_NUMBER TIME AND . WORD_NUMBER TIME
 
-    NUMBER          shift and go to state 181
-    WORD_NUMBER     shift and go to state 180
+    NUMBER          shift and go to state 185
+    WORD_NUMBER     shift and go to state 184
 
 
 state 150
@@ -2631,8 +2655,8 @@ state 150
     (83) remover -> MINUS NUMBER TIME AND . NUMBER TIME
     (85) remover -> MINUS NUMBER TIME AND . WORD_NUMBER TIME
 
-    NUMBER          shift and go to state 182
-    WORD_NUMBER     shift and go to state 183
+    NUMBER          shift and go to state 186
+    WORD_NUMBER     shift and go to state 187
 
 
 state 151
@@ -2640,69 +2664,121 @@ state 151
     (84) remover -> MINUS WORD_NUMBER TIME AND . NUMBER TIME
     (86) remover -> MINUS WORD_NUMBER TIME AND . WORD_NUMBER TIME
 
-    NUMBER          shift and go to state 185
-    WORD_NUMBER     shift and go to state 184
+    NUMBER          shift and go to state 189
+    WORD_NUMBER     shift and go to state 188
 
 
 state 152
 
-    (116) date_end -> ON THE NUMBER DATE_END .
+    (99) date_yesterday -> YESTERDAY AT NUMBER AM .
 
-    NUMBER          reduce using rule 116 (date_end -> ON THE NUMBER DATE_END .)
-    DECIMAL         reduce using rule 116 (date_end -> ON THE NUMBER DATE_END .)
-    WORD_NUMBER     reduce using rule 116 (date_end -> ON THE NUMBER DATE_END .)
-    AT              reduce using rule 116 (date_end -> ON THE NUMBER DATE_END .)
-    TIME            reduce using rule 116 (date_end -> ON THE NUMBER DATE_END .)
-    PHRASE          reduce using rule 116 (date_end -> ON THE NUMBER DATE_END .)
-    $end            reduce using rule 116 (date_end -> ON THE NUMBER DATE_END .)
+    NUMBER          reduce using rule 99 (date_yesterday -> YESTERDAY AT NUMBER AM .)
+    DECIMAL         reduce using rule 99 (date_yesterday -> YESTERDAY AT NUMBER AM .)
+    WORD_NUMBER     reduce using rule 99 (date_yesterday -> YESTERDAY AT NUMBER AM .)
+    AT              reduce using rule 99 (date_yesterday -> YESTERDAY AT NUMBER AM .)
+    TIME            reduce using rule 99 (date_yesterday -> YESTERDAY AT NUMBER AM .)
+    PHRASE          reduce using rule 99 (date_yesterday -> YESTERDAY AT NUMBER AM .)
+    $end            reduce using rule 99 (date_yesterday -> YESTERDAY AT NUMBER AM .)
 
 
 state 153
 
-    (118) date_end -> THE NUMBER DATE_END OF . MONTH
-    (119) date_month_relative -> THE NUMBER DATE_END OF . PAST_PHRASE TIME
-    (121) date_month_relative -> THE NUMBER DATE_END OF . PHRASE TIME
+    (100) date_yesterday -> YESTERDAY AT NUMBER PM .
 
-    MONTH           shift and go to state 186
-    PAST_PHRASE     shift and go to state 187
-    PHRASE          shift and go to state 188
+    NUMBER          reduce using rule 100 (date_yesterday -> YESTERDAY AT NUMBER PM .)
+    DECIMAL         reduce using rule 100 (date_yesterday -> YESTERDAY AT NUMBER PM .)
+    WORD_NUMBER     reduce using rule 100 (date_yesterday -> YESTERDAY AT NUMBER PM .)
+    AT              reduce using rule 100 (date_yesterday -> YESTERDAY AT NUMBER PM .)
+    TIME            reduce using rule 100 (date_yesterday -> YESTERDAY AT NUMBER PM .)
+    PHRASE          reduce using rule 100 (date_yesterday -> YESTERDAY AT NUMBER PM .)
+    $end            reduce using rule 100 (date_yesterday -> YESTERDAY AT NUMBER PM .)
 
 
 state 154
 
-    (117) date_end -> MONTH THE NUMBER DATE_END .
+    (104) date_2moro -> TOMORROW AT NUMBER AM .
 
-    NUMBER          reduce using rule 117 (date_end -> MONTH THE NUMBER DATE_END .)
-    DECIMAL         reduce using rule 117 (date_end -> MONTH THE NUMBER DATE_END .)
-    WORD_NUMBER     reduce using rule 117 (date_end -> MONTH THE NUMBER DATE_END .)
-    AT              reduce using rule 117 (date_end -> MONTH THE NUMBER DATE_END .)
-    TIME            reduce using rule 117 (date_end -> MONTH THE NUMBER DATE_END .)
-    PHRASE          reduce using rule 117 (date_end -> MONTH THE NUMBER DATE_END .)
-    $end            reduce using rule 117 (date_end -> MONTH THE NUMBER DATE_END .)
+    NUMBER          reduce using rule 104 (date_2moro -> TOMORROW AT NUMBER AM .)
+    DECIMAL         reduce using rule 104 (date_2moro -> TOMORROW AT NUMBER AM .)
+    WORD_NUMBER     reduce using rule 104 (date_2moro -> TOMORROW AT NUMBER AM .)
+    AT              reduce using rule 104 (date_2moro -> TOMORROW AT NUMBER AM .)
+    TIME            reduce using rule 104 (date_2moro -> TOMORROW AT NUMBER AM .)
+    PHRASE          reduce using rule 104 (date_2moro -> TOMORROW AT NUMBER AM .)
+    $end            reduce using rule 104 (date_2moro -> TOMORROW AT NUMBER AM .)
 
 
 state 155
 
-    (52) date -> NUMBER TIME AND NUMBER . TIME PHRASE
+    (105) date_2moro -> TOMORROW AT NUMBER PM .
 
-    TIME            shift and go to state 189
+    NUMBER          reduce using rule 105 (date_2moro -> TOMORROW AT NUMBER PM .)
+    DECIMAL         reduce using rule 105 (date_2moro -> TOMORROW AT NUMBER PM .)
+    WORD_NUMBER     reduce using rule 105 (date_2moro -> TOMORROW AT NUMBER PM .)
+    AT              reduce using rule 105 (date_2moro -> TOMORROW AT NUMBER PM .)
+    TIME            reduce using rule 105 (date_2moro -> TOMORROW AT NUMBER PM .)
+    PHRASE          reduce using rule 105 (date_2moro -> TOMORROW AT NUMBER PM .)
+    $end            reduce using rule 105 (date_2moro -> TOMORROW AT NUMBER PM .)
 
 
 state 156
 
-    (53) date -> NUMBER TIME AND WORD_NUMBER . TIME PHRASE
+    (120) date_end -> ON THE NUMBER DATE_END .
 
-    TIME            shift and go to state 190
+    NUMBER          reduce using rule 120 (date_end -> ON THE NUMBER DATE_END .)
+    DECIMAL         reduce using rule 120 (date_end -> ON THE NUMBER DATE_END .)
+    WORD_NUMBER     reduce using rule 120 (date_end -> ON THE NUMBER DATE_END .)
+    AT              reduce using rule 120 (date_end -> ON THE NUMBER DATE_END .)
+    TIME            reduce using rule 120 (date_end -> ON THE NUMBER DATE_END .)
+    PHRASE          reduce using rule 120 (date_end -> ON THE NUMBER DATE_END .)
+    $end            reduce using rule 120 (date_end -> ON THE NUMBER DATE_END .)
 
 
 state 157
 
-    (55) date -> WORD_NUMBER TIME AND WORD_NUMBER . TIME PHRASE
+    (122) date_end -> THE NUMBER DATE_END OF . MONTH
+    (123) date_month_relative -> THE NUMBER DATE_END OF . PAST_PHRASE TIME
+    (125) date_month_relative -> THE NUMBER DATE_END OF . PHRASE TIME
 
-    TIME            shift and go to state 191
+    MONTH           shift and go to state 190
+    PAST_PHRASE     shift and go to state 191
+    PHRASE          shift and go to state 192
 
 
 state 158
+
+    (121) date_end -> MONTH THE NUMBER DATE_END .
+
+    NUMBER          reduce using rule 121 (date_end -> MONTH THE NUMBER DATE_END .)
+    DECIMAL         reduce using rule 121 (date_end -> MONTH THE NUMBER DATE_END .)
+    WORD_NUMBER     reduce using rule 121 (date_end -> MONTH THE NUMBER DATE_END .)
+    AT              reduce using rule 121 (date_end -> MONTH THE NUMBER DATE_END .)
+    TIME            reduce using rule 121 (date_end -> MONTH THE NUMBER DATE_END .)
+    PHRASE          reduce using rule 121 (date_end -> MONTH THE NUMBER DATE_END .)
+    $end            reduce using rule 121 (date_end -> MONTH THE NUMBER DATE_END .)
+
+
+state 159
+
+    (52) date -> NUMBER TIME AND NUMBER . TIME PHRASE
+
+    TIME            shift and go to state 193
+
+
+state 160
+
+    (53) date -> NUMBER TIME AND WORD_NUMBER . TIME PHRASE
+
+    TIME            shift and go to state 194
+
+
+state 161
+
+    (55) date -> WORD_NUMBER TIME AND WORD_NUMBER . TIME PHRASE
+
+    TIME            shift and go to state 195
+
+
+state 162
 
     (49) date -> WORD_NUMBER TIME AND NUMBER . HALF
     (50) date -> WORD_NUMBER TIME AND NUMBER . HALF TIME
@@ -2710,65 +2786,65 @@ state 158
     (57) date -> WORD_NUMBER TIME AND NUMBER . HALF PHRASE
     (58) date -> WORD_NUMBER TIME AND NUMBER . HALF TIME PHRASE
 
-    HALF            shift and go to state 193
-    TIME            shift and go to state 192
+    HALF            shift and go to state 197
+    TIME            shift and go to state 196
 
 
-state 159
+state 163
 
     (46) date -> PHRASE TIME AND NUMBER . TIME
     (51) date -> PHRASE TIME AND NUMBER . HALF
     (59) date -> PHRASE TIME AND NUMBER . HALF PHRASE
 
-    TIME            shift and go to state 169
-    HALF            shift and go to state 194
+    TIME            shift and go to state 173
+    HALF            shift and go to state 198
 
 
-state 160
+state 164
 
     (52) date -> NUMBER TIME AND NUMBER TIME . PHRASE
     (90) date_past -> NUMBER TIME AND NUMBER TIME . PAST_PHRASE
 
-    PHRASE          shift and go to state 195
-    PAST_PHRASE     shift and go to state 196
+    PHRASE          shift and go to state 199
+    PAST_PHRASE     shift and go to state 200
 
 
-state 161
+state 165
 
     (53) date -> NUMBER TIME AND WORD_NUMBER TIME . PHRASE
     (92) date_past -> NUMBER TIME AND WORD_NUMBER TIME . PAST_PHRASE
 
-    PHRASE          shift and go to state 197
-    PAST_PHRASE     shift and go to state 198
+    PHRASE          shift and go to state 201
+    PAST_PHRASE     shift and go to state 202
 
 
-state 162
+state 166
 
-    (120) date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .
+    (124) date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .
 
-    NUMBER          reduce using rule 120 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
-    DECIMAL         reduce using rule 120 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
-    WORD_NUMBER     reduce using rule 120 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
-    AT              reduce using rule 120 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
-    TIME            reduce using rule 120 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
-    PHRASE          reduce using rule 120 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
-    $end            reduce using rule 120 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
-
-
-state 163
-
-    (122) date_month_relative -> NUMBER DATE_END OF PHRASE TIME .
-
-    NUMBER          reduce using rule 122 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
-    DECIMAL         reduce using rule 122 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
-    WORD_NUMBER     reduce using rule 122 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
-    AT              reduce using rule 122 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
-    TIME            reduce using rule 122 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
-    PHRASE          reduce using rule 122 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
-    $end            reduce using rule 122 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+    NUMBER          reduce using rule 124 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
+    DECIMAL         reduce using rule 124 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
+    WORD_NUMBER     reduce using rule 124 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
+    AT              reduce using rule 124 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
+    TIME            reduce using rule 124 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
+    PHRASE          reduce using rule 124 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
+    $end            reduce using rule 124 (date_month_relative -> NUMBER DATE_END OF PAST_PHRASE TIME .)
 
 
-state 164
+state 167
+
+    (126) date_month_relative -> NUMBER DATE_END OF PHRASE TIME .
+
+    NUMBER          reduce using rule 126 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+    DECIMAL         reduce using rule 126 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+    WORD_NUMBER     reduce using rule 126 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+    AT              reduce using rule 126 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+    TIME            reduce using rule 126 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+    PHRASE          reduce using rule 126 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+    $end            reduce using rule 126 (date_month_relative -> NUMBER DATE_END OF PHRASE TIME .)
+
+
+state 168
 
     (21) timestamp -> NUMBER COLON NUMBER COLON NUMBER .
 
@@ -2786,25 +2862,25 @@ state 164
     $end            reduce using rule 21 (timestamp -> NUMBER COLON NUMBER COLON NUMBER .)
 
 
-state 165
+state 169
 
     (55) date -> WORD_NUMBER TIME AND WORD_NUMBER TIME . PHRASE
     (93) date_past -> WORD_NUMBER TIME AND WORD_NUMBER TIME . PAST_PHRASE
 
-    PHRASE          shift and go to state 199
-    PAST_PHRASE     shift and go to state 200
+    PHRASE          shift and go to state 203
+    PAST_PHRASE     shift and go to state 204
 
 
-state 166
+state 170
 
     (54) date -> WORD_NUMBER TIME AND NUMBER TIME . PHRASE
     (91) date_past -> WORD_NUMBER TIME AND NUMBER TIME . PAST_PHRASE
 
-    PHRASE          shift and go to state 201
-    PAST_PHRASE     shift and go to state 202
+    PHRASE          shift and go to state 205
+    PAST_PHRASE     shift and go to state 206
 
 
-state 167
+state 171
 
     (49) date -> WORD_NUMBER TIME AND NUMBER HALF .
     (50) date -> WORD_NUMBER TIME AND NUMBER HALF . TIME
@@ -2822,16 +2898,16 @@ state 167
     DAY             reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .)
     ON              reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .)
     $end            reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .)
-    TIME            shift and go to state 203
-    PHRASE          shift and go to state 204
-    PAST_PHRASE     shift and go to state 205
+    TIME            shift and go to state 207
+    PHRASE          shift and go to state 208
+    PAST_PHRASE     shift and go to state 209
 
   ! TIME            [ reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .) ]
   ! PHRASE          [ reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .) ]
   ! PAST_PHRASE     [ reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .) ]
 
 
-state 168
+state 172
 
     (48) date -> WORD_NUMBER AND NUMBER HALF TIME .
     (56) date -> WORD_NUMBER AND NUMBER HALF TIME . PHRASE
@@ -2846,12 +2922,12 @@ state 168
     ON              reduce using rule 48 (date -> WORD_NUMBER AND NUMBER HALF TIME .)
     PAST_PHRASE     reduce using rule 48 (date -> WORD_NUMBER AND NUMBER HALF TIME .)
     $end            reduce using rule 48 (date -> WORD_NUMBER AND NUMBER HALF TIME .)
-    PHRASE          shift and go to state 206
+    PHRASE          shift and go to state 210
 
   ! PHRASE          [ reduce using rule 48 (date -> WORD_NUMBER AND NUMBER HALF TIME .) ]
 
 
-state 169
+state 173
 
     (46) date -> PHRASE TIME AND NUMBER TIME .
 
@@ -2867,7 +2943,7 @@ state 169
     $end            reduce using rule 46 (date -> PHRASE TIME AND NUMBER TIME .)
 
 
-state 170
+state 174
 
     (51) date -> PHRASE TIME AND NUMBER HALF .
     (59) date -> PHRASE TIME AND NUMBER HALF . PHRASE
@@ -2883,14 +2959,14 @@ state 170
     DAY             reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .)
     ON              reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .)
     $end            reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .)
-    PHRASE          shift and go to state 207
-    PAST_PHRASE     shift and go to state 208
+    PHRASE          shift and go to state 211
+    PAST_PHRASE     shift and go to state 212
 
   ! PHRASE          [ reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .) ]
   ! PAST_PHRASE     [ reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .) ]
 
 
-state 171
+state 175
 
     (47) date -> PHRASE TIME AND WORD_NUMBER TIME .
 
@@ -2906,160 +2982,160 @@ state 171
     $end            reduce using rule 47 (date -> PHRASE TIME AND WORD_NUMBER TIME .)
 
 
-state 172
-
-    (124) date_month_relative -> PHRASE TIME ON THE NUMBER . DATE_END
-
-    DATE_END        shift and go to state 209
-
-
-state 173
-
-    (71) in -> PHRASE NUMBER TIME AND NUMBER . TIME
-
-    TIME            shift and go to state 210
-
-
-state 174
-
-    (73) in -> PHRASE NUMBER TIME AND WORD_NUMBER . TIME
-
-    TIME            shift and go to state 211
-
-
-state 175
-
-    (74) in -> PHRASE WORD_NUMBER TIME AND WORD_NUMBER . TIME
-
-    TIME            shift and go to state 212
-
-
 state 176
 
-    (72) in -> PHRASE WORD_NUMBER TIME AND NUMBER . TIME
+    (128) date_month_relative -> PHRASE TIME ON THE NUMBER . DATE_END
 
-    TIME            shift and go to state 213
+    DATE_END        shift and go to state 213
 
 
 state 177
 
-    (123) date_month_relative -> PAST_PHRASE TIME ON THE NUMBER . DATE_END
+    (71) in -> PHRASE NUMBER TIME AND NUMBER . TIME
 
-    DATE_END        shift and go to state 214
+    TIME            shift and go to state 214
 
 
 state 178
 
-    (77) adder -> PLUS NUMBER TIME AND NUMBER . TIME
+    (73) in -> PHRASE NUMBER TIME AND WORD_NUMBER . TIME
 
     TIME            shift and go to state 215
 
 
 state 179
 
-    (79) adder -> PLUS NUMBER TIME AND WORD_NUMBER . TIME
+    (74) in -> PHRASE WORD_NUMBER TIME AND WORD_NUMBER . TIME
 
     TIME            shift and go to state 216
 
 
 state 180
 
-    (80) adder -> PLUS WORD_NUMBER TIME AND WORD_NUMBER . TIME
+    (72) in -> PHRASE WORD_NUMBER TIME AND NUMBER . TIME
 
     TIME            shift and go to state 217
 
 
 state 181
 
-    (78) adder -> PLUS WORD_NUMBER TIME AND NUMBER . TIME
+    (127) date_month_relative -> PAST_PHRASE TIME ON THE NUMBER . DATE_END
 
-    TIME            shift and go to state 218
+    DATE_END        shift and go to state 218
 
 
 state 182
 
-    (83) remover -> MINUS NUMBER TIME AND NUMBER . TIME
+    (77) adder -> PLUS NUMBER TIME AND NUMBER . TIME
 
     TIME            shift and go to state 219
 
 
 state 183
 
-    (85) remover -> MINUS NUMBER TIME AND WORD_NUMBER . TIME
+    (79) adder -> PLUS NUMBER TIME AND WORD_NUMBER . TIME
 
     TIME            shift and go to state 220
 
 
 state 184
 
-    (86) remover -> MINUS WORD_NUMBER TIME AND WORD_NUMBER . TIME
+    (80) adder -> PLUS WORD_NUMBER TIME AND WORD_NUMBER . TIME
 
     TIME            shift and go to state 221
 
 
 state 185
 
-    (84) remover -> MINUS WORD_NUMBER TIME AND NUMBER . TIME
+    (78) adder -> PLUS WORD_NUMBER TIME AND NUMBER . TIME
 
     TIME            shift and go to state 222
 
 
 state 186
 
-    (118) date_end -> THE NUMBER DATE_END OF MONTH .
-
-    NUMBER          reduce using rule 118 (date_end -> THE NUMBER DATE_END OF MONTH .)
-    DECIMAL         reduce using rule 118 (date_end -> THE NUMBER DATE_END OF MONTH .)
-    WORD_NUMBER     reduce using rule 118 (date_end -> THE NUMBER DATE_END OF MONTH .)
-    AT              reduce using rule 118 (date_end -> THE NUMBER DATE_END OF MONTH .)
-    TIME            reduce using rule 118 (date_end -> THE NUMBER DATE_END OF MONTH .)
-    PHRASE          reduce using rule 118 (date_end -> THE NUMBER DATE_END OF MONTH .)
-    $end            reduce using rule 118 (date_end -> THE NUMBER DATE_END OF MONTH .)
-
-
-state 187
-
-    (119) date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE . TIME
+    (83) remover -> MINUS NUMBER TIME AND NUMBER . TIME
 
     TIME            shift and go to state 223
 
 
-state 188
+state 187
 
-    (121) date_month_relative -> THE NUMBER DATE_END OF PHRASE . TIME
+    (85) remover -> MINUS NUMBER TIME AND WORD_NUMBER . TIME
 
     TIME            shift and go to state 224
 
 
+state 188
+
+    (86) remover -> MINUS WORD_NUMBER TIME AND WORD_NUMBER . TIME
+
+    TIME            shift and go to state 225
+
+
 state 189
 
-    (52) date -> NUMBER TIME AND NUMBER TIME . PHRASE
+    (84) remover -> MINUS WORD_NUMBER TIME AND NUMBER . TIME
 
-    PHRASE          shift and go to state 195
+    TIME            shift and go to state 226
 
 
 state 190
 
-    (53) date -> NUMBER TIME AND WORD_NUMBER TIME . PHRASE
+    (122) date_end -> THE NUMBER DATE_END OF MONTH .
 
-    PHRASE          shift and go to state 197
+    NUMBER          reduce using rule 122 (date_end -> THE NUMBER DATE_END OF MONTH .)
+    DECIMAL         reduce using rule 122 (date_end -> THE NUMBER DATE_END OF MONTH .)
+    WORD_NUMBER     reduce using rule 122 (date_end -> THE NUMBER DATE_END OF MONTH .)
+    AT              reduce using rule 122 (date_end -> THE NUMBER DATE_END OF MONTH .)
+    TIME            reduce using rule 122 (date_end -> THE NUMBER DATE_END OF MONTH .)
+    PHRASE          reduce using rule 122 (date_end -> THE NUMBER DATE_END OF MONTH .)
+    $end            reduce using rule 122 (date_end -> THE NUMBER DATE_END OF MONTH .)
 
 
 state 191
 
-    (55) date -> WORD_NUMBER TIME AND WORD_NUMBER TIME . PHRASE
+    (123) date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE . TIME
 
-    PHRASE          shift and go to state 199
+    TIME            shift and go to state 227
 
 
 state 192
 
-    (54) date -> WORD_NUMBER TIME AND NUMBER TIME . PHRASE
+    (125) date_month_relative -> THE NUMBER DATE_END OF PHRASE . TIME
+
+    TIME            shift and go to state 228
+
+
+state 193
+
+    (52) date -> NUMBER TIME AND NUMBER TIME . PHRASE
+
+    PHRASE          shift and go to state 199
+
+
+state 194
+
+    (53) date -> NUMBER TIME AND WORD_NUMBER TIME . PHRASE
 
     PHRASE          shift and go to state 201
 
 
-state 193
+state 195
+
+    (55) date -> WORD_NUMBER TIME AND WORD_NUMBER TIME . PHRASE
+
+    PHRASE          shift and go to state 203
+
+
+state 196
+
+    (54) date -> WORD_NUMBER TIME AND NUMBER TIME . PHRASE
+
+    PHRASE          shift and go to state 205
+
+
+state 197
 
     (49) date -> WORD_NUMBER TIME AND NUMBER HALF .
     (50) date -> WORD_NUMBER TIME AND NUMBER HALF . TIME
@@ -3073,14 +3149,14 @@ state 193
     WORD_NUMBER     reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .)
     AT              reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .)
     $end            reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .)
-    TIME            shift and go to state 203
-    PHRASE          shift and go to state 204
+    TIME            shift and go to state 207
+    PHRASE          shift and go to state 208
 
   ! TIME            [ reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .) ]
   ! PHRASE          [ reduce using rule 49 (date -> WORD_NUMBER TIME AND NUMBER HALF .) ]
 
 
-state 194
+state 198
 
     (51) date -> PHRASE TIME AND NUMBER HALF .
     (59) date -> PHRASE TIME AND NUMBER HALF . PHRASE
@@ -3092,12 +3168,12 @@ state 194
     AT              reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .)
     TIME            reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .)
     $end            reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .)
-    PHRASE          shift and go to state 207
+    PHRASE          shift and go to state 211
 
   ! PHRASE          [ reduce using rule 51 (date -> PHRASE TIME AND NUMBER HALF .) ]
 
 
-state 195
+state 199
 
     (52) date -> NUMBER TIME AND NUMBER TIME PHRASE .
 
@@ -3113,7 +3189,7 @@ state 195
     $end            reduce using rule 52 (date -> NUMBER TIME AND NUMBER TIME PHRASE .)
 
 
-state 196
+state 200
 
     (90) date_past -> NUMBER TIME AND NUMBER TIME PAST_PHRASE .
 
@@ -3126,7 +3202,7 @@ state 196
     $end            reduce using rule 90 (date_past -> NUMBER TIME AND NUMBER TIME PAST_PHRASE .)
 
 
-state 197
+state 201
 
     (53) date -> NUMBER TIME AND WORD_NUMBER TIME PHRASE .
 
@@ -3142,7 +3218,7 @@ state 197
     $end            reduce using rule 53 (date -> NUMBER TIME AND WORD_NUMBER TIME PHRASE .)
 
 
-state 198
+state 202
 
     (92) date_past -> NUMBER TIME AND WORD_NUMBER TIME PAST_PHRASE .
 
@@ -3155,7 +3231,7 @@ state 198
     $end            reduce using rule 92 (date_past -> NUMBER TIME AND WORD_NUMBER TIME PAST_PHRASE .)
 
 
-state 199
+state 203
 
     (55) date -> WORD_NUMBER TIME AND WORD_NUMBER TIME PHRASE .
 
@@ -3171,7 +3247,7 @@ state 199
     $end            reduce using rule 55 (date -> WORD_NUMBER TIME AND WORD_NUMBER TIME PHRASE .)
 
 
-state 200
+state 204
 
     (93) date_past -> WORD_NUMBER TIME AND WORD_NUMBER TIME PAST_PHRASE .
 
@@ -3184,7 +3260,7 @@ state 200
     $end            reduce using rule 93 (date_past -> WORD_NUMBER TIME AND WORD_NUMBER TIME PAST_PHRASE .)
 
 
-state 201
+state 205
 
     (54) date -> WORD_NUMBER TIME AND NUMBER TIME PHRASE .
 
@@ -3200,7 +3276,7 @@ state 201
     $end            reduce using rule 54 (date -> WORD_NUMBER TIME AND NUMBER TIME PHRASE .)
 
 
-state 202
+state 206
 
     (91) date_past -> WORD_NUMBER TIME AND NUMBER TIME PAST_PHRASE .
 
@@ -3213,7 +3289,7 @@ state 202
     $end            reduce using rule 91 (date_past -> WORD_NUMBER TIME AND NUMBER TIME PAST_PHRASE .)
 
 
-state 203
+state 207
 
     (50) date -> WORD_NUMBER TIME AND NUMBER HALF TIME .
     (58) date -> WORD_NUMBER TIME AND NUMBER HALF TIME . PHRASE
@@ -3228,12 +3304,12 @@ state 203
     ON              reduce using rule 50 (date -> WORD_NUMBER TIME AND NUMBER HALF TIME .)
     PAST_PHRASE     reduce using rule 50 (date -> WORD_NUMBER TIME AND NUMBER HALF TIME .)
     $end            reduce using rule 50 (date -> WORD_NUMBER TIME AND NUMBER HALF TIME .)
-    PHRASE          shift and go to state 225
+    PHRASE          shift and go to state 229
 
   ! PHRASE          [ reduce using rule 50 (date -> WORD_NUMBER TIME AND NUMBER HALF TIME .) ]
 
 
-state 204
+state 208
 
     (57) date -> WORD_NUMBER TIME AND NUMBER HALF PHRASE .
 
@@ -3249,7 +3325,7 @@ state 204
     $end            reduce using rule 57 (date -> WORD_NUMBER TIME AND NUMBER HALF PHRASE .)
 
 
-state 205
+state 209
 
     (94) date_past -> WORD_NUMBER TIME AND NUMBER HALF PAST_PHRASE .
 
@@ -3262,7 +3338,7 @@ state 205
     $end            reduce using rule 94 (date_past -> WORD_NUMBER TIME AND NUMBER HALF PAST_PHRASE .)
 
 
-state 206
+state 210
 
     (56) date -> WORD_NUMBER AND NUMBER HALF TIME PHRASE .
 
@@ -3278,7 +3354,7 @@ state 206
     $end            reduce using rule 56 (date -> WORD_NUMBER AND NUMBER HALF TIME PHRASE .)
 
 
-state 207
+state 211
 
     (59) date -> PHRASE TIME AND NUMBER HALF PHRASE .
 
@@ -3294,7 +3370,7 @@ state 207
     $end            reduce using rule 59 (date -> PHRASE TIME AND NUMBER HALF PHRASE .)
 
 
-state 208
+state 212
 
     (95) date_past -> PHRASE TIME AND NUMBER HALF PAST_PHRASE .
 
@@ -3307,20 +3383,20 @@ state 208
     $end            reduce using rule 95 (date_past -> PHRASE TIME AND NUMBER HALF PAST_PHRASE .)
 
 
-state 209
+state 213
 
-    (124) date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .
+    (128) date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .
 
-    NUMBER          reduce using rule 124 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
-    DECIMAL         reduce using rule 124 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
-    WORD_NUMBER     reduce using rule 124 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
-    AT              reduce using rule 124 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
-    TIME            reduce using rule 124 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
-    PHRASE          reduce using rule 124 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
-    $end            reduce using rule 124 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
+    NUMBER          reduce using rule 128 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
+    DECIMAL         reduce using rule 128 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
+    WORD_NUMBER     reduce using rule 128 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
+    AT              reduce using rule 128 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
+    TIME            reduce using rule 128 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
+    PHRASE          reduce using rule 128 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
+    $end            reduce using rule 128 (date_month_relative -> PHRASE TIME ON THE NUMBER DATE_END .)
 
 
-state 210
+state 214
 
     (71) in -> PHRASE NUMBER TIME AND NUMBER TIME .
 
@@ -3333,7 +3409,7 @@ state 210
     $end            reduce using rule 71 (in -> PHRASE NUMBER TIME AND NUMBER TIME .)
 
 
-state 211
+state 215
 
     (73) in -> PHRASE NUMBER TIME AND WORD_NUMBER TIME .
 
@@ -3346,7 +3422,7 @@ state 211
     $end            reduce using rule 73 (in -> PHRASE NUMBER TIME AND WORD_NUMBER TIME .)
 
 
-state 212
+state 216
 
     (74) in -> PHRASE WORD_NUMBER TIME AND WORD_NUMBER TIME .
 
@@ -3359,7 +3435,7 @@ state 212
     $end            reduce using rule 74 (in -> PHRASE WORD_NUMBER TIME AND WORD_NUMBER TIME .)
 
 
-state 213
+state 217
 
     (72) in -> PHRASE WORD_NUMBER TIME AND NUMBER TIME .
 
@@ -3372,20 +3448,20 @@ state 213
     $end            reduce using rule 72 (in -> PHRASE WORD_NUMBER TIME AND NUMBER TIME .)
 
 
-state 214
+state 218
 
-    (123) date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .
+    (127) date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .
 
-    NUMBER          reduce using rule 123 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
-    DECIMAL         reduce using rule 123 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
-    WORD_NUMBER     reduce using rule 123 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
-    AT              reduce using rule 123 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
-    TIME            reduce using rule 123 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
-    PHRASE          reduce using rule 123 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
-    $end            reduce using rule 123 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
+    NUMBER          reduce using rule 127 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
+    DECIMAL         reduce using rule 127 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
+    WORD_NUMBER     reduce using rule 127 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
+    AT              reduce using rule 127 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
+    TIME            reduce using rule 127 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
+    PHRASE          reduce using rule 127 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
+    $end            reduce using rule 127 (date_month_relative -> PAST_PHRASE TIME ON THE NUMBER DATE_END .)
 
 
-state 215
+state 219
 
     (77) adder -> PLUS NUMBER TIME AND NUMBER TIME .
 
@@ -3398,7 +3474,7 @@ state 215
     $end            reduce using rule 77 (adder -> PLUS NUMBER TIME AND NUMBER TIME .)
 
 
-state 216
+state 220
 
     (79) adder -> PLUS NUMBER TIME AND WORD_NUMBER TIME .
 
@@ -3411,7 +3487,7 @@ state 216
     $end            reduce using rule 79 (adder -> PLUS NUMBER TIME AND WORD_NUMBER TIME .)
 
 
-state 217
+state 221
 
     (80) adder -> PLUS WORD_NUMBER TIME AND WORD_NUMBER TIME .
 
@@ -3424,7 +3500,7 @@ state 217
     $end            reduce using rule 80 (adder -> PLUS WORD_NUMBER TIME AND WORD_NUMBER TIME .)
 
 
-state 218
+state 222
 
     (78) adder -> PLUS WORD_NUMBER TIME AND NUMBER TIME .
 
@@ -3437,7 +3513,7 @@ state 218
     $end            reduce using rule 78 (adder -> PLUS WORD_NUMBER TIME AND NUMBER TIME .)
 
 
-state 219
+state 223
 
     (83) remover -> MINUS NUMBER TIME AND NUMBER TIME .
 
@@ -3450,7 +3526,7 @@ state 219
     $end            reduce using rule 83 (remover -> MINUS NUMBER TIME AND NUMBER TIME .)
 
 
-state 220
+state 224
 
     (85) remover -> MINUS NUMBER TIME AND WORD_NUMBER TIME .
 
@@ -3463,7 +3539,7 @@ state 220
     $end            reduce using rule 85 (remover -> MINUS NUMBER TIME AND WORD_NUMBER TIME .)
 
 
-state 221
+state 225
 
     (86) remover -> MINUS WORD_NUMBER TIME AND WORD_NUMBER TIME .
 
@@ -3476,7 +3552,7 @@ state 221
     $end            reduce using rule 86 (remover -> MINUS WORD_NUMBER TIME AND WORD_NUMBER TIME .)
 
 
-state 222
+state 226
 
     (84) remover -> MINUS WORD_NUMBER TIME AND NUMBER TIME .
 
@@ -3489,33 +3565,33 @@ state 222
     $end            reduce using rule 84 (remover -> MINUS WORD_NUMBER TIME AND NUMBER TIME .)
 
 
-state 223
+state 227
 
-    (119) date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .
+    (123) date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .
 
-    NUMBER          reduce using rule 119 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
-    DECIMAL         reduce using rule 119 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
-    WORD_NUMBER     reduce using rule 119 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
-    AT              reduce using rule 119 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
-    TIME            reduce using rule 119 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
-    PHRASE          reduce using rule 119 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
-    $end            reduce using rule 119 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
-
-
-state 224
-
-    (121) date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .
-
-    NUMBER          reduce using rule 121 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
-    DECIMAL         reduce using rule 121 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
-    WORD_NUMBER     reduce using rule 121 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
-    AT              reduce using rule 121 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
-    TIME            reduce using rule 121 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
-    PHRASE          reduce using rule 121 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
-    $end            reduce using rule 121 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+    NUMBER          reduce using rule 123 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
+    DECIMAL         reduce using rule 123 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
+    WORD_NUMBER     reduce using rule 123 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
+    AT              reduce using rule 123 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
+    TIME            reduce using rule 123 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
+    PHRASE          reduce using rule 123 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
+    $end            reduce using rule 123 (date_month_relative -> THE NUMBER DATE_END OF PAST_PHRASE TIME .)
 
 
-state 225
+state 228
+
+    (125) date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .
+
+    NUMBER          reduce using rule 125 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+    DECIMAL         reduce using rule 125 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+    WORD_NUMBER     reduce using rule 125 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+    AT              reduce using rule 125 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+    TIME            reduce using rule 125 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+    PHRASE          reduce using rule 125 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+    $end            reduce using rule 125 (date_month_relative -> THE NUMBER DATE_END OF PHRASE TIME .)
+
+
+state 229
 
     (58) date -> WORD_NUMBER TIME AND NUMBER HALF TIME PHRASE .
 
@@ -3575,13 +3651,13 @@ WARNING: shift/reduce conflict for PHRASE in state 89 resolved as shift
 WARNING: shift/reduce conflict for PHRASE in state 90 resolved as shift
 WARNING: shift/reduce conflict for PHRASE in state 91 resolved as shift
 WARNING: shift/reduce conflict for PHRASE in state 93 resolved as shift
-WARNING: shift/reduce conflict for TIME in state 167 resolved as shift
-WARNING: shift/reduce conflict for PHRASE in state 167 resolved as shift
-WARNING: shift/reduce conflict for PAST_PHRASE in state 167 resolved as shift
-WARNING: shift/reduce conflict for PHRASE in state 168 resolved as shift
-WARNING: shift/reduce conflict for PHRASE in state 170 resolved as shift
-WARNING: shift/reduce conflict for PAST_PHRASE in state 170 resolved as shift
-WARNING: shift/reduce conflict for TIME in state 193 resolved as shift
-WARNING: shift/reduce conflict for PHRASE in state 193 resolved as shift
-WARNING: shift/reduce conflict for PHRASE in state 194 resolved as shift
-WARNING: shift/reduce conflict for PHRASE in state 203 resolved as shift
+WARNING: shift/reduce conflict for TIME in state 171 resolved as shift
+WARNING: shift/reduce conflict for PHRASE in state 171 resolved as shift
+WARNING: shift/reduce conflict for PAST_PHRASE in state 171 resolved as shift
+WARNING: shift/reduce conflict for PHRASE in state 172 resolved as shift
+WARNING: shift/reduce conflict for PHRASE in state 174 resolved as shift
+WARNING: shift/reduce conflict for PAST_PHRASE in state 174 resolved as shift
+WARNING: shift/reduce conflict for TIME in state 197 resolved as shift
+WARNING: shift/reduce conflict for PHRASE in state 197 resolved as shift
+WARNING: shift/reduce conflict for PHRASE in state 198 resolved as shift
+WARNING: shift/reduce conflict for PHRASE in state 207 resolved as shift

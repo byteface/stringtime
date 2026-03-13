@@ -1,11 +1,13 @@
 __version__ = "0.0.6"
 __all__ = ["Date"]
 
+import datetime
 import re
 import warnings
 
 import ply.lex as lex
 import ply.yacc as yacc
+from dateutil.easter import easter
 
 from stringtime.date import Date as stDate
 
@@ -36,6 +38,88 @@ def stlog(msg: str, *args, lvl: str = None, **kwargs):
         print(f"{OK_ICN} \033[1;32m{msg}\033[1;0m", *args, kwargs)
     # else:
     #     print(msg, *args, kwargs)
+
+
+TIMEZONE_OFFSETS = {
+    "z": 0,
+    "utc": 0,
+    "gmt": 0,
+    "est": -5 * 60,
+    "edt": -4 * 60,
+    "cst": -6 * 60,
+    "cdt": -5 * 60,
+    "mst": -7 * 60,
+    "mdt": -6 * 60,
+    "pst": -8 * 60,
+    "pdt": -7 * 60,
+    "bst": 1 * 60,
+    "cet": 1 * 60,
+    "cest": 2 * 60,
+    "eet": 2 * 60,
+    "eest": 3 * 60,
+    "ist": 5 * 60 + 30,
+    "jst": 9 * 60,
+    "aest": 10 * 60,
+    "aedt": 11 * 60,
+    "acst": 9 * 60 + 30,
+    "acdt": 10 * 60 + 30,
+    "awst": 8 * 60,
+}
+
+
+def build_tzinfo(token):
+    token = token.lower()
+
+    if token in TIMEZONE_OFFSETS:
+        return datetime.timezone(
+            datetime.timedelta(minutes=TIMEZONE_OFFSETS[token]), token.upper()
+        )
+
+    if token.startswith(("utc", "gmt")) and len(token) > 3:
+        match = re.fullmatch(r"(utc|gmt)([+-])(\d{1,2})(?::?(\d{2}))?", token)
+        if match is None:
+            return None
+
+        sign = 1 if match.group(2) == "+" else -1
+        hours = int(match.group(3))
+        minutes = int(match.group(4) or 0)
+        offset_minutes = sign * (hours * 60 + minutes)
+        return datetime.timezone(
+            datetime.timedelta(minutes=offset_minutes), token.upper()
+        )
+
+    return None
+
+
+def extract_timezone_suffix(phrase):
+    match = re.search(
+        r"\s+(z|utc|gmt|est|edt|cst|cdt|mst|mdt|pst|pdt|bst|cet|cest|eet|eest|ist|jst|aest|aedt|acst|acdt|awst|(?:utc|gmt)[+-]\d{1,2}(?::?\d{2})?)$",
+        phrase,
+    )
+    if match is None:
+        return phrase, None
+
+    tzinfo = build_tzinfo(match.group(1))
+    if tzinfo is None:
+        return phrase, None
+
+    return phrase[: match.start()].strip(), tzinfo
+
+
+def apply_timezone(date_obj, tzinfo, timezone_aware=False):
+    if tzinfo is None or not timezone_aware:
+        return date_obj
+
+    date_obj._date = date_obj._date.replace(tzinfo=tzinfo)
+    return date_obj
+
+
+def normalize_timezone_phrase(phrase):
+    return re.sub(
+        r"^((?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|today|tomorrow|yesterday)\s+(\d{1,2}(?::\d{2})?(?:am|pm))$",
+        r"\1 at \2",
+        phrase,
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -887,6 +971,8 @@ def p_single_date_yesterday(p):
     date_yesterday : YESTERDAY
     date_yesterday : YESTERDAY AT NUMBER
     date_yesterday : YESTERDAY AT WORD_NUMBER
+    date_yesterday : YESTERDAY AT NUMBER AM
+    date_yesterday : YESTERDAY AT NUMBER PM
     """
     if len(p) == 2:
         params = {"day": -1}
@@ -899,6 +985,19 @@ def p_single_date_yesterday(p):
             "second": 0,
         }
         p[0] = DateFactory.create_date(**params)
+    if len(p) == 5:
+        hour = p[3]
+        if p[4] == "pm" and hour < 12:
+            hour += 12
+        elif p[4] == "am" and hour == 12:
+            hour = 0
+        params = {
+            "day": stDate().get_date() - 1,
+            "hour": hour,
+            "minute": 0,
+            "second": 0,
+        }
+        p[0] = DateFactory.create_date(**params)
 
 
 def p_single_date_2moro(p):
@@ -906,6 +1005,8 @@ def p_single_date_2moro(p):
     date_2moro : TOMORROW
     date_2moro : TOMORROW AT NUMBER
     date_2moro : TOMORROW AT WORD_NUMBER
+    date_2moro : TOMORROW AT NUMBER AM
+    date_2moro : TOMORROW AT NUMBER PM
     """
     if len(p) == 2:
         params = {"day": 1}
@@ -914,6 +1015,19 @@ def p_single_date_2moro(p):
         params = {
             "day": stDate().get_date() + 1,
             "hour": p[3],
+            "minute": 0,
+            "second": 0,
+        }
+        p[0] = DateFactory.create_date(**params)
+    if len(p) == 5:
+        hour = p[3]
+        if p[4] == "pm" and hour < 12:
+            hour += 12
+        elif p[4] == "am" and hour == 12:
+            hour = 0
+        params = {
+            "day": stDate().get_date() + 1,
+            "hour": hour,
             "minute": 0,
             "second": 0,
         }
@@ -938,6 +1052,7 @@ def p_single_date_day(p):
     if len(p) == 3:
         day_to_find = p[2]
         d = stDate()
+        now = stDate()
         # go forward each day until it matches
         while day_to_find.lower() != d.get_day(to_string=True).lower():
             if p[1] == "last":
@@ -949,6 +1064,17 @@ def p_single_date_day(p):
                 d.set_date(d.get_date() + 1)
             # else:
             #     print("an infinite loop?")
+
+        if (
+            p[1] == "next"
+            and now.get_day(to_string=True).lower() == day_to_find.lower()
+        ):
+            d.set_date(d.get_date() + 7)
+        elif (
+            p[1] == "last"
+            and now.get_day(to_string=True).lower() == day_to_find.lower()
+        ):
+            d.set_date(d.get_date() - 7)
 
         p[0] = d
 
@@ -1343,14 +1469,93 @@ def replace_short_words(phrase):
     return phrase
 
 
+def nth_weekday_of_month(year, month, weekday, occurrence):
+    d = datetime.date(year, month, 1)
+    while d.weekday() != weekday:
+        d += datetime.timedelta(days=1)
+    d += datetime.timedelta(weeks=occurrence - 1)
+    return d
+
+
+def last_weekday_of_month(year, month, weekday):
+    if month == 12:
+        d = datetime.date(year + 1, 1, 1) - datetime.timedelta(days=1)
+    else:
+        d = datetime.date(year, month + 1, 1) - datetime.timedelta(days=1)
+    while d.weekday() != weekday:
+        d -= datetime.timedelta(days=1)
+    return d
+
+
+def get_holiday_date(phrase):
+    current_year = stDate().get_year()
+    year_offset = 0
+
+    if phrase.endswith(" next year"):
+        year_offset = 1
+        phrase = phrase[: -len(" next year")]
+    elif phrase.endswith(" last year"):
+        year_offset = -1
+        phrase = phrase[: -len(" last year")]
+    elif phrase.endswith(" this year"):
+        phrase = phrase[: -len(" this year")]
+
+    holiday_key = phrase.strip()
+    year = current_year + year_offset
+
+    holiday_builders = {
+        "new year's day": lambda y: datetime.date(y, 1, 1),
+        "new years day": lambda y: datetime.date(y, 1, 1),
+        "new year's eve": lambda y: datetime.date(y, 12, 31),
+        "new years eve": lambda y: datetime.date(y, 12, 31),
+        "valentine's day": lambda y: datetime.date(y, 2, 14),
+        "valentines day": lambda y: datetime.date(y, 2, 14),
+        "st patrick's day": lambda y: datetime.date(y, 3, 17),
+        "st patricks day": lambda y: datetime.date(y, 3, 17),
+        "easter": lambda y: easter(y),
+        "memorial day": lambda y: last_weekday_of_month(y, 5, 0),
+        "independence day": lambda y: datetime.date(y, 7, 4),
+        "fourth of july": lambda y: datetime.date(y, 7, 4),
+        "labor day": lambda y: nth_weekday_of_month(y, 9, 0, 1),
+        "halloween": lambda y: datetime.date(y, 10, 31),
+        "thanksgiving": lambda y: nth_weekday_of_month(y, 11, 3, 4),
+        "black friday": lambda y: nth_weekday_of_month(y, 11, 3, 4)
+        + datetime.timedelta(days=1),
+        "christmas eve": lambda y: datetime.date(y, 12, 24),
+        "christmas": lambda y: datetime.date(y, 12, 25),
+        "christmas day": lambda y: datetime.date(y, 12, 25),
+        "boxing day": lambda y: datetime.date(y, 12, 26),
+    }
+
+    if holiday_key not in holiday_builders:
+        return None
+
+    holiday = holiday_builders[holiday_key](year)
+    d = stDate()
+    d.set_fullyear(holiday.year)
+    d.set_month(holiday.month - 1)
+    d.set_date(holiday.day)
+    return d
+
+
 def get_date(date, *args, **kwargs):
     try:
+        timezone_aware = kwargs.pop("timezone_aware", False)
         phrase = date.lower()
         phrase = phrase.strip()
+        phrase, tzinfo = extract_timezone_suffix(phrase)
+        phrase = normalize_timezone_phrase(phrase)
         phrase = replace_short_words(phrase)
+        holiday_date = get_holiday_date(phrase)
+        if holiday_date is not None:
+            return apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware)
         if is_now(phrase):
-            return stDate()
-        return yacc.parse(phrase)[0]
+            return apply_timezone(
+                stDate(), tzinfo, timezone_aware=timezone_aware
+            )
+        return apply_timezone(
+            yacc.parse(phrase)[0], tzinfo, timezone_aware=timezone_aware
+        )
     except TypeError as e:
         # if debug raise the error
         if DEBUG:
@@ -1388,4 +1593,4 @@ def Date(date=None, *args, length: int = None, **kwargs):
             return dates
         return [first_date, second_date]
     """
-    return get_date(date)
+    return get_date(date, *args, **kwargs)
