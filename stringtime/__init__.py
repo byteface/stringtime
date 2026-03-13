@@ -1552,6 +1552,10 @@ def last_weekday_of_month(year, month, weekday):
     return d
 
 
+def penultimate_weekday_of_month(year, month, weekday):
+    return last_weekday_of_month(year, month, weekday) - datetime.timedelta(days=7)
+
+
 def get_holiday_date(phrase):
     current_year = get_reference_date().get_year()
     year_offset = 0
@@ -1600,6 +1604,98 @@ def get_holiday_date(phrase):
     d.set_fullyear(holiday.year)
     d.set_month(holiday.month - 1)
     d.set_date(holiday.day)
+    return d
+
+
+def resolve_period_year_month(period):
+    period = period.strip()
+    reference = get_reference_date()
+    reference_year = reference.get_year()
+    reference_month = reference.get_month() + 1
+
+    months = {
+        "january": 1,
+        "february": 2,
+        "march": 3,
+        "april": 4,
+        "may": 5,
+        "june": 6,
+        "july": 7,
+        "august": 8,
+        "september": 9,
+        "october": 10,
+        "november": 11,
+        "december": 12,
+    }
+
+    if period in months:
+        return reference_year, months[period]
+
+    if period in {"month", "the month", "this month"}:
+        return reference_year, reference_month
+
+    if period == "next month":
+        d = get_reference_date()
+        d.set_month(d.get_month() + 1)
+        return d.get_year(), d.get_month() + 1
+
+    if period == "last month":
+        d = get_reference_date()
+        d.set_month(d.get_month() - 1)
+        return d.get_year(), d.get_month() + 1
+
+    if re.fullmatch(r"\d{4}", period):
+        return int(period), 1
+
+    return None
+
+
+def get_ordinal_weekday_date(phrase):
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<occurrence>first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|last|penultimate)\s+(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?:in|of)\s+(?P<period>.+)",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    occurrence = match.group("occurrence")
+    weekday_name = match.group("weekday")
+    period = match.group("period")
+
+    resolved = resolve_period_year_month(period)
+    if resolved is None:
+        return None
+
+    year, month = resolved
+    weekday = {
+        "monday": 0,
+        "tuesday": 1,
+        "wednesday": 2,
+        "thursday": 3,
+        "friday": 4,
+        "saturday": 5,
+        "sunday": 6,
+    }[weekday_name]
+
+    if occurrence in {"first", "1st"}:
+        date_value = nth_weekday_of_month(year, month, weekday, 1)
+    elif occurrence in {"second", "2nd"}:
+        date_value = nth_weekday_of_month(year, month, weekday, 2)
+    elif occurrence in {"third", "3rd"}:
+        date_value = nth_weekday_of_month(year, month, weekday, 3)
+    elif occurrence in {"fourth", "4th"}:
+        date_value = nth_weekday_of_month(year, month, weekday, 4)
+    elif occurrence in {"fifth", "5th"}:
+        date_value = nth_weekday_of_month(year, month, weekday, 5)
+    elif occurrence == "last":
+        date_value = last_weekday_of_month(year, month, weekday)
+    else:
+        date_value = penultimate_weekday_of_month(year, month, weekday)
+
+    d = get_reference_date()
+    d.set_fullyear(date_value.year)
+    d.set_month(date_value.month - 1)
+    d.set_date(date_value.day)
     return d
 
 
@@ -1840,6 +1936,7 @@ def parse_natural_date_strict(date, *args, **kwargs):
 
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
+    ordinal_weekday_date = get_ordinal_weekday_date(phrase)
     business_date = get_business_phrase_date(phrase)
     sleep_date = get_sleep_phrase_date(phrase)
     clock_date = get_clock_phrase_date(phrase)
@@ -1853,6 +1950,21 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if holiday_date is not None:
         return attach_parse_metadata(
             apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if ordinal_weekday_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(
+                ordinal_weekday_date, tzinfo, timezone_aware=timezone_aware
+            ),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
