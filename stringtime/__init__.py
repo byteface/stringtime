@@ -1517,6 +1517,9 @@ def replace_short_words(phrase):
 
     # special cases
     phrase = phrase.replace("a few", "3")
+    phrase = re.sub(r"\ba fortnight\b", "2 weeks", phrase)
+    phrase = re.sub(r"\bfortnights\b", "2 weeks", phrase)
+    phrase = re.sub(r"\bfortnight\b", "2 weeks", phrase)
     # phrase = re.sub(r"a few\b", "3", phrase)
     # phrase = re.sub(r"\bseveral\b", "7", phrase)
 
@@ -1576,6 +1579,23 @@ def get_holiday_date(phrase):
     holiday_key = phrase.strip()
     year = current_year + year_offset
 
+    if holiday_key in {"bank holiday", "next bank holiday"}:
+        reference_date = get_reference_date().to_datetime().date()
+        if year_offset != 0:
+            reference_date = datetime.date(year, 1, 1)
+        if holiday_key == "next bank holiday":
+            reference_date += datetime.timedelta(days=1)
+
+        for search_year in range(reference_date.year, reference_date.year + 3):
+            for holiday in get_uk_bank_holidays(search_year):
+                if holiday >= reference_date:
+                    d = get_reference_date()
+                    d.set_fullyear(holiday.year)
+                    d.set_month(holiday.month - 1)
+                    d.set_date(holiday.day)
+                    return d
+        return None
+
     holiday_builders = {
         "new year's day": lambda y: datetime.date(y, 1, 1),
         "new years day": lambda y: datetime.date(y, 1, 1),
@@ -1609,6 +1629,42 @@ def get_holiday_date(phrase):
     d.set_month(holiday.month - 1)
     d.set_date(holiday.day)
     return d
+
+
+def observe_weekday_holiday(date_value, occupied=None):
+    occupied = occupied or set()
+    observed = date_value
+
+    if observed.weekday() == 5:
+        observed += datetime.timedelta(days=2)
+    elif observed.weekday() == 6:
+        observed += datetime.timedelta(days=1)
+
+    while observed in occupied:
+        observed += datetime.timedelta(days=1)
+
+    return observed
+
+
+def get_uk_bank_holidays(year):
+    holidays = []
+
+    new_year = observe_weekday_holiday(datetime.date(year, 1, 1))
+    holidays.append(new_year)
+
+    easter_sunday = easter(year)
+    holidays.append(easter_sunday - datetime.timedelta(days=2))  # Good Friday
+    holidays.append(easter_sunday + datetime.timedelta(days=1))  # Easter Monday
+    holidays.append(nth_weekday_of_month(year, 5, 0, 1))  # Early May bank holiday
+    holidays.append(last_weekday_of_month(year, 5, 0))  # Spring bank holiday
+    holidays.append(last_weekday_of_month(year, 8, 0))  # Summer bank holiday
+
+    christmas = observe_weekday_holiday(datetime.date(year, 12, 25))
+    boxing = observe_weekday_holiday(datetime.date(year, 12, 26), occupied={christmas})
+    holidays.append(christmas)
+    holidays.append(boxing)
+
+    return sorted(holidays)
 
 
 def resolve_period_year_month(period):
@@ -1789,6 +1845,10 @@ def get_quarter_phrase_date(phrase):
 def get_part_of_day_time(part):
     return {
         "morning": (9, 0),
+        "early in the morning": (6, 0),
+        "early morning": (6, 0),
+        "mid-morning": (10, 0),
+        "mid morning": (10, 0),
         "afternoon": (15, 0),
         "evening": (19, 0),
         "night": (21, 0),
@@ -1796,21 +1856,51 @@ def get_part_of_day_time(part):
     }.get(part)
 
 
+def set_date_time(date_obj, hour, minute=0, second=0):
+    d = clone_date(date_obj)
+    d.set_hours(hour)
+    d.set_minutes(minute)
+    d.set_seconds(second)
+    return d
+
+
 def get_part_of_day_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
     reference = get_reference_date()
+    standalone_time = get_part_of_day_time(phrase)
+    if standalone_time is not None:
+        d = set_date_time(reference, standalone_time[0], standalone_time[1])
+        if (
+            reference.get_hours(),
+            reference.get_minutes(),
+            reference.get_seconds(),
+        ) >= (standalone_time[0], standalone_time[1], 0):
+            d.set_date(d.get_date() + 1)
+        return d
 
     if phrase == "in the morning":
-        d = clone_date(reference)
-        d.set_hours(9)
-        d.set_minutes(0)
-        d.set_seconds(0)
+        d = set_date_time(reference, 9)
         if reference.get_hours() >= 9:
             d.set_date(d.get_date() + 1)
         return d
 
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+after\s+next",
+        phrase,
+    )
+    if match is not None:
+        d = parse_natural_date_strict(
+            f"next {match.group('weekday')}",
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if d is not None:
+            d.set_date(d.get_date() + 7)
+        return d
+
     patterns = [
-        r"(?P<date>today|tomorrow|yesterday|this|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?P<part>morning|afternoon|evening|night|lunchtime)",
-        r"(?P<part>morning|afternoon|evening|night|lunchtime)\s+(?P<date>today|tomorrow|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
+        r"(?P<date>today|tomorrow|yesterday|this|(?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?P<part>morning|afternoon|evening|night|lunchtime|early in the morning|early morning|mid-morning|mid morning)",
+        r"(?P<part>morning|afternoon|evening|night|lunchtime|early in the morning|early morning|mid-morning|mid morning)\s+(?P<date>today|tomorrow|yesterday|(?:next|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
     ]
 
     for pattern in patterns:
@@ -1835,11 +1925,7 @@ def get_part_of_day_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
         if time_value is None:
             continue
 
-        d = clone_date(date_part)
-        d.set_hours(time_value[0])
-        d.set_minutes(time_value[1])
-        d.set_seconds(0)
-        return d
+        return set_date_time(date_part, time_value[0], time_value[1])
 
     return None
 
@@ -1949,6 +2035,26 @@ def get_named_clock_time(phrase):
 
 
 def get_clock_phrase_date(phrase):
+    word_hours = {
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
+        "eleven": 11,
+        "twelve": 12,
+    }
+
+    def parse_clock_hour(value):
+        if value.isdigit():
+            return int(value) % 24
+        return word_hours.get(value)
+
     named_time = get_named_clock_time(phrase)
     if named_time is not None:
         hour, minute = named_time
@@ -1983,11 +2089,23 @@ def get_clock_phrase_date(phrase):
                 r"(?P<amount>a|an|\d+)\s+minutes?\s+(?P<direction>past|to)\s+(?P<hour>\d{1,2})",
                 phrase,
             )
-            if match is None:
-                return None
-            minutes = 1 if match.group("amount") in {"a", "an"} else int(match.group("amount"))
-            direction = match.group("direction")
-            hour = int(match.group("hour")) % 24
+            if match is not None:
+                minutes = 1 if match.group("amount") in {"a", "an"} else int(
+                    match.group("amount")
+                )
+                direction = match.group("direction")
+                hour = int(match.group("hour")) % 24
+            else:
+                match = re.fullmatch(
+                    r"half\s+(?P<hour>\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)",
+                    phrase,
+                )
+                if match is not None:
+                    minutes = 30
+                    direction = "past"
+                    hour = parse_clock_hour(match.group("hour"))
+    if match is None:
+        return None
 
     d = get_reference_date()
     if direction == "past":
@@ -2294,6 +2412,9 @@ def is_extraction_anchor(token, next_token=None):
         "memorial",
         "black",
         "boxing",
+        "bank",
+        "holiday",
+        "half",
         "valentine's",
         "valentines",
         "new",
@@ -2329,6 +2450,8 @@ def is_extraction_anchor(token, next_token=None):
         "months",
         "week",
         "weeks",
+        "fortnight",
+        "fortnights",
         "day",
         "days",
         "hour",
