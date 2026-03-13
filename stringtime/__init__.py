@@ -1556,6 +1556,10 @@ def penultimate_weekday_of_month(year, month, weekday):
     return last_weekday_of_month(year, month, weekday) - datetime.timedelta(days=7)
 
 
+def quarter_start_month(quarter):
+    return (quarter - 1) * 3 + 1
+
+
 def get_holiday_date(phrase):
     current_year = get_reference_date().get_year()
     year_offset = 0
@@ -1650,6 +1654,38 @@ def resolve_period_year_month(period):
     return None
 
 
+def resolve_quarter_year(quarter_phrase):
+    quarter_phrase = quarter_phrase.strip()
+    reference = get_reference_date()
+
+    match = re.fullmatch(r"q([1-4])(?:\s+(\d{4}))?", quarter_phrase)
+    if match is not None:
+        quarter = int(match.group(1))
+        year = int(match.group(2)) if match.group(2) else reference.get_year()
+        return year, quarter
+
+    if quarter_phrase in {"this quarter", "the quarter"}:
+        month = reference.get_month() + 1
+        quarter = ((month - 1) // 3) + 1
+        return reference.get_year(), quarter
+
+    if quarter_phrase == "next quarter":
+        d = get_reference_date()
+        d.set_month(d.get_month() + 3)
+        month = d.get_month() + 1
+        quarter = ((month - 1) // 3) + 1
+        return d.get_year(), quarter
+
+    if quarter_phrase == "last quarter":
+        d = get_reference_date()
+        d.set_month(d.get_month() - 3)
+        month = d.get_month() + 1
+        quarter = ((month - 1) // 3) + 1
+        return d.get_year(), quarter
+
+    return None
+
+
 def get_ordinal_weekday_date(phrase):
     match = re.fullmatch(
         r"(?:the\s+)?(?P<occurrence>first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|last|penultimate)\s+(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(?:in|of)\s+(?P<period>.+)",
@@ -1697,6 +1733,57 @@ def get_ordinal_weekday_date(phrase):
     d.set_month(date_value.month - 1)
     d.set_date(date_value.day)
     return d
+
+
+def get_quarter_phrase_date(phrase):
+    reference = get_reference_date()
+
+    match = re.fullmatch(r"(start|end)\s+of\s+(q[1-4])(?:\s+(\d{4}))?", phrase)
+    if match is not None:
+        quarter_phrase = match.group(2)
+        if match.group(3):
+            quarter_phrase = f"{quarter_phrase} {match.group(3)}"
+        year, quarter = resolve_quarter_year(quarter_phrase)
+        start_month = quarter_start_month(quarter)
+        d = clone_date(reference)
+        d.set_fullyear(year)
+        d.set_month(start_month - 1)
+        d.set_date(1)
+        if match.group(1) == "end":
+            d.set_month(start_month + 2 - 1)
+            last_day = stDate.get_month_length(start_month + 2, year)
+            d.set_date(last_day)
+        return d
+
+    match = re.fullmatch(r"mid\s+(q[1-4])(?:\s+(\d{4}))?", phrase)
+    if match is not None:
+        quarter_phrase = match.group(1)
+        if match.group(2):
+            quarter_phrase = f"{quarter_phrase} {match.group(2)}"
+        year, quarter = resolve_quarter_year(quarter_phrase)
+        start_month = quarter_start_month(quarter)
+        d = clone_date(reference)
+        d.set_fullyear(year)
+        d.set_month(start_month)
+        d.set_date(15)
+        return d
+
+    match = re.fullmatch(r"(first|last)\s+day\s+of\s+(this|next|last)\s+quarter", phrase)
+    if match is not None:
+        year, quarter = resolve_quarter_year(f"{match.group(2)} quarter")
+        start_month = quarter_start_month(quarter)
+        d = clone_date(reference)
+        d.set_fullyear(year)
+        if match.group(1) == "first":
+            d.set_month(start_month - 1)
+            d.set_date(1)
+        else:
+            end_month = start_month + 2
+            d.set_month(end_month - 1)
+            d.set_date(stDate.get_month_length(end_month, year))
+        return d
+
+    return None
 
 
 def is_business_day(date_obj):
@@ -1936,6 +2023,7 @@ def parse_natural_date_strict(date, *args, **kwargs):
 
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
+    quarter_date = get_quarter_phrase_date(phrase)
     ordinal_weekday_date = get_ordinal_weekday_date(phrase)
     business_date = get_business_phrase_date(phrase)
     sleep_date = get_sleep_phrase_date(phrase)
@@ -1950,6 +2038,19 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if holiday_date is not None:
         return attach_parse_metadata(
             apply_timezone(holiday_date, tzinfo, timezone_aware=timezone_aware),
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                normalized_phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+            ),
+        )
+
+    if quarter_date is not None:
+        return attach_parse_metadata(
+            apply_timezone(quarter_date, tzinfo, timezone_aware=timezone_aware),
             build_parse_metadata(
                 raw_text,
                 matched_text or raw_text,
