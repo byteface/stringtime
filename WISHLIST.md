@@ -53,3 +53,10 @@ regional working out high tides etc
 20. phrases are generated from dates
 
 there's a branch where this was started. but needs a lot of rework
+
+
+
+
+todo:
+5 nights time
+12 days prior
