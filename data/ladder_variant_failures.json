@@ -1,0 +1,596 @@
+{
+  "reference": "2020-12-25 17:05:55",
+  "seed_count": 42,
+  "supported_count": 40,
+  "exploratory_count": 2,
+  "results": [
+    {
+      "phrase": "xmas",
+      "family": "ladder_supported",
+      "source_phrase": "xmas_ladder",
+      "expected": "2020-12-25 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-25 17:05:55",
+      "extracted_texts": [
+        "xmas"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "before xmas",
+      "family": "ladder_exploratory",
+      "source_phrase": "xmas_ladder",
+      "expected": null,
+      "direct_supported": false,
+      "direct_actual": null,
+      "extracted_texts": [
+        "xmas"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "a week before xmas",
+      "family": "ladder_supported",
+      "source_phrase": "xmas_ladder",
+      "expected": "2020-12-18 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-18 17:05:55",
+      "extracted_texts": [
+        "a week before xmas"
+      ],
+      "extracted_values": [
+        "2020-12-18 17:05:55"
+      ]
+    },
+    {
+      "phrase": "the week before xmas",
+      "family": "ladder_exploratory",
+      "source_phrase": "xmas_ladder",
+      "expected": null,
+      "direct_supported": false,
+      "direct_actual": null,
+      "extracted_texts": [
+        "xmas"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday before xmas",
+      "family": "ladder_supported",
+      "source_phrase": "xmas_ladder",
+      "expected": "2020-12-18 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-18 17:05:55",
+      "extracted_texts": [
+        "Friday before xmas"
+      ],
+      "extracted_values": [
+        "2020-12-18 17:05:55"
+      ]
+    },
+    {
+      "phrase": "5pm on Friday before xmas",
+      "family": "ladder_supported",
+      "source_phrase": "xmas_ladder",
+      "expected": "2020-12-18 17:00:00",
+      "direct_supported": true,
+      "direct_actual": "2020-12-18 17:00:00",
+      "extracted_texts": [
+        "5pm on Friday before xmas"
+      ],
+      "extracted_values": [
+        "2020-12-18 17:00:00"
+      ]
+    },
+    {
+      "phrase": "palm sunday",
+      "family": "ladder_supported",
+      "source_phrase": "palm_sunday_ladder",
+      "expected": "2020-04-05 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-04-05 17:05:55",
+      "extracted_texts": [
+        "palm sunday"
+      ],
+      "extracted_values": [
+        "2020-04-05 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday after palm sunday",
+      "family": "ladder_supported",
+      "source_phrase": "palm_sunday_ladder",
+      "expected": "2020-04-10 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-04-10 17:05:55",
+      "extracted_texts": [
+        "Friday after palm sunday"
+      ],
+      "extracted_values": [
+        "2020-04-10 17:05:55"
+      ]
+    },
+    {
+      "phrase": "at 4 past 10 on friday after palm sunday",
+      "family": "ladder_supported",
+      "source_phrase": "palm_sunday_ladder",
+      "expected": "2020-04-10 10:04:00",
+      "direct_supported": true,
+      "direct_actual": "2020-04-10 10:04:00",
+      "extracted_texts": [
+        "at 4 past 10 on friday after palm sunday"
+      ],
+      "extracted_values": [
+        "2020-04-10 10:04:00"
+      ]
+    },
+    {
+      "phrase": "full moon",
+      "family": "ladder_supported",
+      "source_phrase": "full_moon_ladder",
+      "expected": "2020-12-29 22:44:26",
+      "direct_supported": true,
+      "direct_actual": "2020-12-29 22:44:26",
+      "extracted_texts": [
+        "full moon"
+      ],
+      "extracted_values": [
+        "2020-12-29 22:44:26"
+      ]
+    },
+    {
+      "phrase": "3 days after full moon",
+      "family": "ladder_supported",
+      "source_phrase": "full_moon_ladder",
+      "expected": "2021-01-01 22:44:26",
+      "direct_supported": true,
+      "direct_actual": "2021-01-01 22:44:26",
+      "extracted_texts": [
+        "3 days after full moon"
+      ],
+      "extracted_values": [
+        "2021-01-01 22:44:26"
+      ]
+    },
+    {
+      "phrase": "at dusk on 3 days after full moon",
+      "family": "ladder_supported",
+      "source_phrase": "full_moon_ladder",
+      "expected": "2021-01-01 17:00:00",
+      "direct_supported": true,
+      "direct_actual": "2021-01-01 17:00:00",
+      "extracted_texts": [
+        "at dusk on 3 days after full moon"
+      ],
+      "extracted_values": [
+        "2021-01-01 17:00:00"
+      ]
+    },
+    {
+      "phrase": "start of Q2",
+      "family": "ladder_supported",
+      "source_phrase": "quarter_ladder",
+      "expected": "2020-04-01 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-04-01 17:05:55",
+      "extracted_texts": [
+        "start of Q2"
+      ],
+      "extracted_values": [
+        "2020-04-01 17:05:55"
+      ]
+    },
+    {
+      "phrase": "2 days before start of Q2",
+      "family": "ladder_supported",
+      "source_phrase": "quarter_ladder",
+      "expected": "2020-03-30 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-03-30 17:05:55",
+      "extracted_texts": [
+        "2 days before start of Q2"
+      ],
+      "extracted_values": [
+        "2020-03-30 17:05:55"
+      ]
+    },
+    {
+      "phrase": "in the evening on 2 days before start of Q2",
+      "family": "ladder_supported",
+      "source_phrase": "quarter_ladder",
+      "expected": "2020-03-30 19:00:00",
+      "direct_supported": true,
+      "direct_actual": "2020-03-30 19:00:00",
+      "extracted_texts": [
+        "in the evening on 2 days before start of Q2"
+      ],
+      "extracted_values": [
+        "2020-03-30 19:00:00"
+      ]
+    },
+    {
+      "phrase": "next summer",
+      "family": "ladder_supported",
+      "source_phrase": "season_ladder",
+      "expected": "2021-06-01 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2021-06-01 17:05:55",
+      "extracted_texts": [
+        "next summer"
+      ],
+      "extracted_values": [
+        "2021-06-01 17:05:55"
+      ]
+    },
+    {
+      "phrase": "3 days after next summer",
+      "family": "ladder_supported",
+      "source_phrase": "season_ladder",
+      "expected": "2021-06-04 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2021-06-04 17:05:55",
+      "extracted_texts": [
+        "3 days after next summer"
+      ],
+      "extracted_values": [
+        "2021-06-04 17:05:55"
+      ]
+    },
+    {
+      "phrase": "in the evening on 3 days after next summer",
+      "family": "ladder_supported",
+      "source_phrase": "season_ladder",
+      "expected": "2021-06-04 19:00:00",
+      "direct_supported": true,
+      "direct_actual": "2021-06-04 19:00:00",
+      "extracted_texts": [
+        "in the evening on 3 days after next summer"
+      ],
+      "extracted_values": [
+        "2021-06-04 19:00:00"
+      ]
+    },
+    {
+      "phrase": "spring equinox",
+      "family": "ladder_supported",
+      "source_phrase": "solstice_ladder",
+      "expected": "2021-03-20 12:00:00",
+      "direct_supported": true,
+      "direct_actual": "2021-03-20 12:00:00",
+      "extracted_texts": [
+        "spring equinox"
+      ],
+      "extracted_values": [
+        "2021-03-20 12:00:00"
+      ]
+    },
+    {
+      "phrase": "Friday after spring equinox",
+      "family": "ladder_supported",
+      "source_phrase": "solstice_ladder",
+      "expected": "2021-03-26 12:00:00",
+      "direct_supported": true,
+      "direct_actual": "2021-03-26 12:00:00",
+      "extracted_texts": [
+        "Friday after spring equinox"
+      ],
+      "extracted_values": [
+        "2021-03-26 12:00:00"
+      ]
+    },
+    {
+      "phrase": "at 4 past 10 on friday after spring equinox",
+      "family": "ladder_supported",
+      "source_phrase": "solstice_ladder",
+      "expected": "2021-03-26 10:04:00",
+      "direct_supported": true,
+      "direct_actual": "2021-03-26 10:04:00",
+      "extracted_texts": [
+        "at 4 past 10 on friday after spring equinox"
+      ],
+      "extracted_values": [
+        "2021-03-26 10:04:00"
+      ]
+    },
+    {
+      "phrase": "fiscal year end",
+      "family": "ladder_supported",
+      "source_phrase": "fiscal_ladder",
+      "expected": "2020-12-31 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-31 17:05:55",
+      "extracted_texts": [
+        "fiscal year end"
+      ],
+      "extracted_values": [
+        "2020-12-31 17:05:55"
+      ]
+    },
+    {
+      "phrase": "the first business day after fiscal year end",
+      "family": "ladder_supported",
+      "source_phrase": "fiscal_ladder",
+      "expected": "2021-01-01 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2021-01-01 17:05:55",
+      "extracted_texts": [
+        "the first business day after fiscal year end"
+      ],
+      "extracted_values": [
+        "2021-01-01 17:05:55"
+      ]
+    },
+    {
+      "phrase": "in the evening on the first business day after fiscal year end",
+      "family": "ladder_supported",
+      "source_phrase": "fiscal_ladder",
+      "expected": "2021-01-01 19:00:00",
+      "direct_supported": true,
+      "direct_actual": "2021-01-01 19:00:00",
+      "extracted_texts": [
+        "in the evening on the first business day after fiscal year end"
+      ],
+      "extracted_values": [
+        "2021-01-01 19:00:00"
+      ]
+    },
+    {
+      "phrase": "start of week",
+      "family": "ladder_supported",
+      "source_phrase": "recurring_week_ladder",
+      "expected": "2020-12-21 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-21 17:05:55",
+      "extracted_texts": [
+        "start of week"
+      ],
+      "extracted_values": [
+        "2020-12-21 17:05:55"
+      ]
+    },
+    {
+      "phrase": "3 days after start of week",
+      "family": "ladder_supported",
+      "source_phrase": "recurring_week_ladder",
+      "expected": "2020-12-24 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-24 17:05:55",
+      "extracted_texts": [
+        "3 days after start of week"
+      ],
+      "extracted_values": [
+        "2020-12-24 17:05:55"
+      ]
+    },
+    {
+      "phrase": "noon on 3 days after start of week",
+      "family": "ladder_supported",
+      "source_phrase": "recurring_week_ladder",
+      "expected": "2020-12-24 12:00:00",
+      "direct_supported": true,
+      "direct_actual": "2020-12-24 12:00:00",
+      "extracted_texts": [
+        "noon on 3 days after start of week"
+      ],
+      "extracted_values": [
+        "2020-12-24 12:00:00"
+      ]
+    },
+    {
+      "phrase": "the first Monday in May",
+      "family": "ladder_supported",
+      "source_phrase": "ordinal_weekday_ladder",
+      "expected": "2020-05-04 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-05-04 17:05:55",
+      "extracted_texts": [
+        "the first Monday in May"
+      ],
+      "extracted_values": [
+        "2020-05-04 17:05:55"
+      ]
+    },
+    {
+      "phrase": "2 days after the first Monday in May",
+      "family": "ladder_supported",
+      "source_phrase": "ordinal_weekday_ladder",
+      "expected": "2020-05-06 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-05-06 17:05:55",
+      "extracted_texts": [
+        "2 days after the first Monday in May"
+      ],
+      "extracted_values": [
+        "2020-05-06 17:05:55"
+      ]
+    },
+    {
+      "phrase": "noon on 2 days after the first Monday in May",
+      "family": "ladder_supported",
+      "source_phrase": "ordinal_weekday_ladder",
+      "expected": "2020-05-06 12:00:00",
+      "direct_supported": true,
+      "direct_actual": "2020-05-06 12:00:00",
+      "extracted_texts": [
+        "noon on 2 days after the first Monday in May"
+      ],
+      "extracted_values": [
+        "2020-05-06 12:00:00"
+      ]
+    },
+    {
+      "phrase": "the hundredth day of the year",
+      "family": "ladder_supported",
+      "source_phrase": "day_of_year_ladder",
+      "expected": "2020-04-09 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-04-09 17:05:55",
+      "extracted_texts": [
+        "the hundredth day of the year"
+      ],
+      "extracted_values": [
+        "2020-04-09 17:05:55"
+      ]
+    },
+    {
+      "phrase": "the first business day after the hundredth day of the year",
+      "family": "ladder_supported",
+      "source_phrase": "day_of_year_ladder",
+      "expected": "2020-04-10 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-04-10 17:05:55",
+      "extracted_texts": [
+        "the first business day after the hundredth day of the year"
+      ],
+      "extracted_values": [
+        "2020-04-10 17:05:55"
+      ]
+    },
+    {
+      "phrase": "at dusk on the first business day after the hundredth day of the year",
+      "family": "ladder_supported",
+      "source_phrase": "day_of_year_ladder",
+      "expected": "2020-04-10 19:35:00",
+      "direct_supported": true,
+      "direct_actual": "2020-04-10 19:35:00",
+      "extracted_texts": [
+        "at dusk on the first business day after the hundredth day of the year"
+      ],
+      "extracted_values": [
+        "2020-04-10 19:35:00"
+      ]
+    },
+    {
+      "phrase": "the 2nd week of january",
+      "family": "ladder_supported",
+      "source_phrase": "week_period_ladder",
+      "expected": "2021-01-08 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2021-01-08 17:05:55",
+      "extracted_texts": [
+        "the 2nd week of january"
+      ],
+      "extracted_values": [
+        "2021-01-08 17:05:55"
+      ]
+    },
+    {
+      "phrase": "2 days before the 2nd week of january",
+      "family": "ladder_supported",
+      "source_phrase": "week_period_ladder",
+      "expected": "2021-01-06 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2021-01-06 17:05:55",
+      "extracted_texts": [
+        "2 days before the 2nd week of january"
+      ],
+      "extracted_values": [
+        "2021-01-06 17:05:55"
+      ]
+    },
+    {
+      "phrase": "in the evening on 2 days before the 2nd week of january",
+      "family": "ladder_supported",
+      "source_phrase": "week_period_ladder",
+      "expected": "2021-01-06 19:00:00",
+      "direct_supported": true,
+      "direct_actual": "2021-01-06 19:00:00",
+      "extracted_texts": [
+        "in the evening on 2 days before the 2nd week of january"
+      ],
+      "extracted_values": [
+        "2021-01-06 19:00:00"
+      ]
+    },
+    {
+      "phrase": "the twelfth month",
+      "family": "ladder_supported",
+      "source_phrase": "month_anchor_ladder",
+      "expected": "2021-12-01 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2021-12-01 17:05:55",
+      "extracted_texts": [
+        "the twelfth month"
+      ],
+      "extracted_values": [
+        "2021-12-01 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday before the twelfth month",
+      "family": "ladder_supported",
+      "source_phrase": "month_anchor_ladder",
+      "expected": "2021-11-26 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2021-11-26 17:05:55",
+      "extracted_texts": [
+        "Friday before the twelfth month"
+      ],
+      "extracted_values": [
+        "2021-11-26 17:05:55"
+      ]
+    },
+    {
+      "phrase": "5pm on Friday before the twelfth month",
+      "family": "ladder_supported",
+      "source_phrase": "month_anchor_ladder",
+      "expected": "2021-11-26 17:00:00",
+      "direct_supported": true,
+      "direct_actual": "2021-11-26 17:00:00",
+      "extracted_texts": [
+        "5pm on Friday before the twelfth month"
+      ],
+      "extracted_values": [
+        "2021-11-26 17:00:00"
+      ]
+    },
+    {
+      "phrase": "end of month",
+      "family": "ladder_supported",
+      "source_phrase": "boundary_ladder",
+      "expected": "2020-12-31 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-31 17:05:55",
+      "extracted_texts": [
+        "end of month"
+      ],
+      "extracted_values": [
+        "2020-12-31 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday before end of month",
+      "family": "ladder_supported",
+      "source_phrase": "boundary_ladder",
+      "expected": "2020-12-25 17:05:55",
+      "direct_supported": true,
+      "direct_actual": "2020-12-25 17:05:55",
+      "extracted_texts": [
+        "Friday before end of month"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "5pm on Friday before end of month",
+      "family": "ladder_supported",
+      "source_phrase": "boundary_ladder",
+      "expected": "2020-12-25 17:00:00",
+      "direct_supported": true,
+      "direct_actual": "2020-12-25 17:00:00",
+      "extracted_texts": [
+        "5pm on Friday before end of month"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:00:00"
+      ]
+    }
+  ]
+}

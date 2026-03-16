@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from stringtime.variant_sweeps import DEFAULT_REFERENCE, write_range_glue_failures
+
+
+def main():
+    output_path = Path("data/range_variant_failures.json")
+    result = write_range_glue_failures(output_path, reference=DEFAULT_REFERENCE)
+    print(f"Reference: {result['reference']}")
+    print(f"Seeds: {result['seed_count']}")
+    print(f"Supported: {result['supported_count']}")
+    print(f"Unsupported: {result['unsupported_count']}")
+    print(f"Written: {output_path}")
+
+
+if __name__ == "__main__":
+    main()

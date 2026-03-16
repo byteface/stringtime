@@ -1,0 +1,278 @@
+:root {
+  --paper: #f6f1e8;
+  --ink: #1c1f1c;
+  --accent: #136f63;
+  --accent-soft: #d8efe8;
+  --panel: #fffdf8;
+  --line: #d9cfbf;
+  --warm: #c26d3d;
+  --shadow: 0 14px 40px rgba(28, 31, 28, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(194, 109, 61, 0.18), transparent 28%),
+    linear-gradient(180deg, #fbf7ef, var(--paper));
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.hero,
+.workspace {
+  display: grid;
+  gap: 20px;
+}
+
+.hero {
+  grid-template-columns: 1.2fr 1fr;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--warm);
+  margin-bottom: 8px;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 0.95;
+  max-width: 10ch;
+}
+
+.intro {
+  max-width: 58ch;
+  line-height: 1.55;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: start;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.8);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid rgba(217, 207, 191, 0.8);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.workspace {
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 0.95fr);
+  margin-bottom: 20px;
+}
+
+.controls,
+.visual,
+.result-panel {
+  padding: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+}
+
+.row .field {
+  flex: 1;
+}
+
+.inline-field {
+  display: grid;
+  gap: 10px;
+}
+
+.toggle-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #4c524d;
+}
+
+.toggle-inline input {
+  width: auto;
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+input:disabled {
+  background: #f3eee5;
+  color: #7d7a73;
+}
+
+.toggles {
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+.summary {
+  margin-top: 12px;
+  min-height: 1.2em;
+  color: var(--warm);
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.calendar-header button {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+}
+
+.weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.weekdays {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #5f645f;
+}
+
+.day {
+  min-height: 58px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #faf6ef;
+  border: 1px solid rgba(217, 207, 191, 0.6);
+}
+
+.day.filler {
+  background: transparent;
+  border: none;
+}
+
+.day.today {
+  outline: 1px dashed var(--warm);
+}
+
+.day.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.selected-date {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  line-height: 1.5;
+}
+
+.logs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  max-height: 420px;
+  overflow: auto;
+}
+
+@media (max-width: 920px) {
+  .hero,
+  .workspace,
+  .logs {
+    grid-template-columns: 1fr;
+  }
+
+  .row,
+  .actions {
+    flex-direction: column;
+  }
+}

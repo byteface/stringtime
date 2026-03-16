@@ -1,0 +1,242 @@
+{
+  "reference": "2020-12-25 17:05:55",
+  "seed_count": 18,
+  "supported_count": 0,
+  "unsupported_count": 18,
+  "results": [
+    {
+      "phrase": "between noon and 2pm",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "noon",
+        "2pm"
+      ],
+      "extracted_values": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 14:00:00"
+      ]
+    },
+    {
+      "phrase": "between midnight and noon tomorrow",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "midnight",
+        "noon tomorrow"
+      ],
+      "extracted_values": [
+        "2020-12-25 00:00:00",
+        "2020-12-26 12:00:00"
+      ]
+    },
+    {
+      "phrase": "noon to 2pm",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "noon",
+        "2pm"
+      ],
+      "extracted_values": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 14:00:00"
+      ]
+    },
+    {
+      "phrase": "noon until 2pm",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "noon",
+        "2pm"
+      ],
+      "extracted_values": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 14:00:00"
+      ]
+    },
+    {
+      "phrase": "noon through 2pm",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "noon",
+        "2pm"
+      ],
+      "extracted_values": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 14:00:00"
+      ]
+    },
+    {
+      "phrase": "noon thru 2pm",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "noon",
+        "2pm"
+      ],
+      "extracted_values": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 14:00:00"
+      ]
+    },
+    {
+      "phrase": "from Tuesday to Friday",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "from Tuesday",
+        "Friday"
+      ],
+      "extracted_values": [
+        "2020-12-29 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "from next Wednesday to Friday",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "from next Wednesday",
+        "Friday"
+      ],
+      "extracted_values": [
+        "2020-12-30 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "between tomorrow and Friday",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "tomorrow",
+        "Friday"
+      ],
+      "extracted_values": [
+        "2020-12-26 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday through Monday",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "Friday",
+        "Monday"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55",
+        "2020-12-28 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday till Monday",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "Friday",
+        "Monday"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55",
+        "2020-12-28 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday til Monday",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "Friday",
+        "Monday"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55",
+        "2020-12-28 17:05:55"
+      ]
+    },
+    {
+      "phrase": "Friday until Monday",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "Friday",
+        "Monday"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55",
+        "2020-12-28 17:05:55"
+      ]
+    },
+    {
+      "phrase": "through the weekend",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [],
+      "extracted_values": []
+    },
+    {
+      "phrase": "until christmas",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "christmas"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "til xmas",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "xmas"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "till xmas",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "xmas"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "phrase": "between lunch and dinner",
+      "family": "range",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [],
+      "extracted_values": []
+    }
+  ]
+}

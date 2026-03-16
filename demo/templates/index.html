@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>stringtime demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Local Demo</p>
+          <h1>See a phrase land on a calendar</h1>
+          <p class="intro">
+            Type a phrase, extract dates from a sentence, or reverse a datetime into a known phrase.
+            The right side jumps to the resolved date and the log shows the raw parser output.
+          </p>
+        </div>
+        <div class="chips">
+          {% for example in examples %}
+          <button class="chip" type="button" data-example="{{ example }}">{{ example }}</button>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="workspace">
+        <form id="demo-form" class="panel controls">
+          <label class="field">
+            <span>Phrase or datetime</span>
+            <input id="phrase" name="phrase" type="text" value="tomorrow night" autocomplete="off">
+          </label>
+
+          <div class="row">
+            <label class="field">
+              <span>Mode</span>
+              <select id="mode" name="mode">
+                <option value="parse">Parse</option>
+                <option value="extract">Extract</option>
+                <option value="reverse">Reverse</option>
+                <option value="nearest">Nearest reverse</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Relative to</span>
+              <div class="inline-field">
+                <input id="relative-to" name="relative_to" type="text" value="2020-12-25 17:05:55" autocomplete="off">
+                <label class="toggle-inline">
+                  <input id="use-relative-to" type="checkbox" checked>
+                  <span>Use custom reference</span>
+                </label>
+              </div>
+            </label>
+          </div>
+
+          <div class="row toggles">
+            <label><input id="all" type="checkbox"> Return all candidates</label>
+            <label><input id="timezone-aware" type="checkbox"> Keep timezone-aware output</label>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit">Run stringtime</button>
+            <button class="secondary" type="button" id="reset-log">Clear log</button>
+          </div>
+
+          <div id="summary" class="summary">Ready.</div>
+        </form>
+
+        <section class="panel visual">
+          <div class="calendar-header">
+            <button type="button" id="prev-month" aria-label="Previous month">←</button>
+            <h2 id="calendar-title">Calendar</h2>
+            <button type="button" id="next-month" aria-label="Next month">→</button>
+          </div>
+          <div class="weekdays" id="weekdays"></div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+          <div id="selected-date" class="selected-date">No date selected yet.</div>
+        </section>
+      </section>
+
+      <section class="workspace logs">
+        <section class="panel result-panel">
+          <h2>Result</h2>
+          <pre id="result-log">Run the demo to see structured output.</pre>
+        </section>
+        <section class="panel result-panel">
+          <h2>Metadata</h2>
+          <pre id="metadata-log">Run the demo to inspect parse metadata.</pre>
+        </section>
+        <section class="panel result-panel">
+          <h2>Activity log</h2>
+          <pre id="activity-log">Waiting for input.</pre>
+        </section>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

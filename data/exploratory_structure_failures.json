@@ -1,0 +1,157 @@
+{
+  "reference": "2020-12-25 17:05:55",
+  "seed_count": 11,
+  "exact_count": 8,
+  "non_exact_count": 3,
+  "results": [
+    {
+      "phrase": "december 2027 @ 5pm",
+      "family": "mixed_precision_exploratory",
+      "expectation": "incomplete_month_year_time",
+      "strict_supported": true,
+      "strict_actual": "2027-12-01 17:00:00",
+      "extracted_texts": [
+        "december 2027 @ 5pm"
+      ],
+      "extracted_values": [
+        "2027-12-01 17:00:00"
+      ]
+    },
+    {
+      "phrase": "on friday in june at 5 past 10",
+      "family": "mixed_precision_exploratory",
+      "expectation": "ambiguous_weekday_in_month",
+      "strict_supported": true,
+      "strict_actual": "2021-06-04 10:05:00",
+      "extracted_texts": [
+        "on friday in june at 5 past 10"
+      ],
+      "extracted_values": [
+        "2021-06-04 10:05:00"
+      ]
+    },
+    {
+      "phrase": "5 past 10 on friday in june",
+      "family": "mixed_precision_exploratory",
+      "expectation": "ambiguous_weekday_in_month",
+      "strict_supported": true,
+      "strict_actual": "2021-06-04 10:05:00",
+      "extracted_texts": [
+        "on friday in june"
+      ],
+      "extracted_values": [
+        "2021-06-04 17:05:55"
+      ]
+    },
+    {
+      "phrase": "friday in june at 5 past 10",
+      "family": "mixed_precision_exploratory",
+      "expectation": "ambiguous_weekday_in_month",
+      "strict_supported": true,
+      "strict_actual": "2021-06-04 10:05:00",
+      "extracted_texts": [
+        "friday in june at 5 past 10"
+      ],
+      "extracted_values": [
+        "2021-06-04 10:05:00"
+      ]
+    },
+    {
+      "phrase": "5 past 10 friday in june",
+      "family": "mixed_precision_exploratory",
+      "expectation": "ambiguous_weekday_in_month",
+      "strict_supported": true,
+      "strict_actual": "2021-06-04 10:05:00",
+      "extracted_texts": [
+        "10 friday in june"
+      ],
+      "extracted_values": [
+        "2021-06-01 10:00:00"
+      ]
+    },
+    {
+      "phrase": "in the evening the first Monday in May",
+      "family": "connector_drift_exploratory",
+      "expectation": "missing_connector",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "in the evening",
+        "the first Monday in May"
+      ],
+      "extracted_values": [
+        "2020-12-25 19:00:00",
+        "2020-05-04 17:05:55"
+      ]
+    },
+    {
+      "phrase": "5 past 10 at the first Monday in May",
+      "family": "connector_drift_exploratory",
+      "expectation": "awkward_connector",
+      "strict_supported": true,
+      "strict_actual": "2021-05-01 10:05:00",
+      "extracted_texts": [
+        "at the first Monday in May"
+      ],
+      "extracted_values": [
+        "2021-05-01 17:05:55"
+      ]
+    },
+    {
+      "phrase": "ten past on the 14th",
+      "family": "incomplete_clock_exploratory",
+      "expectation": "missing_clock_target",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "ten",
+        "on the 14th"
+      ],
+      "extracted_values": [
+        "2020-12-25 10:00:00",
+        "2020-12-14 17:05:55"
+      ]
+    },
+    {
+      "phrase": "friday and the 2nd of december 2023",
+      "family": "contradiction_exploratory",
+      "expectation": "weekday_date_conflict",
+      "strict_supported": false,
+      "strict_actual": null,
+      "extracted_texts": [
+        "friday",
+        "the 2nd of december 2023"
+      ],
+      "extracted_values": [
+        "2020-12-25 17:05:55",
+        "2023-12-02 17:05:55"
+      ]
+    },
+    {
+      "phrase": "monday the 1st of december 2023 at noon",
+      "family": "contradiction_exploratory",
+      "expectation": "weekday_date_conflict",
+      "strict_supported": true,
+      "strict_actual": "2023-12-04 12:00:00",
+      "extracted_texts": [
+        "monday the 1st of december 2023 at noon"
+      ],
+      "extracted_values": [
+        "2023-12-04 12:00:00"
+      ]
+    },
+    {
+      "phrase": "4 hours before midnight in december 2027",
+      "family": "incomplete_anchor_exploratory",
+      "expectation": "missing_day_anchor",
+      "strict_supported": true,
+      "strict_actual": "2027-11-30 20:00:00",
+      "extracted_texts": [
+        "4 hours before midnight in december 2027"
+      ],
+      "extracted_values": [
+        "2027-11-30 20:00:00"
+      ]
+    }
+  ]
+}
