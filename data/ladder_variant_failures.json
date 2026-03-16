@@ -51,13 +51,13 @@
       "family": "ladder_exploratory",
       "source_phrase": "xmas_ladder",
       "expected": null,
-      "direct_supported": false,
-      "direct_actual": null,
+      "direct_supported": true,
+      "direct_actual": "2020-12-18 17:05:55",
       "extracted_texts": [
-        "xmas"
+        "week before xmas"
       ],
       "extracted_values": [
-        "2020-12-25 17:05:55"
+        "2020-12-18 17:05:55"
       ]
     },
     {

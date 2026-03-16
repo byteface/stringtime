@@ -1,8 +1,8 @@
 {
   "reference": "2020-12-25 17:05:55",
   "seed_count": 11,
-  "exact_count": 8,
-  "non_exact_count": 3,
+  "exact_count": 5,
+  "non_exact_count": 6,
   "results": [
     {
       "phrase": "december 2027 @ 5pm",
@@ -21,13 +21,15 @@
       "phrase": "on friday in june at 5 past 10",
       "family": "mixed_precision_exploratory",
       "expectation": "ambiguous_weekday_in_month",
-      "strict_supported": true,
-      "strict_actual": "2021-06-04 10:05:00",
+      "strict_supported": false,
+      "strict_actual": null,
       "extracted_texts": [
-        "on friday in june at 5 past 10"
+        "on friday in june",
+        "at 5 past 10"
       ],
       "extracted_values": [
-        "2021-06-04 10:05:00"
+        "2021-06-04 17:05:55",
+        "2020-12-25 10:05:00"
       ]
     },
     {
@@ -47,13 +49,15 @@
       "phrase": "friday in june at 5 past 10",
       "family": "mixed_precision_exploratory",
       "expectation": "ambiguous_weekday_in_month",
-      "strict_supported": true,
-      "strict_actual": "2021-06-04 10:05:00",
+      "strict_supported": false,
+      "strict_actual": null,
       "extracted_texts": [
-        "friday in june at 5 past 10"
+        "friday in june",
+        "at 5 past 10"
       ],
       "extracted_values": [
-        "2021-06-04 10:05:00"
+        "2021-06-04 17:05:55",
+        "2020-12-25 10:05:00"
       ]
     },
     {
@@ -66,7 +70,7 @@
         "10 friday in june"
       ],
       "extracted_values": [
-        "2021-06-01 10:00:00"
+        "2021-06-04 10:00:00"
       ]
     },
     {
@@ -88,13 +92,13 @@
       "phrase": "5 past 10 at the first Monday in May",
       "family": "connector_drift_exploratory",
       "expectation": "awkward_connector",
-      "strict_supported": true,
-      "strict_actual": "2021-05-01 10:05:00",
+      "strict_supported": false,
+      "strict_actual": null,
       "extracted_texts": [
-        "at the first Monday in May"
+        "the first Monday in May"
       ],
       "extracted_values": [
-        "2021-05-01 17:05:55"
+        "2020-05-04 17:05:55"
       ]
     },
     {

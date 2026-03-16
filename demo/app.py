@@ -164,6 +164,15 @@ def _month_number_from_text(text):
     return months.get(lowered)
 
 
+def _is_clock_like_text(text):
+    lowered = text.lower().strip()
+    return bool(
+        re.fullmatch(r"@?\d{1,2}(?::\d{2})?(?::\d{2})?\s?(?:am|pm)?", lowered)
+        or re.fullmatch(r"(?:about|around)\s+\d{1,2}(?::\d{2})?ish|\d{1,2}(?::\d{2})?ish", lowered)
+        or re.search(r"\b(?:am|pm|noon|midnight|midday|morning|afternoon|evening|night|past|to|quarter|half)\b", lowered)
+    )
+
+
 def _parse_demo_clock_chunk(chunk, options):
     lowered = chunk.lower().strip()
     match = re.fullmatch(
@@ -249,18 +258,33 @@ def _parse_demo_component_chunk(chunk, options):
             },
         }
 
-    clock_date = _parse_demo_clock_chunk(normalized, options)
-    if clock_date is None:
-        clock_date = parse_natural_date_strict(normalized.lower(), **options)
-    if clock_date is None:
+    parsed_clock = _parse_demo_clock_chunk(normalized, options)
+    parsed_date = parse_natural_date_strict(normalized.lower(), **options)
+    if parsed_clock is None and parsed_date is None:
         return None
+
+    if parsed_clock is not None:
+        return {
+            "text": normalized,
+            "kind": "clock_phrase",
+            "date": datetime_to_payload(parsed_clock),
+        }
+
+    payload = date_to_payload(parsed_date)
+    metadata = payload.get("metadata") or {}
+    granularity = metadata.get("representative_granularity")
+    kind = "date_fragment"
+    if granularity == "year":
+        kind = "year"
+    elif granularity == "month":
+        kind = "month"
+    elif _is_clock_like_text(normalized):
+        kind = "clock_phrase"
 
     return {
         "text": normalized,
-        "kind": "clock_phrase",
-        "date": datetime_to_payload(clock_date)
-        if isinstance(clock_date, datetime)
-        else date_to_payload(clock_date),
+        "kind": kind,
+        "date": payload,
     }
 
 
@@ -316,6 +340,38 @@ def _apply_time(dt, time_payload):
     )
 
 
+def _resolve_component_year(component):
+    text = component["text"].lower()
+    if component["kind"] == "year":
+        return component["date"]["year"]
+    if re.fullmatch(r"\d{4}", text):
+        return int(text)
+    if re.search(r"\b(?:last|next|this)\s+year\b", text):
+        return component["date"]["year"]
+    return None
+
+
+def _choose_exact_day_component(components):
+    def score(component):
+        text = component["text"].lower()
+        metadata = component["date"]["metadata"] or {}
+        granularity = metadata.get("representative_granularity")
+        if re.search(r"\b(today|tomorrow|yesterday)\b", text):
+            return 3
+        if granularity != "day":
+            return -1
+        if _weekday_index_from_text(text) is not None:
+            return -1
+        if re.search(r"\b\d{1,2}(?:st|nd|rd|th)\b|\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\b", text):
+            return 4
+        return 1
+
+    ranked = sorted(components, key=score, reverse=True)
+    if not ranked or score(ranked[0]) < 0:
+        return None
+    return ranked[0]
+
+
 def build_aggregation_suggestion(phrase, options):
     matches = extract_dates(phrase, **options)
     if not matches:
@@ -368,7 +424,7 @@ def build_aggregation_suggestion(phrase, options):
         ),
         None,
     )
-    year_component = next((component for component in components if component["kind"] == "year"), None)
+    year_component = next((component for component in components if _resolve_component_year(component) is not None), None)
     weekday_component = next(
         (
             component
@@ -379,16 +435,7 @@ def build_aggregation_suggestion(phrase, options):
         ),
         None,
     )
-    exact_day_component = next(
-        (
-            component
-            for component in components
-            if component["date"]["metadata"]
-            and component["date"]["metadata"].get("representative_granularity") == "day"
-            and _weekday_index_from_text(component["text"]) is None
-        ),
-        None,
-    )
+    exact_day_component = _choose_exact_day_component(components)
 
     if exact_day_component and time_component:
         base_payload = exact_day_component["date"]
@@ -406,6 +453,37 @@ def build_aggregation_suggestion(phrase, options):
             "status": "suggested",
             "message": "Aggregated extracted parts into a suggested datetime.",
             "consumed_parts": [time_component["text"], exact_day_component["text"]],
+            "components": components,
+            "candidate_dates": [],
+            "suggested_date": datetime_to_payload(dt),
+        }
+
+    if month_component and exact_day_component:
+        month_payload = month_component["date"]
+        day_payload = exact_day_component["date"]
+        year = _resolve_component_year(year_component) if year_component is not None else month_payload["year"]
+        dt = datetime(
+            year,
+            month_payload["month"],
+            day_payload["day"],
+            0,
+            0,
+            0,
+        )
+        if time_component is not None:
+            dt = _apply_time(dt, time_component["date"])
+
+        parts = [exact_day_component["text"], month_component["text"]]
+        if year_component is not None:
+            parts.insert(0, year_component["text"])
+        if time_component is not None:
+            parts.insert(0, time_component["text"])
+
+        return {
+            "used": True,
+            "status": "suggested",
+            "message": "Aggregated extracted parts into a suggested date.",
+            "consumed_parts": parts,
             "components": components,
             "candidate_dates": [],
             "suggested_date": datetime_to_payload(dt),

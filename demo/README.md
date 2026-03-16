@@ -39,3 +39,10 @@ The metadata panel is useful for seeing things like:
 
 It will also surface sentinel values like `Date("forever")`, which report
 `semantic_kind="infinity"` and `representative_granularity="unbounded"`.
+
+
+# aggregated answer.
+
+if the demo can't fully parse a date it will try to aggregate an answer
+
+TODO - explain how this works

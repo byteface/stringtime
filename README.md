@@ -5,7 +5,10 @@
 [![Python version](https://img.shields.io/pypi/pyversions/stringtime.svg?style=flat)](https://img.shields.io/pypi/pyversions/stringtime.svg?style=flat)
 [![Python package](https://github.com/byteface/stringtime/actions/workflows/python-package.yml/badge.svg?branch=master)](https://github.com/byteface/stringtime/actions/workflows/python-package.yml)
 
-A grammar for deriving Date objects from phrases.
+A grammar for deriving `Date` objects from natural-language phrases.
+
+Use the examples below as a sample of the kinds of phrasing supported, not as a
+complete list of every accepted variation.
 
 ## Usage
 
@@ -124,126 +127,39 @@ The demo gives you:
 
 ## Usage and API
 
-Here's a list of example phrases that can be used...
+`stringtime` is not limited to one narrow phrase style. It handles a mix of:
+
+- relative offsets: `an hour from now`, `3 weeks ago`, `10 minutes hence`
+- weekdays and ordinals: `Friday`, `the first Monday in May`, `the penultimate Wednesday of the month`
+- times and spoken clocks: `7:15pm`, `quarter past 5`, `10 seconds to midnight`
+- combined date/time forms: `2pm september 1st 2029`, `at 5 pm on Wednesday`
+- business and boundary phrases: `end of month`, `end of play`, `the first business day after fiscal year end`
+- seasonal, holiday, solar, and lunar anchors: `next summer`, `xmas eve`, `dusk on Friday`, `the next full moon`
+- recurring and sentinel phrases: `every Wednesday`, `forever`
+
+A few quick examples:
 
 ```bash
 "an hour from now"
-"1 hour from now"
-"1 hour ago"
-"Today"
-"Yesterday"
-"Tomorrow"
 "Tuesday"
-"On Wednesday"
-"In a minute"
-"In an hour"
-"20hrs from now"
-"In a day/week/month/year"
-"In 2 years"
-"20mins in the future"
-"20mins in the past"
-"In 15 minutes"
-"5 hours from now"
-"20 minutes hence"
-"10 minutes ago"
-"3 business days from now"
-"3 more sleeps"
-"10 sleeps til xmas"
-"next working day"
-"chinese dentist"
-"cowboy time"
-"when the clock strikes 6"
 "quarter past 5"
-"half past 5"
-"quarter to 6"
 "today at noon"
-"today at midnight"
-"tomorrow noon"
-"tomorrow midnight"
-"midday"
-"noon tomorrow"
-"midnight on Friday"
 "the first Monday in May"
-"the 2nd Tuesday of next month"
-"the last Friday in June"
-"third Thursday of 2026"
-"the penultimate Wednesday of the month"
-"start of Q2"
-"end of Q4"
-"mid Q1 2027"
-"first day of next quarter"
-"last day of this quarter"
 "end of business tomorrow"
-"end of play"
-"EOP"
-"first thing in the morning"
-"first thing"
-"in the morning"
-"tomorrow night"
-"2moro night"
-"Friday afternoon"
-"lunchtime tomorrow"
-"this evening"
+"the last Friday in June"
 "next Tuesday evening"
-"the Wednesday after next"
-"mid-morning"
-"early in the morning"
-"half five"
-"in a fortnight"
-"a fortnight ago"
-"bank holiday"
-"next bank holiday"
-"end of month"
-"start of next quarter"
-"close of year"
-"5 days from tomorrow"
 "3 days from next Wednesday"
-"2 days before next Wednesday"
-"an hour after 3 oclock"
-"15 minutes before midnight"
-"10 hours and 30 minutes from now"
-"In a minute and 10 seconds"
-"In a minute and a half"
-"an hour and a half ago"
-"two and a half hours"
-"1.5 days"
-"a quarter of an hour"
-"three quarters of an hour"
-"2.5 weeks"
-"24 hours ago"
-"3 weeks ago"
-"30 seconds ago"
-"1 hour before now"
-"1 hour after now"
-"1 hour ago"
-"This Friday at 1"
-"Last Wednesday at 5"
-"Next Monday @ 7:15"
-"7:15 Next Monday"
-"Next Monday @ 7:15pm"
-"Friday at 5:30"
-"at 5 pm on Wednesday"
-"at 5:52 pm"
-# dates without a month specified will use the current month
-"12th"
-"twenty first"
-"The 8th"
-"On the 14th"
-"January 14th"
-"April the 1st"
-"third of May"
-"The first of September"
-"The 12th of last month"
-"next month on the first"
-"last month on the 16th at 2am"
+"2pm september 1st 2029"
 "tomorrow at 5pm UTC"
-"next Friday 9am PST"
-"tomorrow at 5pm UTC+2"
-"32nd", # would move into the next month
-"The 18th of March"
+"the next full moon"
+"every Wednesday"
+"forever"
 ```
 
-To see what else is underway check the tests/test_stringtime.py file.
+For a broader real-world sample, look through:
+
+- [tests/test_stringtime.py](/Users/byteface/Desktop/projects/stringtime/tests/test_stringtime.py)
+- [demo/README.md](/Users/byteface/Desktop/projects/stringtime/demo/README.md)
 
 For longer text, use `extract=True` or call `extract_dates(text)` directly to get
 all matching spans back with their parsed dates.

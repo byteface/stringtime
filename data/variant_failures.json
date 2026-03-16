@@ -1,8 +1,604 @@
 {
   "reference": "2020-12-25 17:05:55",
-  "seed_count": 219,
-  "variant_count": 960,
-  "success_count": 960,
-  "failure_count": 0,
-  "failures": []
+  "seed_count": 228,
+  "variant_count": 1155,
+  "success_count": 1070,
+  "failure_count": 85,
+  "failures": [
+    {
+      "phrase": "December 1st @ 5 to 6pm",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "at 5 to 6pm on December 1st",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "December 1st  @  5 to 6pm",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "December 1st  at  5 to 6pm",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "December 1st at 5 to 6pm",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "December 1st @ 5 to 6 pm",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "at 5 to 6 pm on December 1st",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "December 1st @ five to 6pm",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "at five to 6pm on December 1st",
+      "expected": "2020-12-01 17:55:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ 5 to 6pm",
+      "actual": "2021-12-01 17:55:00"
+    },
+    {
+      "phrase": "December 1st @ twenty to 6pm",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "at twenty to 6pm on December 1st",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "December 1st  @  twenty to 6pm",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "December 1st  at  twenty to 6pm",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "December 1st at twenty to 6pm",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "December 1st @ twenty to 6 pm",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "at twenty to 6 pm on December 1st",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "December 1st @ 20 to 6pm",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "at 20 to 6pm on December 1st",
+      "expected": "2020-12-01 17:40:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty to 6pm",
+      "actual": "2021-12-01 17:40:00"
+    },
+    {
+      "phrase": "December 1st @ twenty five to 7pm",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2020-12-01 18:55:00"
+    },
+    {
+      "phrase": "at twenty five to 7pm on December 1st",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2021-12-01 18:35:00"
+    },
+    {
+      "phrase": "December 1st  @  twenty five to 7pm",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2020-12-01 18:55:00"
+    },
+    {
+      "phrase": "December 1st  at  twenty five to 7pm",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2020-12-01 18:55:00"
+    },
+    {
+      "phrase": "December 1st at twenty five to 7pm",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2020-12-01 18:55:00"
+    },
+    {
+      "phrase": "December 1st @ twenty five to 7 pm",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2020-12-01 18:55:00"
+    },
+    {
+      "phrase": "at twenty five to 7 pm on December 1st",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2021-12-01 18:35:00"
+    },
+    {
+      "phrase": "December 1st @ twenty-five to 7pm",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2021-12-01 18:35:00"
+    },
+    {
+      "phrase": "at twenty-five to 7pm on December 1st",
+      "expected": "2020-12-01 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ twenty five to 7pm",
+      "actual": "2021-12-01 18:35:00"
+    },
+    {
+      "phrase": "December 1st @ quarter to 6pm",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "at quarter to 6pm on December 1st",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "December 1st  @  quarter to 6pm",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "December 1st  at  quarter to 6pm",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "December 1st at quarter to 6pm",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "December 1st @ quarter to 6 pm",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "at quarter to 6 pm on December 1st",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "at a quarter to 6pm on December 1st",
+      "expected": "2020-12-01 17:45:00",
+      "family": "clock_phrase",
+      "source_phrase": "December 1st @ quarter to 6pm",
+      "actual": "2021-12-01 17:45:00"
+    },
+    {
+      "phrase": "next monday at twenty five to 7pm",
+      "expected": "2020-12-28 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "next monday at twenty five to 7pm",
+      "actual": "2020-12-28 18:55:00"
+    },
+    {
+      "phrase": "next monday @ twenty five to 7pm",
+      "expected": "2020-12-28 18:35:00",
+      "family": "clock_phrase",
+      "source_phrase": "next monday at twenty five to 7pm",
+      "actual": "2020-12-28 18:55:00"
+    },
+    {
+      "phrase": "at 9am PST on next Friday",
+      "expected": "2021-01-01 09:00:00",
+      "family": "timezone",
+      "source_phrase": "next Friday 9am PST",
+      "actual": "2026-03-16 11:31:46.362539"
+    },
+    {
+      "phrase": "at 9 a.m. PST on next Friday",
+      "expected": "2021-01-01 09:00:00",
+      "family": "timezone",
+      "source_phrase": "next Friday 9am PST",
+      "actual": "2026-03-16 11:31:46.551215"
+    },
+    {
+      "phrase": "2029 2pm september 1st",
+      "expected": "2029-09-01 14:00:00",
+      "family": "ordinal_month_year",
+      "source_phrase": "2pm september 1st 2029",
+      "actual": "2030-09-01 14:00:00"
+    },
+    {
+      "phrase": "on the last day in the month in february",
+      "expected": "2020-02-29 17:05:55",
+      "family": "boundary",
+      "source_phrase": "on the last day of the month in february",
+      "actual": "2026-03-16 11:32:19.620113"
+    },
+    {
+      "phrase": "on the last day of month in february",
+      "expected": "2020-02-29 17:05:55",
+      "family": "boundary",
+      "source_phrase": "on the last day of the month in february",
+      "actual": "2026-03-16 11:32:19.728003"
+    },
+    {
+      "phrase": "the first day of the month in june at 12",
+      "expected": "2020-06-01 12:00:00",
+      "family": "boundary",
+      "source_phrase": "at 12 on the first day of the month in june",
+      "actual": "2026-03-16 11:32:24.042006"
+    },
+    {
+      "phrase": "at 12 on the first day in the month in june",
+      "expected": "2020-06-01 12:00:00",
+      "family": "boundary",
+      "source_phrase": "at 12 on the first day of the month in june",
+      "actual": "2026-03-16 11:32:26.656556"
+    },
+    {
+      "phrase": "the first day in the month in june at 12",
+      "expected": "2020-06-01 12:00:00",
+      "family": "boundary",
+      "source_phrase": "at 12 on the first day of the month in june",
+      "actual": "2026-03-16 11:32:28.783585"
+    },
+    {
+      "phrase": "at 12 on the first day of month in june",
+      "expected": "2020-06-01 12:00:00",
+      "family": "boundary",
+      "source_phrase": "at 12 on the first day of the month in june",
+      "actual": "2026-03-16 11:32:29.888777"
+    },
+    {
+      "phrase": "the first day of month in june at 12",
+      "expected": "2020-06-01 12:00:00",
+      "family": "boundary",
+      "source_phrase": "at 12 on the first day of the month in june",
+      "actual": "2026-03-16 11:32:30.777362"
+    },
+    {
+      "phrase": "the middle of december at quarter past eight in the evening",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 19:00:00"
+    },
+    {
+      "phrase": "at quarter past eight in the evening on the middle of december",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 08:15:00"
+    },
+    {
+      "phrase": "the middle of december @ quarter past eight in the evening",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 19:00:00"
+    },
+    {
+      "phrase": "middle of december at quarter past eight in the evening",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 19:00:00"
+    },
+    {
+      "phrase": "at quarter past eight in the evening on middle of december",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 08:15:00"
+    },
+    {
+      "phrase": "second working days after the first full moon in may",
+      "expected": "2021-05-28 14:24:40",
+      "family": "long_composition",
+      "source_phrase": "the second business day after the first full moon in may",
+      "actual": "2026-03-16 11:35:50.512566"
+    },
+    {
+      "phrase": "second business day after the first full moon in may",
+      "expected": "2021-05-28 14:24:40",
+      "family": "long_composition",
+      "source_phrase": "the second business day after the first full moon in may",
+      "actual": "2026-03-16 11:35:51.174074"
+    },
+    {
+      "phrase": "2027 two hours before sunrise on the hundredth day of",
+      "expected": "2027-04-10 03:25:00",
+      "family": "long_composition",
+      "source_phrase": "two hours before sunrise on the hundredth day of 2027",
+      "actual": "2026-03-16 11:36:30.286855"
+    },
+    {
+      "phrase": "2027 two hours b4 sunrise on the hundredth day of",
+      "expected": "2027-04-10 03:25:00",
+      "family": "long_composition",
+      "source_phrase": "two hours before sunrise on the hundredth day of 2027",
+      "actual": "2026-03-16 11:36:43.034441"
+    },
+    {
+      "phrase": "the last working day of next month at end of business",
+      "expected": "2021-01-29 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last working day of next month at end of business",
+      "actual": "2026-03-16 11:37:05.364237"
+    },
+    {
+      "phrase": "the last working day of next month @ end of business",
+      "expected": "2021-01-29 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last working day of next month at end of business",
+      "actual": "2026-03-16 11:37:08.678856"
+    },
+    {
+      "phrase": "the last working day of next month at eob",
+      "expected": "2021-01-29 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last working day of next month at end of business",
+      "actual": "2026-03-16 11:37:09.973954"
+    },
+    {
+      "phrase": "last working day of next month at end of business",
+      "expected": "2021-01-29 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last working day of next month at end of business",
+      "actual": "2026-03-16 11:37:13.407530"
+    },
+    {
+      "phrase": "friday after the last full moon @ 2:30:12",
+      "expected": "2020-12-04 02:30:12",
+      "family": "long_composition",
+      "source_phrase": "friday after the last full moon @ 2:30:12",
+      "actual": "2026-03-16 11:37:15.368839"
+    },
+    {
+      "phrase": "friday after the last full moon  @  2:30:12",
+      "expected": "2020-12-04 02:30:12",
+      "family": "long_composition",
+      "source_phrase": "friday after the last full moon @ 2:30:12",
+      "actual": "2026-03-16 11:37:15.985271"
+    },
+    {
+      "phrase": "friday after the last full moon  at  2:30:12",
+      "expected": "2020-12-04 02:30:12",
+      "family": "long_composition",
+      "source_phrase": "friday after the last full moon @ 2:30:12",
+      "actual": "2026-03-16 11:37:16.390576"
+    },
+    {
+      "phrase": "friday after the last full moon at 2:30:12",
+      "expected": "2020-12-04 02:30:12",
+      "family": "long_composition",
+      "source_phrase": "friday after the last full moon @ 2:30:12",
+      "actual": "2026-03-16 11:37:16.799025"
+    },
+    {
+      "phrase": "2027 5pm in december",
+      "expected": "2027-12-01 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "5pm in december 2027",
+      "actual": "2028-12-01 17:00:00"
+    },
+    {
+      "phrase": "2027 5 pm in december",
+      "expected": "2027-12-01 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "5pm in december 2027",
+      "actual": "2028-12-01 17:00:00"
+    },
+    {
+      "phrase": "2027 5pm on december",
+      "expected": "2027-12-01 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "5pm in december 2027",
+      "actual": "2028-12-01 17:00:00"
+    },
+    {
+      "phrase": "friday the 1st of last december @ 2",
+      "expected": "2019-12-06 02:00:00",
+      "family": "long_composition",
+      "source_phrase": "friday the 1st of last december @ 2",
+      "actual": "2026-03-16 11:37:17.789639"
+    },
+    {
+      "phrase": "friday the 1st of last december  @  2",
+      "expected": "2019-12-06 02:00:00",
+      "family": "long_composition",
+      "source_phrase": "friday the 1st of last december @ 2",
+      "actual": "2026-03-16 11:37:18.775805"
+    },
+    {
+      "phrase": "friday the 1st of last december  at  2",
+      "expected": "2019-12-06 02:00:00",
+      "family": "long_composition",
+      "source_phrase": "friday the 1st of last december @ 2",
+      "actual": "2026-03-16 11:37:19.105116"
+    },
+    {
+      "phrase": "friday the first of last december @ 2",
+      "expected": "2019-12-06 02:00:00",
+      "family": "long_composition",
+      "source_phrase": "friday the 1st of last december @ 2",
+      "actual": "2026-03-16 11:37:19.441056"
+    },
+    {
+      "phrase": "friday the 1st of last december at 2",
+      "expected": "2019-12-06 02:00:00",
+      "family": "long_composition",
+      "source_phrase": "friday the 1st of last december @ 2",
+      "actual": "2026-03-16 11:37:20.335288"
+    },
+    {
+      "phrase": "2027 5pm by december",
+      "expected": "2027-12-01 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "5pm by december 2027",
+      "actual": "2028-12-01 17:00:00"
+    },
+    {
+      "phrase": "2027 5pm on december",
+      "expected": "2027-12-01 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "5pm by december 2027",
+      "actual": "2028-12-01 17:00:00"
+    },
+    {
+      "phrase": "2027 5 pm by december",
+      "expected": "2027-12-01 17:00:00",
+      "family": "long_composition",
+      "source_phrase": "5pm by december 2027",
+      "actual": "2028-12-01 17:00:00"
+    },
+    {
+      "phrase": "at 5 past 10 on the first tuesday in june in the evening",
+      "expected": "2020-06-02 22:05:00",
+      "family": "long_composition",
+      "source_phrase": "the first tuesday in june in the evening at 5 past 10",
+      "actual": "2020-06-02 10:05:00"
+    },
+    {
+      "phrase": "feb 2nd @ 2:20 and 20 seconds",
+      "expected": "2020-02-02 02:20:20",
+      "family": "long_composition",
+      "source_phrase": "feb 2nd @ 2:20 and 20 seconds",
+      "actual": "2026-03-16 11:37:24.100388"
+    },
+    {
+      "phrase": "feb 2nd  @  2:20 and 20 seconds",
+      "expected": "2020-02-02 02:20:20",
+      "family": "long_composition",
+      "source_phrase": "feb 2nd @ 2:20 and 20 seconds",
+      "actual": "2026-03-16 11:37:24.157118"
+    },
+    {
+      "phrase": "feb 2nd  at  2:20 and 20 seconds",
+      "expected": "2020-02-02 02:20:20",
+      "family": "long_composition",
+      "source_phrase": "feb 2nd @ 2:20 and 20 seconds",
+      "actual": "2026-02-02 02:20:20"
+    },
+    {
+      "phrase": "last september 22nd @ 3:30pm",
+      "expected": "2020-09-22 15:30:00",
+      "family": "ordinal_month_year",
+      "source_phrase": "last september 22nd @ 3:30pm",
+      "actual": "2026-03-16 11:37:24.445392"
+    },
+    {
+      "phrase": "last september 22nd  @  3:30pm",
+      "expected": "2020-09-22 15:30:00",
+      "family": "ordinal_month_year",
+      "source_phrase": "last september 22nd @ 3:30pm",
+      "actual": "2026-03-16 11:37:24.572394"
+    },
+    {
+      "phrase": "last september 22nd @ 3:30 pm",
+      "expected": "2020-09-22 15:30:00",
+      "family": "ordinal_month_year",
+      "source_phrase": "last september 22nd @ 3:30pm",
+      "actual": "2026-03-16 11:37:24.752969"
+    },
+    {
+      "phrase": "2028 @ 4pm on the first friday of June",
+      "expected": "2028-06-02 16:00:00",
+      "family": "ordinal_weekday",
+      "source_phrase": "2028 at 4pm on the first friday of June",
+      "actual": "2026-03-16 11:37:31.547237"
+    },
+    {
+      "phrase": "@ 4pm on the first friday of June 2028",
+      "expected": "2028-06-02 16:00:00",
+      "family": "ordinal_weekday",
+      "source_phrase": "2028 at 4pm on the first friday of June",
+      "actual": "2026-03-16 11:37:33.913510"
+    },
+    {
+      "phrase": "friday after the first Monday in May at 4 past 10",
+      "expected": "2020-05-08 10:04:00",
+      "family": "composition_template",
+      "source_phrase": "the first Monday in May",
+      "actual": "2021-05-07 17:05:55"
+    }
+  ]
 }
