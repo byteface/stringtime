@@ -106,6 +106,28 @@ Useful flags:
 --json            print structured JSON output
 ```
 
+## Demo App
+
+There is also a small local demo app in [demo/README.md](demo/README.md). It is
+not part of the deployed package; it is just there to make it easier to show
+what the parser is doing.
+
+Run it from the project root:
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+make demo
+```
+
+It runs on `http://127.0.0.1:5050` by default.
+
+The demo gives you:
+
+- a phrase input with parse, extract, reverse, and nearest-reverse modes
+- a simple calendar that jumps to the resolved date
+- a metadata panel showing parse semantics directly
+- a raw JSON log showing metadata and extraction matches
+
 ## Usage and API
 
 Here's a list of example phrases that can be used...
@@ -241,6 +263,23 @@ suite uses the same idea by freezing the reference date to
 Each returned `Date` also exposes `parse_metadata` with the original input,
 what matched, whether the parse was exact or fuzzy, and whether parsing fell
 back to `dateutil`.
+
+Useful fields on `parse_metadata` include:
+
+- `input_text`: the original phrase
+- `matched_text`: the span that actually matched
+- `normalized_text`: the normalized phrase string used by the parser
+- `exact`: `True` for native exact parses, `False` for fuzzy or fallback paths
+- `fuzzy`: `True` when the parser matched a phrase inside larger text
+- `used_dateutil`: `True` when parsing fell back to `dateutil`
+- `semantic_kind`: the kind of thing the phrase represents, such as `date`,
+  `boundary`, `period`, `relative_offset`, or `recurring`
+- `representative_granularity`: the main grain of the result, such as `second`,
+  `day`, `week`, `month`, `quarter`, `season`, or `part_of_day`
+
+That metadata is also what the local demo uses in its dedicated metadata panel,
+so you can see when a phrase was interpreted as recurring, boundary-like, or a
+fuzzy extracted match instead of a plain exact date.
 
 Business-day phrases currently treat Monday-Friday as working days and skip
 weekends only.

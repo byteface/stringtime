@@ -1,8 +1,3222 @@
 {
   "reference": "2020-12-25 17:05:55",
-  "seed_count": 70,
-  "extraction_variant_count": 774,
-  "success_count": 774,
-  "failure_count": 0,
-  "failures": []
+  "seed_count": 219,
+  "extraction_variant_count": 3057,
+  "success_count": 2766,
+  "failure_count": 291,
+  "failures": [
+    {
+      "text": "let's do it next Tuesday nite please",
+      "expected_text": "next Tuesday nite",
+      "expected": "2020-12-29 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "next Tuesday evening",
+      "actual_text": "next Tuesday nite",
+      "actual": "2020-12-29 21:00:00"
+    },
+    {
+      "text": "we should do next Tuesday nite for the plan",
+      "expected_text": "next Tuesday nite",
+      "expected": "2020-12-29 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "next Tuesday evening",
+      "actual_text": "next Tuesday nite",
+      "actual": "2020-12-29 21:00:00"
+    },
+    {
+      "text": "i think next Tuesday nite works best",
+      "expected_text": "next Tuesday nite",
+      "expected": "2020-12-29 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "next Tuesday evening",
+      "actual_text": "next Tuesday nite",
+      "actual": "2020-12-29 21:00:00"
+    },
+    {
+      "text": "let's do it evening on next Tuesday please",
+      "expected_text": "evening on next Tuesday",
+      "expected": "2020-12-29 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "next Tuesday evening",
+      "actual_text": "on next Tuesday",
+      "actual": "2020-12-29 17:05:55"
+    },
+    {
+      "text": "we should do evening on next Tuesday for the plan",
+      "expected_text": "evening on next Tuesday",
+      "expected": "2020-12-29 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "next Tuesday evening",
+      "actual_text": "on next Tuesday",
+      "actual": "2020-12-29 17:05:55"
+    },
+    {
+      "text": "i think evening on next Tuesday works best",
+      "expected_text": "evening on next Tuesday",
+      "expected": "2020-12-29 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "next Tuesday evening",
+      "actual_text": "on next Tuesday",
+      "actual": "2020-12-29 17:05:55"
+    },
+    {
+      "text": "let's do it noon from today please",
+      "expected_text": "noon from today",
+      "expected": "2020-12-25 12:00:00",
+      "family": "named_time",
+      "source_phrase": "noon today",
+      "actual_text": [
+        "noon",
+        "from today"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do noon from today for the plan",
+      "expected_text": "noon from today",
+      "expected": "2020-12-25 12:00:00",
+      "family": "named_time",
+      "source_phrase": "noon today",
+      "actual_text": [
+        "noon",
+        "from today"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think noon from today works best",
+      "expected_text": "noon from today",
+      "expected": "2020-12-25 12:00:00",
+      "family": "named_time",
+      "source_phrase": "noon today",
+      "actual_text": [
+        "noon",
+        "from today"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it noon after today please",
+      "expected_text": "noon after today",
+      "expected": "2020-12-25 12:00:00",
+      "family": "named_time",
+      "source_phrase": "noon today",
+      "actual_text": [
+        "noon",
+        "today"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do noon after today for the plan",
+      "expected_text": "noon after today",
+      "expected": "2020-12-25 12:00:00",
+      "family": "named_time",
+      "source_phrase": "noon today",
+      "actual_text": [
+        "noon",
+        "today"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think noon after today works best",
+      "expected_text": "noon after today",
+      "expected": "2020-12-25 12:00:00",
+      "family": "named_time",
+      "source_phrase": "noon today",
+      "actual_text": [
+        "noon",
+        "today"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it 15 mins before midnight please",
+      "expected_text": "15 mins before midnight",
+      "expected": "2020-12-24 23:45:00",
+      "family": "anchor_offset",
+      "source_phrase": "15 minutes before midnight",
+      "actual_text": "midnight",
+      "actual": "2020-12-25 00:00:00"
+    },
+    {
+      "text": "we should do 15 mins before midnight for the plan",
+      "expected_text": "15 mins before midnight",
+      "expected": "2020-12-24 23:45:00",
+      "family": "anchor_offset",
+      "source_phrase": "15 minutes before midnight",
+      "actual_text": "midnight",
+      "actual": "2020-12-25 00:00:00"
+    },
+    {
+      "text": "i think 15 mins before midnight works best",
+      "expected_text": "15 mins before midnight",
+      "expected": "2020-12-24 23:45:00",
+      "family": "anchor_offset",
+      "source_phrase": "15 minutes before midnight",
+      "actual_text": "midnight",
+      "actual": "2020-12-25 00:00:00"
+    },
+    {
+      "text": "let's do it 12th of the last month please",
+      "expected_text": "12th of the last month",
+      "expected": "2020-11-12 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "the 12th of last month",
+      "actual_text": [
+        "12th",
+        "the last month"
+      ],
+      "actual": [
+        "2020-12-12 17:05:55",
+        "2020-11-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do 12th of the last month for the plan",
+      "expected_text": "12th of the last month",
+      "expected": "2020-11-12 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "the 12th of last month",
+      "actual_text": [
+        "12th",
+        "the last month"
+      ],
+      "actual": [
+        "2020-12-12 17:05:55",
+        "2020-11-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think 12th of the last month works best",
+      "expected_text": "12th of the last month",
+      "expected": "2020-11-12 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "the 12th of last month",
+      "actual_text": [
+        "12th",
+        "the last month"
+      ],
+      "actual": [
+        "2020-12-12 17:05:55",
+        "2020-11-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it first of the next month please",
+      "expected_text": "first of the next month",
+      "expected": "2021-01-01 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "the first of next month",
+      "actual_text": [
+        "first",
+        "the next month"
+      ],
+      "actual": [
+        "2020-12-01 17:05:55",
+        "2021-01-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do first of the next month for the plan",
+      "expected_text": "first of the next month",
+      "expected": "2021-01-01 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "the first of next month",
+      "actual_text": [
+        "first",
+        "the next month"
+      ],
+      "actual": [
+        "2020-12-01 17:05:55",
+        "2021-01-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think first of the next month works best",
+      "expected_text": "first of the next month",
+      "expected": "2021-01-01 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "the first of next month",
+      "actual_text": [
+        "first",
+        "the next month"
+      ],
+      "actual": [
+        "2020-12-01 17:05:55",
+        "2021-01-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it 1st of the next month please",
+      "expected_text": "1st of the next month",
+      "expected": "2021-01-01 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "1st of next month",
+      "actual_text": [
+        "1st",
+        "the next month"
+      ],
+      "actual": [
+        "2020-12-01 17:05:55",
+        "2021-01-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do 1st of the next month for the plan",
+      "expected_text": "1st of the next month",
+      "expected": "2021-01-01 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "1st of next month",
+      "actual_text": [
+        "1st",
+        "the next month"
+      ],
+      "actual": [
+        "2020-12-01 17:05:55",
+        "2021-01-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think 1st of the next month works best",
+      "expected_text": "1st of the next month",
+      "expected": "2021-01-01 17:05:55",
+      "family": "ordinal_date",
+      "source_phrase": "1st of next month",
+      "actual_text": [
+        "1st",
+        "the next month"
+      ],
+      "actual": [
+        "2020-12-01 17:05:55",
+        "2021-01-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it 1d after now please",
+      "expected_text": "1d after now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": [
+        "1d",
+        "now"
+      ],
+      "actual": [
+        "2020-12-26 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do 1d after now for the plan",
+      "expected_text": "1d after now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": [
+        "1d",
+        "now"
+      ],
+      "actual": [
+        "2020-12-26 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think 1d after now works best",
+      "expected_text": "1d after now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": [
+        "1d",
+        "now"
+      ],
+      "actual": [
+        "2020-12-26 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it in 1d from now please",
+      "expected_text": "in 1d from now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": "1d from now",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "we should do in 1d from now for the plan",
+      "expected_text": "in 1d from now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": "1d from now",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "i think in 1d from now works best",
+      "expected_text": "in 1d from now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": "1d from now",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "let's do it 1d from the now please",
+      "expected_text": "1d from the now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": [
+        "1d",
+        "now"
+      ],
+      "actual": [
+        "2020-12-26 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do 1d from the now for the plan",
+      "expected_text": "1d from the now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": [
+        "1d",
+        "now"
+      ],
+      "actual": [
+        "2020-12-26 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think 1d from the now works best",
+      "expected_text": "1d from the now",
+      "expected": "2020-12-26 17:05:55",
+      "family": "alias",
+      "source_phrase": "1d from now",
+      "actual_text": [
+        "1d",
+        "now"
+      ],
+      "actual": [
+        "2020-12-26 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it 1y after now please",
+      "expected_text": "1y after now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": [
+        "1y",
+        "now"
+      ],
+      "actual": [
+        "2021-12-25 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do 1y after now for the plan",
+      "expected_text": "1y after now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": [
+        "1y",
+        "now"
+      ],
+      "actual": [
+        "2021-12-25 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think 1y after now works best",
+      "expected_text": "1y after now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": [
+        "1y",
+        "now"
+      ],
+      "actual": [
+        "2021-12-25 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it in 1y from now please",
+      "expected_text": "in 1y from now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": "1y from now",
+      "actual": "2021-12-25 17:05:55"
+    },
+    {
+      "text": "we should do in 1y from now for the plan",
+      "expected_text": "in 1y from now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": "1y from now",
+      "actual": "2021-12-25 17:05:55"
+    },
+    {
+      "text": "i think in 1y from now works best",
+      "expected_text": "in 1y from now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": "1y from now",
+      "actual": "2021-12-25 17:05:55"
+    },
+    {
+      "text": "let's do it 1y from the now please",
+      "expected_text": "1y from the now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": [
+        "1y",
+        "now"
+      ],
+      "actual": [
+        "2021-12-25 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do 1y from the now for the plan",
+      "expected_text": "1y from the now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": [
+        "1y",
+        "now"
+      ],
+      "actual": [
+        "2021-12-25 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think 1y from the now works best",
+      "expected_text": "1y from the now",
+      "expected": "2021-12-25 17:05:55",
+      "family": "alias",
+      "source_phrase": "1y from now",
+      "actual_text": [
+        "1y",
+        "now"
+      ],
+      "actual": [
+        "2021-12-25 17:05:55",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it on half five tomorrow night please",
+      "expected_text": "on half five tomorrow night",
+      "expected": "2020-12-26 05:30:00",
+      "family": "clock_phrase",
+      "source_phrase": "half five tomorrow night",
+      "actual_text": "half five tomorrow night",
+      "actual": "2020-12-26 05:30:00"
+    },
+    {
+      "text": "we should do on half five tomorrow night for the plan",
+      "expected_text": "on half five tomorrow night",
+      "expected": "2020-12-26 05:30:00",
+      "family": "clock_phrase",
+      "source_phrase": "half five tomorrow night",
+      "actual_text": "half five tomorrow night",
+      "actual": "2020-12-26 05:30:00"
+    },
+    {
+      "text": "i think on half five tomorrow night works best",
+      "expected_text": "on half five tomorrow night",
+      "expected": "2020-12-26 05:30:00",
+      "family": "clock_phrase",
+      "source_phrase": "half five tomorrow night",
+      "actual_text": "half five tomorrow night",
+      "actual": "2020-12-26 05:30:00"
+    },
+    {
+      "text": "let's do it night on half five tomorrow please",
+      "expected_text": "night on half five tomorrow",
+      "expected": "2020-12-26 05:30:00",
+      "family": "clock_phrase",
+      "source_phrase": "half five tomorrow night",
+      "actual_text": "night on half five tomorrow",
+      "actual": "2020-12-26 21:00:00"
+    },
+    {
+      "text": "we should do night on half five tomorrow for the plan",
+      "expected_text": "night on half five tomorrow",
+      "expected": "2020-12-26 05:30:00",
+      "family": "clock_phrase",
+      "source_phrase": "half five tomorrow night",
+      "actual_text": "night on half five tomorrow",
+      "actual": "2020-12-26 21:00:00"
+    },
+    {
+      "text": "i think night on half five tomorrow works best",
+      "expected_text": "night on half five tomorrow",
+      "expected": "2020-12-26 05:30:00",
+      "family": "clock_phrase",
+      "source_phrase": "half five tomorrow night",
+      "actual_text": "night on half five tomorrow",
+      "actual": "2020-12-26 21:00:00"
+    },
+    {
+      "text": "let's do it 4 minutes to 4pm after tomorrow please",
+      "expected_text": "4 minutes to 4pm after tomorrow",
+      "expected": "2020-12-26 15:56:00",
+      "family": "clock_phrase",
+      "source_phrase": "4 minutes to 4pm tomorrow",
+      "actual_text": "4 minutes to 4pm after tomorrow",
+      "actual": "2020-12-27 15:56:00"
+    },
+    {
+      "text": "we should do 4 minutes to 4pm after tomorrow for the plan",
+      "expected_text": "4 minutes to 4pm after tomorrow",
+      "expected": "2020-12-26 15:56:00",
+      "family": "clock_phrase",
+      "source_phrase": "4 minutes to 4pm tomorrow",
+      "actual_text": "4 minutes to 4pm after tomorrow",
+      "actual": "2020-12-27 15:56:00"
+    },
+    {
+      "text": "i think 4 minutes to 4pm after tomorrow works best",
+      "expected_text": "4 minutes to 4pm after tomorrow",
+      "expected": "2020-12-26 15:56:00",
+      "family": "clock_phrase",
+      "source_phrase": "4 minutes to 4pm tomorrow",
+      "actual_text": "4 minutes to 4pm after tomorrow",
+      "actual": "2020-12-27 15:56:00"
+    },
+    {
+      "text": "let's do it 10 seconds to the midnight please",
+      "expected_text": "10 seconds to the midnight",
+      "expected": "2020-12-25 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight",
+      "actual_text": [
+        "10 seconds",
+        "midnight"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do 10 seconds to the midnight for the plan",
+      "expected_text": "10 seconds to the midnight",
+      "expected": "2020-12-25 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight",
+      "actual_text": [
+        "10 seconds",
+        "midnight"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "i think 10 seconds to the midnight works best",
+      "expected_text": "10 seconds to the midnight",
+      "expected": "2020-12-25 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight",
+      "actual_text": [
+        "10 seconds",
+        "midnight"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it 10 seconds to the midnight tomorrow please",
+      "expected_text": "10 seconds to the midnight tomorrow",
+      "expected": "2020-12-26 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight tomorrow",
+      "actual_text": [
+        "10 seconds",
+        "midnight tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-26 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do 10 seconds to the midnight tomorrow for the plan",
+      "expected_text": "10 seconds to the midnight tomorrow",
+      "expected": "2020-12-26 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight tomorrow",
+      "actual_text": [
+        "10 seconds",
+        "midnight tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-26 00:00:00"
+      ]
+    },
+    {
+      "text": "i think 10 seconds to the midnight tomorrow works best",
+      "expected_text": "10 seconds to the midnight tomorrow",
+      "expected": "2020-12-26 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight tomorrow",
+      "actual_text": [
+        "10 seconds",
+        "midnight tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-26 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it 10 seconds to midnight after tomorrow please",
+      "expected_text": "10 seconds to midnight after tomorrow",
+      "expected": "2020-12-26 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight tomorrow",
+      "actual_text": "10 seconds to midnight after tomorrow",
+      "actual": "2020-12-27 23:59:50"
+    },
+    {
+      "text": "we should do 10 seconds to midnight after tomorrow for the plan",
+      "expected_text": "10 seconds to midnight after tomorrow",
+      "expected": "2020-12-26 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight tomorrow",
+      "actual_text": "10 seconds to midnight after tomorrow",
+      "actual": "2020-12-27 23:59:50"
+    },
+    {
+      "text": "i think 10 seconds to midnight after tomorrow works best",
+      "expected_text": "10 seconds to midnight after tomorrow",
+      "expected": "2020-12-26 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight tomorrow",
+      "actual_text": "10 seconds to midnight after tomorrow",
+      "actual": "2020-12-27 23:59:50"
+    },
+    {
+      "text": "let's do it 10 seconds to the 4pm please",
+      "expected_text": "10 seconds to the 4pm",
+      "expected": "2020-12-25 15:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to 4pm",
+      "actual_text": [
+        "10 seconds",
+        "4pm"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-25 16:00:00"
+      ]
+    },
+    {
+      "text": "we should do 10 seconds to the 4pm for the plan",
+      "expected_text": "10 seconds to the 4pm",
+      "expected": "2020-12-25 15:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to 4pm",
+      "actual_text": [
+        "10 seconds",
+        "4pm"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-25 16:00:00"
+      ]
+    },
+    {
+      "text": "i think 10 seconds to the 4pm works best",
+      "expected_text": "10 seconds to the 4pm",
+      "expected": "2020-12-25 15:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to 4pm",
+      "actual_text": [
+        "10 seconds",
+        "4pm"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-12-25 16:00:00"
+      ]
+    },
+    {
+      "text": "let's do it 10 seconds to the midnight in mid september please",
+      "expected_text": "10 seconds to the midnight in mid september",
+      "expected": "2021-09-15 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight in mid september",
+      "actual_text": [
+        "10 seconds",
+        "midnight in mid september"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2021-09-15 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do 10 seconds to the midnight in mid september for the plan",
+      "expected_text": "10 seconds to the midnight in mid september",
+      "expected": "2021-09-15 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight in mid september",
+      "actual_text": [
+        "10 seconds",
+        "midnight in mid september"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2021-09-15 00:00:00"
+      ]
+    },
+    {
+      "text": "i think 10 seconds to the midnight in mid september works best",
+      "expected_text": "10 seconds to the midnight in mid september",
+      "expected": "2021-09-15 23:59:50",
+      "family": "clock_phrase",
+      "source_phrase": "10 seconds to midnight in mid september",
+      "actual_text": [
+        "10 seconds",
+        "midnight in mid september"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2021-09-15 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it afternoon on Friday please",
+      "expected_text": "afternoon on Friday",
+      "expected": "2020-12-25 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "Friday afternoon",
+      "actual_text": "on Friday",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "we should do afternoon on Friday for the plan",
+      "expected_text": "afternoon on Friday",
+      "expected": "2020-12-25 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "Friday afternoon",
+      "actual_text": "on Friday",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "i think afternoon on Friday works best",
+      "expected_text": "afternoon on Friday",
+      "expected": "2020-12-25 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "Friday afternoon",
+      "actual_text": "on Friday",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "let's do it on Friday nite please",
+      "expected_text": "on Friday nite",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday nite",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "we should do on Friday nite for the plan",
+      "expected_text": "on Friday nite",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday nite",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "i think on Friday nite works best",
+      "expected_text": "on Friday nite",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday nite",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "let's do it on on Friday evening please",
+      "expected_text": "on on Friday evening",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday evening",
+      "actual": "2020-12-25 19:00:00"
+    },
+    {
+      "text": "we should do on on Friday evening for the plan",
+      "expected_text": "on on Friday evening",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday evening",
+      "actual": "2020-12-25 19:00:00"
+    },
+    {
+      "text": "i think on on Friday evening works best",
+      "expected_text": "on on Friday evening",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday evening",
+      "actual": "2020-12-25 19:00:00"
+    },
+    {
+      "text": "let's do it evening on on Friday please",
+      "expected_text": "evening on on Friday",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "we should do evening on on Friday for the plan",
+      "expected_text": "evening on on Friday",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "i think evening on on Friday works best",
+      "expected_text": "evening on on Friday",
+      "expected": "2020-12-25 19:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Friday evening",
+      "actual_text": "on Friday",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "let's do it on on Tuesday afternoon please",
+      "expected_text": "on on Tuesday afternoon",
+      "expected": "2020-12-29 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Tuesday afternoon",
+      "actual_text": "on Tuesday afternoon",
+      "actual": "2020-12-29 15:00:00"
+    },
+    {
+      "text": "we should do on on Tuesday afternoon for the plan",
+      "expected_text": "on on Tuesday afternoon",
+      "expected": "2020-12-29 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Tuesday afternoon",
+      "actual_text": "on Tuesday afternoon",
+      "actual": "2020-12-29 15:00:00"
+    },
+    {
+      "text": "i think on on Tuesday afternoon works best",
+      "expected_text": "on on Tuesday afternoon",
+      "expected": "2020-12-29 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Tuesday afternoon",
+      "actual_text": "on Tuesday afternoon",
+      "actual": "2020-12-29 15:00:00"
+    },
+    {
+      "text": "let's do it afternoon on on Tuesday please",
+      "expected_text": "afternoon on on Tuesday",
+      "expected": "2020-12-29 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Tuesday afternoon",
+      "actual_text": "on Tuesday",
+      "actual": "2020-12-29 17:05:55"
+    },
+    {
+      "text": "we should do afternoon on on Tuesday for the plan",
+      "expected_text": "afternoon on on Tuesday",
+      "expected": "2020-12-29 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Tuesday afternoon",
+      "actual_text": "on Tuesday",
+      "actual": "2020-12-29 17:05:55"
+    },
+    {
+      "text": "i think afternoon on on Tuesday works best",
+      "expected_text": "afternoon on on Tuesday",
+      "expected": "2020-12-29 15:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "on Tuesday afternoon",
+      "actual_text": "on Tuesday",
+      "actual": "2020-12-29 17:05:55"
+    },
+    {
+      "text": "let's do it night on the other please",
+      "expected_text": "night on the other",
+      "expected": "2020-12-24 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the other night",
+      "actual_text": "night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "we should do night on the other for the plan",
+      "expected_text": "night on the other",
+      "expected": "2020-12-24 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the other night",
+      "actual_text": "night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "i think night on the other works best",
+      "expected_text": "night on the other",
+      "expected": "2020-12-24 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the other night",
+      "actual_text": "night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "let's do it end of business after tomorrow please",
+      "expected_text": "end of business after tomorrow",
+      "expected": "2020-12-26 17:00:00",
+      "family": "business",
+      "source_phrase": "end of business tomorrow",
+      "actual_text": "end of business after tomorrow",
+      "actual": "2020-12-27 17:00:00"
+    },
+    {
+      "text": "we should do end of business after tomorrow for the plan",
+      "expected_text": "end of business after tomorrow",
+      "expected": "2020-12-26 17:00:00",
+      "family": "business",
+      "source_phrase": "end of business tomorrow",
+      "actual_text": "end of business after tomorrow",
+      "actual": "2020-12-27 17:00:00"
+    },
+    {
+      "text": "i think end of business after tomorrow works best",
+      "expected_text": "end of business after tomorrow",
+      "expected": "2020-12-26 17:00:00",
+      "family": "business",
+      "source_phrase": "end of business tomorrow",
+      "actual_text": "end of business after tomorrow",
+      "actual": "2020-12-27 17:00:00"
+    },
+    {
+      "text": "let's do it the day before the yesterday please",
+      "expected_text": "the day before the yesterday",
+      "expected": "2020-12-23 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day before yesterday",
+      "actual_text": "yesterday",
+      "actual": "2020-12-24 17:05:55"
+    },
+    {
+      "text": "we should do the day before the yesterday for the plan",
+      "expected_text": "the day before the yesterday",
+      "expected": "2020-12-23 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day before yesterday",
+      "actual_text": "yesterday",
+      "actual": "2020-12-24 17:05:55"
+    },
+    {
+      "text": "i think the day before the yesterday works best",
+      "expected_text": "the day before the yesterday",
+      "expected": "2020-12-23 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day before yesterday",
+      "actual_text": "yesterday",
+      "actual": "2020-12-24 17:05:55"
+    },
+    {
+      "text": "let's do it the day before after yesterday please",
+      "expected_text": "the day before after yesterday",
+      "expected": "2020-12-23 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day before yesterday",
+      "actual_text": "yesterday",
+      "actual": "2020-12-24 17:05:55"
+    },
+    {
+      "text": "we should do the day before after yesterday for the plan",
+      "expected_text": "the day before after yesterday",
+      "expected": "2020-12-23 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day before yesterday",
+      "actual_text": "yesterday",
+      "actual": "2020-12-24 17:05:55"
+    },
+    {
+      "text": "i think the day before after yesterday works best",
+      "expected_text": "the day before after yesterday",
+      "expected": "2020-12-23 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day before yesterday",
+      "actual_text": "yesterday",
+      "actual": "2020-12-24 17:05:55"
+    },
+    {
+      "text": "let's do it the day after the tomorrow please",
+      "expected_text": "the day after the tomorrow",
+      "expected": "2020-12-27 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day after tomorrow",
+      "actual_text": "tomorrow",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "we should do the day after the tomorrow for the plan",
+      "expected_text": "the day after the tomorrow",
+      "expected": "2020-12-27 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day after tomorrow",
+      "actual_text": "tomorrow",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "i think the day after the tomorrow works best",
+      "expected_text": "the day after the tomorrow",
+      "expected": "2020-12-27 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day after tomorrow",
+      "actual_text": "tomorrow",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "let's do it the day after after tomorrow please",
+      "expected_text": "the day after after tomorrow",
+      "expected": "2020-12-27 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day after tomorrow",
+      "actual_text": "the day after after tomorrow",
+      "actual": "2020-12-28 17:05:55"
+    },
+    {
+      "text": "we should do the day after after tomorrow for the plan",
+      "expected_text": "the day after after tomorrow",
+      "expected": "2020-12-27 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day after tomorrow",
+      "actual_text": "the day after after tomorrow",
+      "actual": "2020-12-28 17:05:55"
+    },
+    {
+      "text": "i think the day after after tomorrow works best",
+      "expected_text": "the day after after tomorrow",
+      "expected": "2020-12-27 17:05:55",
+      "family": "relative_day",
+      "source_phrase": "the day after tomorrow",
+      "actual_text": "the day after after tomorrow",
+      "actual": "2020-12-28 17:05:55"
+    },
+    {
+      "text": "let's do it by noon from tomorrow please",
+      "expected_text": "by noon from tomorrow",
+      "expected": "2020-12-26 12:00:00",
+      "family": "linking",
+      "source_phrase": "by noon tomorrow",
+      "actual_text": [
+        "by noon",
+        "from tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-26 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do by noon from tomorrow for the plan",
+      "expected_text": "by noon from tomorrow",
+      "expected": "2020-12-26 12:00:00",
+      "family": "linking",
+      "source_phrase": "by noon tomorrow",
+      "actual_text": [
+        "by noon",
+        "from tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-26 17:05:55"
+      ]
+    },
+    {
+      "text": "i think by noon from tomorrow works best",
+      "expected_text": "by noon from tomorrow",
+      "expected": "2020-12-26 12:00:00",
+      "family": "linking",
+      "source_phrase": "by noon tomorrow",
+      "actual_text": [
+        "by noon",
+        "from tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-26 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it by noon after tomorrow please",
+      "expected_text": "by noon after tomorrow",
+      "expected": "2020-12-26 12:00:00",
+      "family": "linking",
+      "source_phrase": "by noon tomorrow",
+      "actual_text": [
+        "by noon",
+        "after tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-27 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do by noon after tomorrow for the plan",
+      "expected_text": "by noon after tomorrow",
+      "expected": "2020-12-26 12:00:00",
+      "family": "linking",
+      "source_phrase": "by noon tomorrow",
+      "actual_text": [
+        "by noon",
+        "after tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-27 17:05:55"
+      ]
+    },
+    {
+      "text": "i think by noon after tomorrow works best",
+      "expected_text": "by noon after tomorrow",
+      "expected": "2020-12-26 12:00:00",
+      "family": "linking",
+      "source_phrase": "by noon tomorrow",
+      "actual_text": [
+        "by noon",
+        "after tomorrow"
+      ],
+      "actual": [
+        "2020-12-25 12:00:00",
+        "2020-12-27 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it as of from tomorrow please",
+      "expected_text": "as of from tomorrow",
+      "expected": "2020-12-26 17:05:55",
+      "family": "linking",
+      "source_phrase": "as of tomorrow",
+      "actual_text": "from tomorrow",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "we should do as of from tomorrow for the plan",
+      "expected_text": "as of from tomorrow",
+      "expected": "2020-12-26 17:05:55",
+      "family": "linking",
+      "source_phrase": "as of tomorrow",
+      "actual_text": "from tomorrow",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "i think as of from tomorrow works best",
+      "expected_text": "as of from tomorrow",
+      "expected": "2020-12-26 17:05:55",
+      "family": "linking",
+      "source_phrase": "as of tomorrow",
+      "actual_text": "from tomorrow",
+      "actual": "2020-12-26 17:05:55"
+    },
+    {
+      "text": "let's do it as of after tomorrow please",
+      "expected_text": "as of after tomorrow",
+      "expected": "2020-12-26 17:05:55",
+      "family": "linking",
+      "source_phrase": "as of tomorrow",
+      "actual_text": "after tomorrow",
+      "actual": "2020-12-27 17:05:55"
+    },
+    {
+      "text": "we should do as of after tomorrow for the plan",
+      "expected_text": "as of after tomorrow",
+      "expected": "2020-12-26 17:05:55",
+      "family": "linking",
+      "source_phrase": "as of tomorrow",
+      "actual_text": "after tomorrow",
+      "actual": "2020-12-27 17:05:55"
+    },
+    {
+      "text": "i think as of after tomorrow works best",
+      "expected_text": "as of after tomorrow",
+      "expected": "2020-12-26 17:05:55",
+      "family": "linking",
+      "source_phrase": "as of tomorrow",
+      "actual_text": "after tomorrow",
+      "actual": "2020-12-27 17:05:55"
+    },
+    {
+      "text": "let's do it in the first business day after the hundredth day of the year please",
+      "expected_text": "in the first business day after the hundredth day of the year",
+      "expected": "2020-04-10 17:05:55",
+      "family": "anchor_registry",
+      "source_phrase": "the first business day after the hundredth day of the year",
+      "actual_text": "the first business day after the hundredth day of the year",
+      "actual": "2020-04-10 17:05:55"
+    },
+    {
+      "text": "we should do in the first business day after the hundredth day of the year for the plan",
+      "expected_text": "in the first business day after the hundredth day of the year",
+      "expected": "2020-04-10 17:05:55",
+      "family": "anchor_registry",
+      "source_phrase": "the first business day after the hundredth day of the year",
+      "actual_text": "the first business day after the hundredth day of the year",
+      "actual": "2020-04-10 17:05:55"
+    },
+    {
+      "text": "i think in the first business day after the hundredth day of the year works best",
+      "expected_text": "in the first business day after the hundredth day of the year",
+      "expected": "2020-04-10 17:05:55",
+      "family": "anchor_registry",
+      "source_phrase": "the first business day after the hundredth day of the year",
+      "actual_text": "the first business day after the hundredth day of the year",
+      "actual": "2020-04-10 17:05:55"
+    },
+    {
+      "text": "let's do it in the last tuesday before the end of last autumn please",
+      "expected_text": "in the last tuesday before the end of last autumn",
+      "expected": "2020-11-24 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the last tuesday before the end of last autumn",
+      "actual_text": "the last tuesday before the end of last autumn",
+      "actual": "2020-11-24 17:05:55"
+    },
+    {
+      "text": "we should do in the last tuesday before the end of last autumn for the plan",
+      "expected_text": "in the last tuesday before the end of last autumn",
+      "expected": "2020-11-24 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the last tuesday before the end of last autumn",
+      "actual_text": "the last tuesday before the end of last autumn",
+      "actual": "2020-11-24 17:05:55"
+    },
+    {
+      "text": "i think in the last tuesday before the end of last autumn works best",
+      "expected_text": "in the last tuesday before the end of last autumn",
+      "expected": "2020-11-24 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the last tuesday before the end of last autumn",
+      "actual_text": "the last tuesday before the end of last autumn",
+      "actual": "2020-11-24 17:05:55"
+    },
+    {
+      "text": "let's do it in the first business day after fiscal year end please",
+      "expected_text": "in the first business day after fiscal year end",
+      "expected": "2021-01-01 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after fiscal year end",
+      "actual_text": "the first business day after fiscal year end",
+      "actual": "2021-01-01 17:05:55"
+    },
+    {
+      "text": "we should do in the first business day after fiscal year end for the plan",
+      "expected_text": "in the first business day after fiscal year end",
+      "expected": "2021-01-01 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after fiscal year end",
+      "actual_text": "the first business day after fiscal year end",
+      "actual": "2021-01-01 17:05:55"
+    },
+    {
+      "text": "i think in the first business day after fiscal year end works best",
+      "expected_text": "in the first business day after fiscal year end",
+      "expected": "2021-01-01 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after fiscal year end",
+      "actual_text": "the first business day after fiscal year end",
+      "actual": "2021-01-01 17:05:55"
+    },
+    {
+      "text": "let's do it in the first business day after month close please",
+      "expected_text": "in the first business day after month close",
+      "expected": "2021-01-01 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after month close",
+      "actual_text": "the first business day after month close",
+      "actual": "2021-01-01 17:05:55"
+    },
+    {
+      "text": "we should do in the first business day after month close for the plan",
+      "expected_text": "in the first business day after month close",
+      "expected": "2021-01-01 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after month close",
+      "actual_text": "the first business day after month close",
+      "actual": "2021-01-01 17:05:55"
+    },
+    {
+      "text": "i think in the first business day after month close works best",
+      "expected_text": "in the first business day after month close",
+      "expected": "2021-01-01 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after month close",
+      "actual_text": "the first business day after month close",
+      "actual": "2021-01-01 17:05:55"
+    },
+    {
+      "text": "let's do it in the nite on fiscal year end please",
+      "expected_text": "in the nite on fiscal year end",
+      "expected": "2020-12-31 19:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "in the evening on fiscal year end",
+      "actual_text": "in the nite on fiscal year end",
+      "actual": "2020-12-31 21:00:00"
+    },
+    {
+      "text": "we should do in the nite on fiscal year end for the plan",
+      "expected_text": "in the nite on fiscal year end",
+      "expected": "2020-12-31 19:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "in the evening on fiscal year end",
+      "actual_text": "in the nite on fiscal year end",
+      "actual": "2020-12-31 21:00:00"
+    },
+    {
+      "text": "i think in the nite on fiscal year end works best",
+      "expected_text": "in the nite on fiscal year end",
+      "expected": "2020-12-31 19:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "in the evening on fiscal year end",
+      "actual_text": "in the nite on fiscal year end",
+      "actual": "2020-12-31 21:00:00"
+    },
+    {
+      "text": "let's do it evening on fiscal year end please",
+      "expected_text": "evening on fiscal year end",
+      "expected": "2020-12-31 19:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "in the evening on fiscal year end",
+      "actual_text": "fiscal year end",
+      "actual": "2020-12-31 17:05:55"
+    },
+    {
+      "text": "we should do evening on fiscal year end for the plan",
+      "expected_text": "evening on fiscal year end",
+      "expected": "2020-12-31 19:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "in the evening on fiscal year end",
+      "actual_text": "fiscal year end",
+      "actual": "2020-12-31 17:05:55"
+    },
+    {
+      "text": "i think evening on fiscal year end works best",
+      "expected_text": "evening on fiscal year end",
+      "expected": "2020-12-31 19:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "in the evening on fiscal year end",
+      "actual_text": "fiscal year end",
+      "actual": "2020-12-31 17:05:55"
+    },
+    {
+      "text": "let's do it in the first business day after the wolf moon please",
+      "expected_text": "in the first business day after the wolf moon",
+      "expected": "2021-01-29 11:28:29",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after the wolf moon",
+      "actual_text": "the first business day after the wolf moon",
+      "actual": "2021-01-29 11:28:29"
+    },
+    {
+      "text": "we should do in the first business day after the wolf moon for the plan",
+      "expected_text": "in the first business day after the wolf moon",
+      "expected": "2021-01-29 11:28:29",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after the wolf moon",
+      "actual_text": "the first business day after the wolf moon",
+      "actual": "2021-01-29 11:28:29"
+    },
+    {
+      "text": "i think in the first business day after the wolf moon works best",
+      "expected_text": "in the first business day after the wolf moon",
+      "expected": "2021-01-29 11:28:29",
+      "family": "stacked_anchor",
+      "source_phrase": "the first business day after the wolf moon",
+      "actual_text": "the first business day after the wolf moon",
+      "actual": "2021-01-29 11:28:29"
+    },
+    {
+      "text": "let's do it in the last tuesday before the next summer please",
+      "expected_text": "in the last tuesday before the next summer",
+      "expected": "2021-05-25 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the last tuesday before the next summer",
+      "actual_text": "the last tuesday before the next summer",
+      "actual": "2021-05-25 17:05:55"
+    },
+    {
+      "text": "we should do in the last tuesday before the next summer for the plan",
+      "expected_text": "in the last tuesday before the next summer",
+      "expected": "2021-05-25 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the last tuesday before the next summer",
+      "actual_text": "the last tuesday before the next summer",
+      "actual": "2021-05-25 17:05:55"
+    },
+    {
+      "text": "i think in the last tuesday before the next summer works best",
+      "expected_text": "in the last tuesday before the next summer",
+      "expected": "2021-05-25 17:05:55",
+      "family": "stacked_anchor",
+      "source_phrase": "the last tuesday before the next summer",
+      "actual_text": "the last tuesday before the next summer",
+      "actual": "2021-05-25 17:05:55"
+    },
+    {
+      "text": "let's do it in 2 fridays after spring equinox please",
+      "expected_text": "in 2 fridays after spring equinox",
+      "expected": "2021-04-02 12:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "2 fridays after spring equinox",
+      "actual_text": "2 fridays after spring equinox",
+      "actual": "2021-04-02 12:00:00"
+    },
+    {
+      "text": "we should do in 2 fridays after spring equinox for the plan",
+      "expected_text": "in 2 fridays after spring equinox",
+      "expected": "2021-04-02 12:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "2 fridays after spring equinox",
+      "actual_text": "2 fridays after spring equinox",
+      "actual": "2021-04-02 12:00:00"
+    },
+    {
+      "text": "i think in 2 fridays after spring equinox works best",
+      "expected_text": "in 2 fridays after spring equinox",
+      "expected": "2021-04-02 12:00:00",
+      "family": "stacked_anchor",
+      "source_phrase": "2 fridays after spring equinox",
+      "actual_text": "2 fridays after spring equinox",
+      "actual": "2021-04-02 12:00:00"
+    },
+    {
+      "text": "let's do it in two Fridays from now please",
+      "expected_text": "in two Fridays from now",
+      "expected": "2021-01-08 17:05:55",
+      "family": "counted_weekday",
+      "source_phrase": "two Fridays from now",
+      "actual_text": "two Fridays from now",
+      "actual": "2021-01-08 17:05:55"
+    },
+    {
+      "text": "we should do in two Fridays from now for the plan",
+      "expected_text": "in two Fridays from now",
+      "expected": "2021-01-08 17:05:55",
+      "family": "counted_weekday",
+      "source_phrase": "two Fridays from now",
+      "actual_text": "two Fridays from now",
+      "actual": "2021-01-08 17:05:55"
+    },
+    {
+      "text": "i think in two Fridays from now works best",
+      "expected_text": "in two Fridays from now",
+      "expected": "2021-01-08 17:05:55",
+      "family": "counted_weekday",
+      "source_phrase": "two Fridays from now",
+      "actual_text": "two Fridays from now",
+      "actual": "2021-01-08 17:05:55"
+    },
+    {
+      "text": "let's do it two Fridays from the now please",
+      "expected_text": "two Fridays from the now",
+      "expected": "2021-01-08 17:05:55",
+      "family": "counted_weekday",
+      "source_phrase": "two Fridays from now",
+      "actual_text": [
+        "two",
+        "now"
+      ],
+      "actual": [
+        "2020-12-25 02:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do two Fridays from the now for the plan",
+      "expected_text": "two Fridays from the now",
+      "expected": "2021-01-08 17:05:55",
+      "family": "counted_weekday",
+      "source_phrase": "two Fridays from now",
+      "actual_text": [
+        "two",
+        "now"
+      ],
+      "actual": [
+        "2020-12-25 02:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "i think two Fridays from the now works best",
+      "expected_text": "two Fridays from the now",
+      "expected": "2021-01-08 17:05:55",
+      "family": "counted_weekday",
+      "source_phrase": "two Fridays from now",
+      "actual_text": [
+        "two",
+        "now"
+      ],
+      "actual": [
+        "2020-12-25 02:00:00",
+        "2020-12-25 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it in the night before last please",
+      "expected_text": "in the night before last",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night before last",
+      "actual_text": "in the night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "we should do in the night before last for the plan",
+      "expected_text": "in the night before last",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night before last",
+      "actual_text": "in the night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "i think in the night before last works best",
+      "expected_text": "in the night before last",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night before last",
+      "actual_text": "in the night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "let's do it the night before the last please",
+      "expected_text": "the night before the last",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night before last",
+      "actual_text": "night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "we should do the night before the last for the plan",
+      "expected_text": "the night before the last",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night before last",
+      "actual_text": "night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "i think the night before the last works best",
+      "expected_text": "the night before the last",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night before last",
+      "actual_text": "night",
+      "actual": "2020-12-25 21:00:00"
+    },
+    {
+      "text": "let's do it the night b4 from yesterday please",
+      "expected_text": "the night b4 from yesterday",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night b4 yesterday",
+      "actual_text": [
+        "night",
+        "from yesterday"
+      ],
+      "actual": [
+        "2020-12-25 21:00:00",
+        "2020-12-24 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do the night b4 from yesterday for the plan",
+      "expected_text": "the night b4 from yesterday",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night b4 yesterday",
+      "actual_text": [
+        "night",
+        "from yesterday"
+      ],
+      "actual": [
+        "2020-12-25 21:00:00",
+        "2020-12-24 17:05:55"
+      ]
+    },
+    {
+      "text": "i think the night b4 from yesterday works best",
+      "expected_text": "the night b4 from yesterday",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night b4 yesterday",
+      "actual_text": [
+        "night",
+        "from yesterday"
+      ],
+      "actual": [
+        "2020-12-25 21:00:00",
+        "2020-12-24 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it the night b4 after yesterday please",
+      "expected_text": "the night b4 after yesterday",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night b4 yesterday",
+      "actual_text": [
+        "night",
+        "yesterday"
+      ],
+      "actual": [
+        "2020-12-25 21:00:00",
+        "2020-12-24 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do the night b4 after yesterday for the plan",
+      "expected_text": "the night b4 after yesterday",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night b4 yesterday",
+      "actual_text": [
+        "night",
+        "yesterday"
+      ],
+      "actual": [
+        "2020-12-25 21:00:00",
+        "2020-12-24 17:05:55"
+      ]
+    },
+    {
+      "text": "i think the night b4 after yesterday works best",
+      "expected_text": "the night b4 after yesterday",
+      "expected": "2020-12-23 21:00:00",
+      "family": "parts_of_day",
+      "source_phrase": "the night b4 yesterday",
+      "actual_text": [
+        "night",
+        "yesterday"
+      ],
+      "actual": [
+        "2020-12-25 21:00:00",
+        "2020-12-24 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it 10 seconds to the midnight on the first Monday in May please",
+      "expected_text": "10 seconds to the midnight on the first Monday in May",
+      "expected": "2020-05-04 23:59:50",
+      "family": "reordered_composition",
+      "source_phrase": "10 seconds to midnight on the first Monday in May",
+      "actual_text": [
+        "10 seconds",
+        "midnight on the first Monday in May"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-05-04 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do 10 seconds to the midnight on the first Monday in May for the plan",
+      "expected_text": "10 seconds to the midnight on the first Monday in May",
+      "expected": "2020-05-04 23:59:50",
+      "family": "reordered_composition",
+      "source_phrase": "10 seconds to midnight on the first Monday in May",
+      "actual_text": [
+        "10 seconds",
+        "midnight on the first Monday in May"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-05-04 00:00:00"
+      ]
+    },
+    {
+      "text": "i think 10 seconds to the midnight on the first Monday in May works best",
+      "expected_text": "10 seconds to the midnight on the first Monday in May",
+      "expected": "2020-05-04 23:59:50",
+      "family": "reordered_composition",
+      "source_phrase": "10 seconds to midnight on the first Monday in May",
+      "actual_text": [
+        "10 seconds",
+        "midnight on the first Monday in May"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-05-04 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it on the first Monday in May at 10 seconds to the midnight please",
+      "expected_text": "on the first Monday in May at 10 seconds to the midnight",
+      "expected": "2020-05-04 23:59:50",
+      "family": "reordered_composition",
+      "source_phrase": "on the first Monday in May at 10 seconds to midnight",
+      "actual_text": [
+        "on the first Monday in May at 10",
+        "midnight"
+      ],
+      "actual": [
+        "2020-05-04 10:00:00",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do on the first Monday in May at 10 seconds to the midnight for the plan",
+      "expected_text": "on the first Monday in May at 10 seconds to the midnight",
+      "expected": "2020-05-04 23:59:50",
+      "family": "reordered_composition",
+      "source_phrase": "on the first Monday in May at 10 seconds to midnight",
+      "actual_text": [
+        "on the first Monday in May at 10",
+        "midnight"
+      ],
+      "actual": [
+        "2020-05-04 10:00:00",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "i think on the first Monday in May at 10 seconds to the midnight works best",
+      "expected_text": "on the first Monday in May at 10 seconds to the midnight",
+      "expected": "2020-05-04 23:59:50",
+      "family": "reordered_composition",
+      "source_phrase": "on the first Monday in May at 10 seconds to midnight",
+      "actual_text": [
+        "on the first Monday in May at 10",
+        "midnight"
+      ],
+      "actual": [
+        "2020-05-04 10:00:00",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it 5 past 10 on the first Monday in May please",
+      "expected_text": "5 past 10 on the first Monday in May",
+      "expected": "2020-05-04 10:05:00",
+      "family": "reordered_composition",
+      "source_phrase": "5 past 10 on the first Monday in May",
+      "actual_text": "on the first Monday in May",
+      "actual": "2020-05-04 17:05:55"
+    },
+    {
+      "text": "we should do 5 past 10 on the first Monday in May for the plan",
+      "expected_text": "5 past 10 on the first Monday in May",
+      "expected": "2020-05-04 10:05:00",
+      "family": "reordered_composition",
+      "source_phrase": "5 past 10 on the first Monday in May",
+      "actual_text": "on the first Monday in May",
+      "actual": "2020-05-04 17:05:55"
+    },
+    {
+      "text": "i think 5 past 10 on the first Monday in May works best",
+      "expected_text": "5 past 10 on the first Monday in May",
+      "expected": "2020-05-04 10:05:00",
+      "family": "reordered_composition",
+      "source_phrase": "5 past 10 on the first Monday in May",
+      "actual_text": "on the first Monday in May",
+      "actual": "2020-05-04 17:05:55"
+    },
+    {
+      "text": "let's do it 5 past 10 on the first Monday of May please",
+      "expected_text": "5 past 10 on the first Monday of May",
+      "expected": "2020-05-04 10:05:00",
+      "family": "reordered_composition",
+      "source_phrase": "5 past 10 on the first Monday in May",
+      "actual_text": "on the first Monday of May",
+      "actual": "2020-05-04 17:05:55"
+    },
+    {
+      "text": "we should do 5 past 10 on the first Monday of May for the plan",
+      "expected_text": "5 past 10 on the first Monday of May",
+      "expected": "2020-05-04 10:05:00",
+      "family": "reordered_composition",
+      "source_phrase": "5 past 10 on the first Monday in May",
+      "actual_text": "on the first Monday of May",
+      "actual": "2020-05-04 17:05:55"
+    },
+    {
+      "text": "i think 5 past 10 on the first Monday of May works best",
+      "expected_text": "5 past 10 on the first Monday of May",
+      "expected": "2020-05-04 10:05:00",
+      "family": "reordered_composition",
+      "source_phrase": "5 past 10 on the first Monday in May",
+      "actual_text": "on the first Monday of May",
+      "actual": "2020-05-04 17:05:55"
+    },
+    {
+      "text": "let's do it 10 seconds to the midnight on the middle of september please",
+      "expected_text": "10 seconds to the midnight on the middle of september",
+      "expected": "2021-09-15 23:59:50",
+      "family": "mixed_precision",
+      "source_phrase": "10 seconds to midnight on the middle of september",
+      "actual_text": [
+        "10 seconds",
+        "midnight on the middle of september"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2021-09-15 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do 10 seconds to the midnight on the middle of september for the plan",
+      "expected_text": "10 seconds to the midnight on the middle of september",
+      "expected": "2021-09-15 23:59:50",
+      "family": "mixed_precision",
+      "source_phrase": "10 seconds to midnight on the middle of september",
+      "actual_text": [
+        "10 seconds",
+        "midnight on the middle of september"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2021-09-15 00:00:00"
+      ]
+    },
+    {
+      "text": "i think 10 seconds to the midnight on the middle of september works best",
+      "expected_text": "10 seconds to the midnight on the middle of september",
+      "expected": "2021-09-15 23:59:50",
+      "family": "mixed_precision",
+      "source_phrase": "10 seconds to midnight on the middle of september",
+      "actual_text": [
+        "10 seconds",
+        "midnight on the middle of september"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2021-09-15 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it the middle of september at 10 seconds to the midnight please",
+      "expected_text": "the middle of september at 10 seconds to the midnight",
+      "expected": "2021-09-15 23:59:50",
+      "family": "mixed_precision",
+      "source_phrase": "the middle of september at 10 seconds to midnight",
+      "actual_text": [
+        "the middle of september at 10",
+        "midnight"
+      ],
+      "actual": [
+        "2021-09-15 10:00:00",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do the middle of september at 10 seconds to the midnight for the plan",
+      "expected_text": "the middle of september at 10 seconds to the midnight",
+      "expected": "2021-09-15 23:59:50",
+      "family": "mixed_precision",
+      "source_phrase": "the middle of september at 10 seconds to midnight",
+      "actual_text": [
+        "the middle of september at 10",
+        "midnight"
+      ],
+      "actual": [
+        "2021-09-15 10:00:00",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "i think the middle of september at 10 seconds to the midnight works best",
+      "expected_text": "the middle of september at 10 seconds to the midnight",
+      "expected": "2021-09-15 23:59:50",
+      "family": "mixed_precision",
+      "source_phrase": "the middle of september at 10 seconds to midnight",
+      "actual_text": [
+        "the middle of september at 10",
+        "midnight"
+      ],
+      "actual": [
+        "2021-09-15 10:00:00",
+        "2020-12-25 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it in the friday after the second week in june at quarter to six please",
+      "expected_text": "in the friday after the second week in june at quarter to six",
+      "expected": "2021-06-11 05:45:00",
+      "family": "long_composition",
+      "source_phrase": "the friday after the second week in june at quarter to six",
+      "actual_text": "the friday after the second week in june at quarter to six",
+      "actual": "2021-06-11 05:45:00"
+    },
+    {
+      "text": "we should do in the friday after the second week in june at quarter to six for the plan",
+      "expected_text": "in the friday after the second week in june at quarter to six",
+      "expected": "2021-06-11 05:45:00",
+      "family": "long_composition",
+      "source_phrase": "the friday after the second week in june at quarter to six",
+      "actual_text": "the friday after the second week in june at quarter to six",
+      "actual": "2021-06-11 05:45:00"
+    },
+    {
+      "text": "i think in the friday after the second week in june at quarter to six works best",
+      "expected_text": "in the friday after the second week in june at quarter to six",
+      "expected": "2021-06-11 05:45:00",
+      "family": "long_composition",
+      "source_phrase": "the friday after the second week in june at quarter to six",
+      "actual_text": "the friday after the second week in june at quarter to six",
+      "actual": "2021-06-11 05:45:00"
+    },
+    {
+      "text": "let's do it in at five past ten on the second friday after christmas please",
+      "expected_text": "in at five past ten on the second friday after christmas",
+      "expected": "2021-01-08 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "at five past ten on the second friday after christmas",
+      "actual_text": "at five past ten on the second friday after christmas",
+      "actual": "2021-01-08 10:05:00"
+    },
+    {
+      "text": "we should do in at five past ten on the second friday after christmas for the plan",
+      "expected_text": "in at five past ten on the second friday after christmas",
+      "expected": "2021-01-08 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "at five past ten on the second friday after christmas",
+      "actual_text": "at five past ten on the second friday after christmas",
+      "actual": "2021-01-08 10:05:00"
+    },
+    {
+      "text": "i think in at five past ten on the second friday after christmas works best",
+      "expected_text": "in at five past ten on the second friday after christmas",
+      "expected": "2021-01-08 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "at five past ten on the second friday after christmas",
+      "actual_text": "at five past ten on the second friday after christmas",
+      "actual": "2021-01-08 10:05:00"
+    },
+    {
+      "text": "let's do it in the first business day before the end of next summer please",
+      "expected_text": "in the first business day before the end of next summer",
+      "expected": "2021-08-30 17:05:55",
+      "family": "long_composition",
+      "source_phrase": "the first business day before the end of next summer",
+      "actual_text": "the first business day before the end of next summer",
+      "actual": "2021-08-30 17:05:55"
+    },
+    {
+      "text": "we should do in the first business day before the end of next summer for the plan",
+      "expected_text": "in the first business day before the end of next summer",
+      "expected": "2021-08-30 17:05:55",
+      "family": "long_composition",
+      "source_phrase": "the first business day before the end of next summer",
+      "actual_text": "the first business day before the end of next summer",
+      "actual": "2021-08-30 17:05:55"
+    },
+    {
+      "text": "i think in the first business day before the end of next summer works best",
+      "expected_text": "in the first business day before the end of next summer",
+      "expected": "2021-08-30 17:05:55",
+      "family": "long_composition",
+      "source_phrase": "the first business day before the end of next summer",
+      "actual_text": "the first business day before the end of next summer",
+      "actual": "2021-08-30 17:05:55"
+    },
+    {
+      "text": "let's do it in the tuesday after the first full moon in april please",
+      "expected_text": "in the tuesday after the first full moon in april",
+      "expected": "2021-05-04 01:40:38",
+      "family": "long_composition",
+      "source_phrase": "the tuesday after the first full moon in april",
+      "actual_text": "the tuesday after the first full moon in april",
+      "actual": "2021-05-04 01:40:38"
+    },
+    {
+      "text": "we should do in the tuesday after the first full moon in april for the plan",
+      "expected_text": "in the tuesday after the first full moon in april",
+      "expected": "2021-05-04 01:40:38",
+      "family": "long_composition",
+      "source_phrase": "the tuesday after the first full moon in april",
+      "actual_text": "the tuesday after the first full moon in april",
+      "actual": "2021-05-04 01:40:38"
+    },
+    {
+      "text": "i think in the tuesday after the first full moon in april works best",
+      "expected_text": "in the tuesday after the first full moon in april",
+      "expected": "2021-05-04 01:40:38",
+      "family": "long_composition",
+      "source_phrase": "the tuesday after the first full moon in april",
+      "actual_text": "the tuesday after the first full moon in april",
+      "actual": "2021-05-04 01:40:38"
+    },
+    {
+      "text": "let's do it on the middle of december at quarter past eight in the evening please",
+      "expected_text": "on the middle of december at quarter past eight in the evening",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual_text": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 20:15:00"
+    },
+    {
+      "text": "we should do on the middle of december at quarter past eight in the evening for the plan",
+      "expected_text": "on the middle of december at quarter past eight in the evening",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual_text": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 20:15:00"
+    },
+    {
+      "text": "i think on the middle of december at quarter past eight in the evening works best",
+      "expected_text": "on the middle of december at quarter past eight in the evening",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual_text": "the middle of december at quarter past eight in the evening",
+      "actual": "2021-12-15 20:15:00"
+    },
+    {
+      "text": "let's do it evening on the middle of december at quarter past eight in the please",
+      "expected_text": "evening on the middle of december at quarter past eight in the",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual_text": "the middle of december at quarter past eight",
+      "actual": "2021-12-15 08:15:00"
+    },
+    {
+      "text": "we should do evening on the middle of december at quarter past eight in the for the plan",
+      "expected_text": "evening on the middle of december at quarter past eight in the",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual_text": "the middle of december at quarter past eight",
+      "actual": "2021-12-15 08:15:00"
+    },
+    {
+      "text": "i think evening on the middle of december at quarter past eight in the works best",
+      "expected_text": "evening on the middle of december at quarter past eight in the",
+      "expected": "2021-12-15 20:15:00",
+      "family": "long_composition",
+      "source_phrase": "the middle of december at quarter past eight in the evening",
+      "actual_text": "the middle of december at quarter past eight",
+      "actual": "2021-12-15 08:15:00"
+    },
+    {
+      "text": "let's do it 2 hours after the dusk on the first monday in may please",
+      "expected_text": "2 hours after the dusk on the first monday in may",
+      "expected": "2020-05-04 22:20:00",
+      "family": "long_composition",
+      "source_phrase": "2 hours after dusk on the first monday in may",
+      "actual_text": [
+        "2 hours",
+        "dusk on the first monday in may"
+      ],
+      "actual": [
+        "2020-12-25 19:05:55",
+        "2020-05-04 20:20:00"
+      ]
+    },
+    {
+      "text": "we should do 2 hours after the dusk on the first monday in may for the plan",
+      "expected_text": "2 hours after the dusk on the first monday in may",
+      "expected": "2020-05-04 22:20:00",
+      "family": "long_composition",
+      "source_phrase": "2 hours after dusk on the first monday in may",
+      "actual_text": [
+        "2 hours",
+        "dusk on the first monday in may"
+      ],
+      "actual": [
+        "2020-12-25 19:05:55",
+        "2020-05-04 20:20:00"
+      ]
+    },
+    {
+      "text": "i think 2 hours after the dusk on the first monday in may works best",
+      "expected_text": "2 hours after the dusk on the first monday in may",
+      "expected": "2020-05-04 22:20:00",
+      "family": "long_composition",
+      "source_phrase": "2 hours after dusk on the first monday in may",
+      "actual_text": [
+        "2 hours",
+        "dusk on the first monday in may"
+      ],
+      "actual": [
+        "2020-12-25 19:05:55",
+        "2020-05-04 20:20:00"
+      ]
+    },
+    {
+      "text": "let's do it in the last working day before fiscal year end at noon please",
+      "expected_text": "in the last working day before fiscal year end at noon",
+      "expected": "2020-12-30 12:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last working day before fiscal year end at noon",
+      "actual_text": "the last working day before fiscal year end at noon",
+      "actual": "2020-12-30 12:00:00"
+    },
+    {
+      "text": "we should do in the last working day before fiscal year end at noon for the plan",
+      "expected_text": "in the last working day before fiscal year end at noon",
+      "expected": "2020-12-30 12:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last working day before fiscal year end at noon",
+      "actual_text": "the last working day before fiscal year end at noon",
+      "actual": "2020-12-30 12:00:00"
+    },
+    {
+      "text": "i think in the last working day before fiscal year end at noon works best",
+      "expected_text": "in the last working day before fiscal year end at noon",
+      "expected": "2020-12-30 12:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last working day before fiscal year end at noon",
+      "actual_text": "the last working day before fiscal year end at noon",
+      "actual": "2020-12-30 12:00:00"
+    },
+    {
+      "text": "let's do it in the first tuesday before the harvest moon at half past seven please",
+      "expected_text": "in the first tuesday before the harvest moon at half past seven",
+      "expected": "2021-09-14 07:30:00",
+      "family": "long_composition",
+      "source_phrase": "the first tuesday before the harvest moon at half past seven",
+      "actual_text": "the first tuesday before the harvest moon at half past seven",
+      "actual": "2021-09-14 07:30:00"
+    },
+    {
+      "text": "we should do in the first tuesday before the harvest moon at half past seven for the plan",
+      "expected_text": "in the first tuesday before the harvest moon at half past seven",
+      "expected": "2021-09-14 07:30:00",
+      "family": "long_composition",
+      "source_phrase": "the first tuesday before the harvest moon at half past seven",
+      "actual_text": "the first tuesday before the harvest moon at half past seven",
+      "actual": "2021-09-14 07:30:00"
+    },
+    {
+      "text": "i think in the first tuesday before the harvest moon at half past seven works best",
+      "expected_text": "in the first tuesday before the harvest moon at half past seven",
+      "expected": "2021-09-14 07:30:00",
+      "family": "long_composition",
+      "source_phrase": "the first tuesday before the harvest moon at half past seven",
+      "actual_text": "the first tuesday before the harvest moon at half past seven",
+      "actual": "2021-09-14 07:30:00"
+    },
+    {
+      "text": "let's do it twenty seconds after the dusk on the last friday in march please",
+      "expected_text": "twenty seconds after the dusk on the last friday in march",
+      "expected": "2020-03-27 18:40:20",
+      "family": "long_composition",
+      "source_phrase": "twenty seconds after dusk on the last friday in march",
+      "actual_text": [
+        "twenty seconds",
+        "dusk on the last friday in march"
+      ],
+      "actual": [
+        "2020-12-25 17:06:15",
+        "2020-03-27 18:40:00"
+      ]
+    },
+    {
+      "text": "we should do twenty seconds after the dusk on the last friday in march for the plan",
+      "expected_text": "twenty seconds after the dusk on the last friday in march",
+      "expected": "2020-03-27 18:40:20",
+      "family": "long_composition",
+      "source_phrase": "twenty seconds after dusk on the last friday in march",
+      "actual_text": [
+        "twenty seconds",
+        "dusk on the last friday in march"
+      ],
+      "actual": [
+        "2020-12-25 17:06:15",
+        "2020-03-27 18:40:00"
+      ]
+    },
+    {
+      "text": "i think twenty seconds after the dusk on the last friday in march works best",
+      "expected_text": "twenty seconds after the dusk on the last friday in march",
+      "expected": "2020-03-27 18:40:20",
+      "family": "long_composition",
+      "source_phrase": "twenty seconds after dusk on the last friday in march",
+      "actual_text": [
+        "twenty seconds",
+        "dusk on the last friday in march"
+      ],
+      "actual": [
+        "2020-12-25 17:06:15",
+        "2020-03-27 18:40:00"
+      ]
+    },
+    {
+      "text": "let's do it in the second business day after the first full moon in may please",
+      "expected_text": "in the second business day after the first full moon in may",
+      "expected": "2021-05-28 14:24:40",
+      "family": "long_composition",
+      "source_phrase": "the second business day after the first full moon in may",
+      "actual_text": "the second business day after the first full moon in may",
+      "actual": "2021-05-28 14:24:40"
+    },
+    {
+      "text": "we should do in the second business day after the first full moon in may for the plan",
+      "expected_text": "in the second business day after the first full moon in may",
+      "expected": "2021-05-28 14:24:40",
+      "family": "long_composition",
+      "source_phrase": "the second business day after the first full moon in may",
+      "actual_text": "the second business day after the first full moon in may",
+      "actual": "2021-05-28 14:24:40"
+    },
+    {
+      "text": "i think in the second business day after the first full moon in may works best",
+      "expected_text": "in the second business day after the first full moon in may",
+      "expected": "2021-05-28 14:24:40",
+      "family": "long_composition",
+      "source_phrase": "the second business day after the first full moon in may",
+      "actual_text": "the second business day after the first full moon in may",
+      "actual": "2021-05-28 14:24:40"
+    },
+    {
+      "text": "let's do it in the third monday after the spring equinox at dawn please",
+      "expected_text": "in the third monday after the spring equinox at dawn",
+      "expected": "2021-04-05 04:45:00",
+      "family": "long_composition",
+      "source_phrase": "the third monday after the spring equinox at dawn",
+      "actual_text": "the third monday after the spring equinox at dawn",
+      "actual": "2021-04-05 04:45:00"
+    },
+    {
+      "text": "we should do in the third monday after the spring equinox at dawn for the plan",
+      "expected_text": "in the third monday after the spring equinox at dawn",
+      "expected": "2021-04-05 04:45:00",
+      "family": "long_composition",
+      "source_phrase": "the third monday after the spring equinox at dawn",
+      "actual_text": "the third monday after the spring equinox at dawn",
+      "actual": "2021-04-05 04:45:00"
+    },
+    {
+      "text": "i think in the third monday after the spring equinox at dawn works best",
+      "expected_text": "in the third monday after the spring equinox at dawn",
+      "expected": "2021-04-05 04:45:00",
+      "family": "long_composition",
+      "source_phrase": "the third monday after the spring equinox at dawn",
+      "actual_text": "the third monday after the spring equinox at dawn",
+      "actual": "2021-04-05 04:45:00"
+    },
+    {
+      "text": "let's do it 5 past 10 on the first business day after fiscal q1 please",
+      "expected_text": "5 past 10 on the first business day after fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "we should do 5 past 10 on the first business day after fiscal q1 for the plan",
+      "expected_text": "5 past 10 on the first business day after fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "i think 5 past 10 on the first business day after fiscal q1 works best",
+      "expected_text": "5 past 10 on the first business day after fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "let's do it in 5 past 10 on the first business day after fiscal q1 please",
+      "expected_text": "in 5 past 10 on the first business day after fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "we should do in 5 past 10 on the first business day after fiscal q1 for the plan",
+      "expected_text": "in 5 past 10 on the first business day after fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "i think in 5 past 10 on the first business day after fiscal q1 works best",
+      "expected_text": "in 5 past 10 on the first business day after fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "let's do it 5 past 10 on the first business day after the fiscal q1 please",
+      "expected_text": "5 past 10 on the first business day after the fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after the fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "we should do 5 past 10 on the first business day after the fiscal q1 for the plan",
+      "expected_text": "5 past 10 on the first business day after the fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after the fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "i think 5 past 10 on the first business day after the fiscal q1 works best",
+      "expected_text": "5 past 10 on the first business day after the fiscal q1",
+      "expected": "2021-01-04 10:05:00",
+      "family": "long_composition",
+      "source_phrase": "5 past 10 on the first business day after fiscal q1",
+      "actual_text": "on the first business day after the fiscal q1",
+      "actual": "2021-01-04 17:05:55"
+    },
+    {
+      "text": "let's do it in the last sunday before the middle of december at noon please",
+      "expected_text": "in the last sunday before the middle of december at noon",
+      "expected": "2021-12-12 12:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last sunday before the middle of december at noon",
+      "actual_text": "the last sunday before the middle of december at noon",
+      "actual": "2021-12-12 12:00:00"
+    },
+    {
+      "text": "we should do in the last sunday before the middle of december at noon for the plan",
+      "expected_text": "in the last sunday before the middle of december at noon",
+      "expected": "2021-12-12 12:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last sunday before the middle of december at noon",
+      "actual_text": "the last sunday before the middle of december at noon",
+      "actual": "2021-12-12 12:00:00"
+    },
+    {
+      "text": "i think in the last sunday before the middle of december at noon works best",
+      "expected_text": "in the last sunday before the middle of december at noon",
+      "expected": "2021-12-12 12:00:00",
+      "family": "long_composition",
+      "source_phrase": "the last sunday before the middle of december at noon",
+      "actual_text": "the last sunday before the middle of december at noon",
+      "actual": "2021-12-12 12:00:00"
+    },
+    {
+      "text": "let's do it two hours before the sunrise on the hundredth day of 2027 please",
+      "expected_text": "two hours before the sunrise on the hundredth day of 2027",
+      "expected": "2027-04-10 03:25:00",
+      "family": "long_composition",
+      "source_phrase": "two hours before sunrise on the hundredth day of 2027",
+      "actual_text": [
+        "two hours before",
+        "sunrise on the hundredth day of 2027"
+      ],
+      "actual": [
+        "2020-12-25 15:05:55",
+        "2027-04-10 05:25:00"
+      ]
+    },
+    {
+      "text": "we should do two hours before the sunrise on the hundredth day of 2027 for the plan",
+      "expected_text": "two hours before the sunrise on the hundredth day of 2027",
+      "expected": "2027-04-10 03:25:00",
+      "family": "long_composition",
+      "source_phrase": "two hours before sunrise on the hundredth day of 2027",
+      "actual_text": [
+        "two hours before",
+        "sunrise on the hundredth day of 2027"
+      ],
+      "actual": [
+        "2020-12-25 15:05:55",
+        "2027-04-10 05:25:00"
+      ]
+    },
+    {
+      "text": "i think two hours before the sunrise on the hundredth day of 2027 works best",
+      "expected_text": "two hours before the sunrise on the hundredth day of 2027",
+      "expected": "2027-04-10 03:25:00",
+      "family": "long_composition",
+      "source_phrase": "two hours before sunrise on the hundredth day of 2027",
+      "actual_text": [
+        "two hours before",
+        "sunrise on the hundredth day of 2027"
+      ],
+      "actual": [
+        "2020-12-25 15:05:55",
+        "2027-04-10 05:25:00"
+      ]
+    },
+    {
+      "text": "let's do it in the friday after the last day in february 2028 at 3pm please",
+      "expected_text": "in the friday after the last day in february 2028 at 3pm",
+      "expected": "2028-03-03 15:00:00",
+      "family": "long_composition",
+      "source_phrase": "the friday after the last day in february 2028 at 3pm",
+      "actual_text": "the friday after the last day in february 2028 at 3pm",
+      "actual": "2028-03-03 15:00:00"
+    },
+    {
+      "text": "we should do in the friday after the last day in february 2028 at 3pm for the plan",
+      "expected_text": "in the friday after the last day in february 2028 at 3pm",
+      "expected": "2028-03-03 15:00:00",
+      "family": "long_composition",
+      "source_phrase": "the friday after the last day in february 2028 at 3pm",
+      "actual_text": "the friday after the last day in february 2028 at 3pm",
+      "actual": "2028-03-03 15:00:00"
+    },
+    {
+      "text": "i think in the friday after the last day in february 2028 at 3pm works best",
+      "expected_text": "in the friday after the last day in february 2028 at 3pm",
+      "expected": "2028-03-03 15:00:00",
+      "family": "long_composition",
+      "source_phrase": "the friday after the last day in february 2028 at 3pm",
+      "actual_text": "the friday after the last day in february 2028 at 3pm",
+      "actual": "2028-03-03 15:00:00"
+    },
+    {
+      "text": "let's do it in quarter past eight the first business day after christmas please",
+      "expected_text": "in quarter past eight the first business day after christmas",
+      "expected": "2020-12-28 08:15:00",
+      "family": "long_composition",
+      "source_phrase": "quarter past eight the first business day after christmas",
+      "actual_text": "quarter past eight the first business day after christmas",
+      "actual": "2020-12-28 08:15:00"
+    },
+    {
+      "text": "we should do in quarter past eight the first business day after christmas for the plan",
+      "expected_text": "in quarter past eight the first business day after christmas",
+      "expected": "2020-12-28 08:15:00",
+      "family": "long_composition",
+      "source_phrase": "quarter past eight the first business day after christmas",
+      "actual_text": "quarter past eight the first business day after christmas",
+      "actual": "2020-12-28 08:15:00"
+    },
+    {
+      "text": "i think in quarter past eight the first business day after christmas works best",
+      "expected_text": "in quarter past eight the first business day after christmas",
+      "expected": "2020-12-28 08:15:00",
+      "family": "long_composition",
+      "source_phrase": "quarter past eight the first business day after christmas",
+      "actual_text": "quarter past eight the first business day after christmas",
+      "actual": "2020-12-28 08:15:00"
+    },
+    {
+      "text": "let's do it in friday after the last full moon @ 2:30:12 please",
+      "expected_text": "in friday after the last full moon @ 2:30:12",
+      "expected": "2020-12-04 02:30:12",
+      "family": "long_composition",
+      "source_phrase": "friday after the last full moon @ 2:30:12",
+      "actual_text": [
+        "in friday",
+        "the last full moon @ 2:30:12"
+      ],
+      "actual": [
+        "2020-12-25 17:05:55",
+        "2020-11-30 02:30:12"
+      ]
+    },
+    {
+      "text": "we should do in friday after the last full moon @ 2:30:12 for the plan",
+      "expected_text": "in friday after the last full moon @ 2:30:12",
+      "expected": "2020-12-04 02:30:12",
+      "family": "long_composition",
+      "source_phrase": "friday after the last full moon @ 2:30:12",
+      "actual_text": [
+        "in friday",
+        "the last full moon @ 2:30:12"
+      ],
+      "actual": [
+        "2020-12-25 17:05:55",
+        "2020-11-30 02:30:12"
+      ]
+    },
+    {
+      "text": "i think in friday after the last full moon @ 2:30:12 works best",
+      "expected_text": "in friday after the last full moon @ 2:30:12",
+      "expected": "2020-12-04 02:30:12",
+      "family": "long_composition",
+      "source_phrase": "friday after the last full moon @ 2:30:12",
+      "actual_text": [
+        "in friday",
+        "the last full moon @ 2:30:12"
+      ],
+      "actual": [
+        "2020-12-25 17:05:55",
+        "2020-11-30 02:30:12"
+      ]
+    },
+    {
+      "text": "let's do it half a second after the 12pm please",
+      "expected_text": "half a second after the 12pm",
+      "expected": "2020-12-25 12:00:00.500000",
+      "family": "relative_subsecond",
+      "source_phrase": "half a second after 12pm",
+      "actual_text": [
+        "a second",
+        "12pm"
+      ],
+      "actual": [
+        "2020-12-25 17:05:56",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "we should do half a second after the 12pm for the plan",
+      "expected_text": "half a second after the 12pm",
+      "expected": "2020-12-25 12:00:00.500000",
+      "family": "relative_subsecond",
+      "source_phrase": "half a second after 12pm",
+      "actual_text": [
+        "a second",
+        "12pm"
+      ],
+      "actual": [
+        "2020-12-25 17:05:56",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "i think half a second after the 12pm works best",
+      "expected_text": "half a second after the 12pm",
+      "expected": "2020-12-25 12:00:00.500000",
+      "family": "relative_subsecond",
+      "source_phrase": "half a second after 12pm",
+      "actual_text": [
+        "a second",
+        "12pm"
+      ],
+      "actual": [
+        "2020-12-25 17:05:56",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "let's do it half second after 12pm please",
+      "expected_text": "half second after 12pm",
+      "expected": "2020-12-25 12:00:00.500000",
+      "family": "relative_subsecond",
+      "source_phrase": "half a second after 12pm",
+      "actual_text": [
+        "second",
+        "12pm"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "we should do half second after 12pm for the plan",
+      "expected_text": "half second after 12pm",
+      "expected": "2020-12-25 12:00:00.500000",
+      "family": "relative_subsecond",
+      "source_phrase": "half a second after 12pm",
+      "actual_text": [
+        "second",
+        "12pm"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "i think half second after 12pm works best",
+      "expected_text": "half second after 12pm",
+      "expected": "2020-12-25 12:00:00.500000",
+      "family": "relative_subsecond",
+      "source_phrase": "half a second after 12pm",
+      "actual_text": [
+        "second",
+        "12pm"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "let's do it 10 seconds to the midnight the first monday in may please",
+      "expected_text": "10 seconds to the midnight the first monday in may",
+      "expected": "2020-05-04 23:59:50",
+      "family": "long_composition",
+      "source_phrase": "10 seconds to midnight the first monday in may",
+      "actual_text": [
+        "10 seconds",
+        "midnight the first monday in may"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-05-04 00:00:00"
+      ]
+    },
+    {
+      "text": "we should do 10 seconds to the midnight the first monday in may for the plan",
+      "expected_text": "10 seconds to the midnight the first monday in may",
+      "expected": "2020-05-04 23:59:50",
+      "family": "long_composition",
+      "source_phrase": "10 seconds to midnight the first monday in may",
+      "actual_text": [
+        "10 seconds",
+        "midnight the first monday in may"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-05-04 00:00:00"
+      ]
+    },
+    {
+      "text": "i think 10 seconds to the midnight the first monday in may works best",
+      "expected_text": "10 seconds to the midnight the first monday in may",
+      "expected": "2020-05-04 23:59:50",
+      "family": "long_composition",
+      "source_phrase": "10 seconds to midnight the first monday in may",
+      "actual_text": [
+        "10 seconds",
+        "midnight the first monday in may"
+      ],
+      "actual": [
+        "2020-12-25 17:06:05",
+        "2020-05-04 00:00:00"
+      ]
+    },
+    {
+      "text": "let's do it the week before christmas please",
+      "expected_text": "the week before christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week before christmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "we should do the week before christmas for the plan",
+      "expected_text": "the week before christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week before christmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "i think the week before christmas works best",
+      "expected_text": "the week before christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week before christmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "let's do it the week before xmas please",
+      "expected_text": "the week before xmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week before xmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "we should do the week before xmas for the plan",
+      "expected_text": "the week before xmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week before xmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "i think the week before xmas works best",
+      "expected_text": "the week before xmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week before xmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "let's do it the week b4 christmas please",
+      "expected_text": "the week b4 christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week b4 christmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "we should do the week b4 christmas for the plan",
+      "expected_text": "the week b4 christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week b4 christmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "i think the week b4 christmas works best",
+      "expected_text": "the week b4 christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "week b4 christmas",
+      "actual": "2020-12-18 17:05:55"
+    },
+    {
+      "text": "let's do it the week before the christmas please",
+      "expected_text": "the week before the christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "christmas",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "we should do the week before the christmas for the plan",
+      "expected_text": "the week before the christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "christmas",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "i think the week before the christmas works best",
+      "expected_text": "the week before the christmas",
+      "expected": "2020-12-18 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the week before christmas",
+      "actual_text": "christmas",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "let's do it the second half in december please",
+      "expected_text": "the second half in december",
+      "expected": "2021-12-16 17:05:55",
+      "family": "month_anchor",
+      "source_phrase": "the second half of december",
+      "actual_text": [
+        "the second",
+        "in december"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2021-12-01 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do the second half in december for the plan",
+      "expected_text": "the second half in december",
+      "expected": "2021-12-16 17:05:55",
+      "family": "month_anchor",
+      "source_phrase": "the second half of december",
+      "actual_text": [
+        "the second",
+        "in december"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2021-12-01 17:05:55"
+      ]
+    },
+    {
+      "text": "i think the second half in december works best",
+      "expected_text": "the second half in december",
+      "expected": "2021-12-16 17:05:55",
+      "family": "month_anchor",
+      "source_phrase": "the second half of december",
+      "actual_text": [
+        "the second",
+        "in december"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2021-12-01 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it second half in december please",
+      "expected_text": "second half in december",
+      "expected": "2021-12-16 17:05:55",
+      "family": "month_anchor",
+      "source_phrase": "the second half of december",
+      "actual_text": [
+        "second",
+        "in december"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2021-12-01 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do second half in december for the plan",
+      "expected_text": "second half in december",
+      "expected": "2021-12-16 17:05:55",
+      "family": "month_anchor",
+      "source_phrase": "the second half of december",
+      "actual_text": [
+        "second",
+        "in december"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2021-12-01 17:05:55"
+      ]
+    },
+    {
+      "text": "i think second half in december works best",
+      "expected_text": "second half in december",
+      "expected": "2021-12-16 17:05:55",
+      "family": "month_anchor",
+      "source_phrase": "the second half of december",
+      "actual_text": [
+        "second",
+        "in december"
+      ],
+      "actual": [
+        "2020-12-02 17:05:55",
+        "2021-12-01 17:05:55"
+      ]
+    },
+    {
+      "text": "let's do it the weekend after next christmas please",
+      "expected_text": "the weekend after next christmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after next christmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "we should do the weekend after next christmas for the plan",
+      "expected_text": "the weekend after next christmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after next christmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "i think the weekend after next christmas works best",
+      "expected_text": "the weekend after next christmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after next christmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "let's do it the weekend after next xmas please",
+      "expected_text": "the weekend after next xmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after next xmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "we should do the weekend after next xmas for the plan",
+      "expected_text": "the weekend after next xmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after next xmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "i think the weekend after next xmas works best",
+      "expected_text": "the weekend after next xmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after next xmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "let's do it the weekend after the next christmas please",
+      "expected_text": "the weekend after the next christmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after the next christmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "we should do the weekend after the next christmas for the plan",
+      "expected_text": "the weekend after the next christmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after the next christmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "i think the weekend after the next christmas works best",
+      "expected_text": "the weekend after the next christmas",
+      "expected": "2022-01-01 17:05:55",
+      "family": "anchor_offset",
+      "source_phrase": "the weekend after next christmas",
+      "actual_text": "weekend after the next christmas",
+      "actual": "2022-01-01 17:05:55"
+    },
+    {
+      "text": "let's do it half a millisecond after the noon please",
+      "expected_text": "half a millisecond after the noon",
+      "expected": "2020-12-25 12:00:00.000500",
+      "family": "relative_subsecond",
+      "source_phrase": "half a millisecond after noon",
+      "actual_text": [
+        "a",
+        "noon"
+      ],
+      "actual": [
+        "2020-12-25 01:00:00",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "we should do half a millisecond after the noon for the plan",
+      "expected_text": "half a millisecond after the noon",
+      "expected": "2020-12-25 12:00:00.000500",
+      "family": "relative_subsecond",
+      "source_phrase": "half a millisecond after noon",
+      "actual_text": [
+        "a",
+        "noon"
+      ],
+      "actual": [
+        "2020-12-25 01:00:00",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "i think half a millisecond after the noon works best",
+      "expected_text": "half a millisecond after the noon",
+      "expected": "2020-12-25 12:00:00.000500",
+      "family": "relative_subsecond",
+      "source_phrase": "half a millisecond after noon",
+      "actual_text": [
+        "a",
+        "noon"
+      ],
+      "actual": [
+        "2020-12-25 01:00:00",
+        "2020-12-25 12:00:00"
+      ]
+    },
+    {
+      "text": "let's do it in the full moon before last please",
+      "expected_text": "in the full moon before last",
+      "expected": "2020-10-31 21:16:20",
+      "family": "moon",
+      "source_phrase": "the full moon before last",
+      "actual_text": "the full moon before last",
+      "actual": "2020-10-31 21:16:20"
+    },
+    {
+      "text": "we should do in the full moon before last for the plan",
+      "expected_text": "in the full moon before last",
+      "expected": "2020-10-31 21:16:20",
+      "family": "moon",
+      "source_phrase": "the full moon before last",
+      "actual_text": "the full moon before last",
+      "actual": "2020-10-31 21:16:20"
+    },
+    {
+      "text": "i think in the full moon before last works best",
+      "expected_text": "in the full moon before last",
+      "expected": "2020-10-31 21:16:20",
+      "family": "moon",
+      "source_phrase": "the full moon before last",
+      "actual_text": "the full moon before last",
+      "actual": "2020-10-31 21:16:20"
+    },
+    {
+      "text": "let's do it the full moon before the last please",
+      "expected_text": "the full moon before the last",
+      "expected": "2020-10-31 21:16:20",
+      "family": "moon",
+      "source_phrase": "the full moon before last",
+      "actual_text": "the full moon",
+      "actual": "2020-12-29 22:44:26"
+    },
+    {
+      "text": "we should do the full moon before the last for the plan",
+      "expected_text": "the full moon before the last",
+      "expected": "2020-10-31 21:16:20",
+      "family": "moon",
+      "source_phrase": "the full moon before last",
+      "actual_text": "the full moon",
+      "actual": "2020-12-29 22:44:26"
+    },
+    {
+      "text": "i think the full moon before the last works best",
+      "expected_text": "the full moon before the last",
+      "expected": "2020-10-31 21:16:20",
+      "family": "moon",
+      "source_phrase": "the full moon before last",
+      "actual_text": "the full moon",
+      "actual": "2020-12-29 22:44:26"
+    },
+    {
+      "text": "let's do it last september 22nd on 3:30pm please",
+      "expected_text": "last september 22nd on 3:30pm",
+      "expected": "2020-09-22 15:30:00",
+      "family": "ordinal_month_year",
+      "source_phrase": "last september 22nd @ 3:30pm",
+      "actual_text": "last september 22nd on 3:30pm",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "we should do last september 22nd on 3:30pm for the plan",
+      "expected_text": "last september 22nd on 3:30pm",
+      "expected": "2020-09-22 15:30:00",
+      "family": "ordinal_month_year",
+      "source_phrase": "last september 22nd @ 3:30pm",
+      "actual_text": "last september 22nd on 3:30pm",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "i think last september 22nd on 3:30pm works best",
+      "expected_text": "last september 22nd on 3:30pm",
+      "expected": "2020-09-22 15:30:00",
+      "family": "ordinal_month_year",
+      "source_phrase": "last september 22nd @ 3:30pm",
+      "actual_text": "last september 22nd on 3:30pm",
+      "actual": "2020-12-25 17:05:55"
+    },
+    {
+      "text": "let's do it 5 minutes past the hour on full moon please",
+      "expected_text": "5 minutes past the hour on full moon",
+      "expected": "2020-12-29 22:05:00",
+      "family": "composition_template",
+      "source_phrase": "full moon",
+      "actual_text": "5 minutes past the hour on full moon",
+      "actual": "2020-12-29 17:05:00"
+    },
+    {
+      "text": "we should do 5 minutes past the hour on full moon for the plan",
+      "expected_text": "5 minutes past the hour on full moon",
+      "expected": "2020-12-29 22:05:00",
+      "family": "composition_template",
+      "source_phrase": "full moon",
+      "actual_text": "5 minutes past the hour on full moon",
+      "actual": "2020-12-29 17:05:00"
+    },
+    {
+      "text": "i think 5 minutes past the hour on full moon works best",
+      "expected_text": "5 minutes past the hour on full moon",
+      "expected": "2020-12-29 22:05:00",
+      "family": "composition_template",
+      "source_phrase": "full moon",
+      "actual_text": "5 minutes past the hour on full moon",
+      "actual": "2020-12-29 17:05:00"
+    },
+    {
+      "text": "let's do it in the evening on the first business day after fiscal year end please",
+      "expected_text": "in the evening on the first business day after fiscal year end",
+      "expected": "2021-01-01 19:00:00",
+      "family": "ladder_supported",
+      "source_phrase": "fiscal_ladder",
+      "actual_text": [
+        "in the evening on the first",
+        "day after fiscal year end"
+      ],
+      "actual": [
+        "2020-12-01 19:00:00",
+        "2021-01-01 17:05:55"
+      ]
+    },
+    {
+      "text": "we should do in the evening on the first business day after fiscal year end for the plan",
+      "expected_text": "in the evening on the first business day after fiscal year end",
+      "expected": "2021-01-01 19:00:00",
+      "family": "ladder_supported",
+      "source_phrase": "fiscal_ladder",
+      "actual_text": [
+        "in the evening on the first",
+        "day after fiscal year end"
+      ],
+      "actual": [
+        "2020-12-01 19:00:00",
+        "2021-01-01 17:05:55"
+      ]
+    },
+    {
+      "text": "i think in the evening on the first business day after fiscal year end works best",
+      "expected_text": "in the evening on the first business day after fiscal year end",
+      "expected": "2021-01-01 19:00:00",
+      "family": "ladder_supported",
+      "source_phrase": "fiscal_ladder",
+      "actual_text": [
+        "in the evening on the first",
+        "day after fiscal year end"
+      ],
+      "actual": [
+        "2020-12-01 19:00:00",
+        "2021-01-01 17:05:55"
+      ]
+    }
+  ]
 }

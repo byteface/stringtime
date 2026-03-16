@@ -16,6 +16,9 @@ variants:
 extract-variants:
 	python3 scripts/find_extraction_variant_failures.py
 
+demo:
+	python3 demo/app.py
+
 lint:
 	black stringtime tests
 	isort stringtime tests

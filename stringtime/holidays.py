@@ -25,7 +25,13 @@ def last_weekday_of_month(year, month, weekday):
 
 
 def fixed_date(month, day):
-    return lambda year: datetime.date(year, month, day)
+    def resolver(year):
+        try:
+            return datetime.date(year, month, day)
+        except ValueError:
+            return None
+
+    return resolver
 
 
 def easter_offset(days):

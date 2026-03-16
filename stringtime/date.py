@@ -122,6 +122,8 @@ class Date:
     def __str__(self):
         """Returns a string representation of the date"""
         if self.formatter == "python":
+            if self._date.microsecond:
+                return self._date.strftime("%Y-%m-%d %H:%M:%S.%f")
             return self._date.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return self._date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # js
