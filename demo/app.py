@@ -20,12 +20,7 @@ except ImportError as exc:  # pragma: no cover - convenience for local demo use
         "Flask is required for the demo app. Install requirements-dev.txt first."
     ) from exc
 
-from stringtime import (
-    Date,
-    extract_dates,
-    parse_natural_date_strict,
-)
-
+from stringtime import Date, extract_dates, parse_natural_date_strict
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -168,8 +163,13 @@ def _is_clock_like_text(text):
     lowered = text.lower().strip()
     return bool(
         re.fullmatch(r"@?\d{1,2}(?::\d{2})?(?::\d{2})?\s?(?:am|pm)?", lowered)
-        or re.fullmatch(r"(?:about|around)\s+\d{1,2}(?::\d{2})?ish|\d{1,2}(?::\d{2})?ish", lowered)
-        or re.search(r"\b(?:am|pm|noon|midnight|midday|morning|afternoon|evening|night|past|to|quarter|half)\b", lowered)
+        or re.fullmatch(
+            r"(?:about|around)\s+\d{1,2}(?::\d{2})?ish|\d{1,2}(?::\d{2})?ish", lowered
+        )
+        or re.search(
+            r"\b(?:am|pm|noon|midnight|midday|morning|afternoon|evening|night|past|to|quarter|half)\b",
+            lowered,
+        )
     )
 
 
@@ -306,7 +306,7 @@ def _find_additional_components(phrase, matches, options):
 
     for match in matches:
         if cursor < match.start:
-            add_component_chunk(phrase[cursor:match.start])
+            add_component_chunk(phrase[cursor : match.start])
         cursor = match.end
 
     if cursor < len(phrase):
@@ -362,7 +362,10 @@ def _choose_exact_day_component(components):
             return -1
         if _weekday_index_from_text(text) is not None:
             return -1
-        if re.search(r"\b\d{1,2}(?:st|nd|rd|th)\b|\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\b", text):
+        if re.search(
+            r"\b\d{1,2}(?:st|nd|rd|th)\b|\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\b",
+            text,
+        ):
             return 4
         return 1
 
@@ -419,12 +422,20 @@ def build_aggregation_suggestion(phrase, options):
             if component["kind"] == "month"
             or (
                 component["date"]["metadata"]
-                and component["date"]["metadata"].get("representative_granularity") == "month"
+                and component["date"]["metadata"].get("representative_granularity")
+                == "month"
             )
         ),
         None,
     )
-    year_component = next((component for component in components if _resolve_component_year(component) is not None), None)
+    year_component = next(
+        (
+            component
+            for component in components
+            if _resolve_component_year(component) is not None
+        ),
+        None,
+    )
     weekday_component = next(
         (
             component
@@ -461,7 +472,11 @@ def build_aggregation_suggestion(phrase, options):
     if month_component and exact_day_component:
         month_payload = month_component["date"]
         day_payload = exact_day_component["date"]
-        year = _resolve_component_year(year_component) if year_component is not None else month_payload["year"]
+        year = (
+            _resolve_component_year(year_component)
+            if year_component is not None
+            else month_payload["year"]
+        )
         dt = datetime(
             year,
             month_payload["month"],
@@ -492,7 +507,11 @@ def build_aggregation_suggestion(phrase, options):
     if month_component and weekday_component:
         month_payload = month_component["date"]
         weekday_index = _weekday_index_from_text(weekday_component["text"])
-        year = year_component["date"]["year"] if year_component is not None else month_payload["year"]
+        year = (
+            year_component["date"]["year"]
+            if year_component is not None
+            else month_payload["year"]
+        )
         month = month_payload["month"]
         _, last_day = calendar.monthrange(year, month)
         candidates = []
@@ -571,7 +590,9 @@ def parse_api():
         else:
             parsed = Date(phrase, **options)
             fallback_only = is_fallback_date(parsed)
-            aggregation = build_aggregation_suggestion(phrase, options) if fallback_only else None
+            aggregation = (
+                build_aggregation_suggestion(phrase, options) if fallback_only else None
+            )
             message = (
                 aggregation["message"]
                 if aggregation is not None

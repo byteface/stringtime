@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from stringtime.variant_sweeps import (  # noqa: E402
-    DEFAULT_REFERENCE,
-    write_exploratory_structure_failures,
-)
+from stringtime.variant_sweeps import (DEFAULT_REFERENCE,  # noqa: E402
+                                       write_exploratory_structure_failures)
 
 
 def main():

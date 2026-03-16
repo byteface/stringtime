@@ -1,7 +1,7 @@
 import json
 import re
-from datetime import datetime, timedelta
 from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from stringtime import Date
@@ -121,31 +121,47 @@ SEED_CASES = (
     VariantSeed("tomorrow at 5 past 10", "2020-12-26 10:05:00", "clock_phrase"),
     VariantSeed("December 1st @ 5 to 6pm", "2020-12-01 17:55:00", "clock_phrase"),
     VariantSeed("December 1st @ twenty to 6pm", "2020-12-01 17:40:00", "clock_phrase"),
-    VariantSeed("December 1st @ twenty five to 7pm", "2020-12-01 18:35:00", "clock_phrase"),
+    VariantSeed(
+        "December 1st @ twenty five to 7pm", "2020-12-01 18:35:00", "clock_phrase"
+    ),
     VariantSeed("December 1st @ quarter to 6pm", "2020-12-01 17:45:00", "clock_phrase"),
     VariantSeed("next monday at twenty to 6pm", "2020-12-28 17:40:00", "clock_phrase"),
-    VariantSeed("next monday at twenty five to 7pm", "2020-12-28 18:35:00", "clock_phrase"),
+    VariantSeed(
+        "next monday at twenty five to 7pm", "2020-12-28 18:35:00", "clock_phrase"
+    ),
     VariantSeed("7 pm on the 29th next month", "2021-01-29 19:00:00", "clock_phrase"),
     VariantSeed("7 pm on the 29th last march", "2020-03-29 19:00:00", "clock_phrase"),
     VariantSeed("4 minutes to 4pm", "2020-12-25 15:56:00", "clock_phrase"),
     VariantSeed("4 minutes to 4pm tomorrow", "2020-12-26 15:56:00", "clock_phrase"),
     VariantSeed("10 seconds to midnight", "2020-12-25 23:59:50", "clock_phrase"),
-    VariantSeed("10 seconds to midnight tomorrow", "2020-12-26 23:59:50", "clock_phrase"),
+    VariantSeed(
+        "10 seconds to midnight tomorrow", "2020-12-26 23:59:50", "clock_phrase"
+    ),
     VariantSeed("10 seconds to 4pm", "2020-12-25 15:59:50", "clock_phrase"),
-    VariantSeed("10 seconds to midnight in mid september", "2021-09-15 23:59:50", "clock_phrase"),
-    VariantSeed("on the fourteenth of february when the clock strikes 12", "2020-02-14 12:00:00", "clock_phrase"),
+    VariantSeed(
+        "10 seconds to midnight in mid september", "2021-09-15 23:59:50", "clock_phrase"
+    ),
+    VariantSeed(
+        "on the fourteenth of february when the clock strikes 12",
+        "2020-02-14 12:00:00",
+        "clock_phrase",
+    ),
     VariantSeed("Friday afternoon", "2020-12-25 15:00:00", "parts_of_day"),
     VariantSeed("on Friday evening", "2020-12-25 19:00:00", "parts_of_day"),
     VariantSeed("on Tuesday afternoon", "2020-12-29 15:00:00", "parts_of_day"),
     VariantSeed("tuesday at 3 in the afternoon", "2020-12-29 15:00:00", "parts_of_day"),
     VariantSeed("2 in the afternoon", "2020-12-25 14:00:00", "parts_of_day"),
-    VariantSeed("the second to last day of the month", "2020-12-30 17:05:55", "boundary"),
+    VariantSeed(
+        "the second to last day of the month", "2020-12-30 17:05:55", "boundary"
+    ),
     VariantSeed("the other night", "2020-12-24 21:00:00", "parts_of_day"),
     VariantSeed("right now", "2020-12-25 17:05:55", "alias"),
     VariantSeed("a week 2moro", "2021-01-02 17:05:55", "anchor_offset"),
     VariantSeed("bank holiday", "2020-12-25 17:05:55", "holiday"),
     VariantSeed("Christmas Eve", "2020-12-24 17:05:55", "holiday"),
-    VariantSeed("the last Sunday of the year", "2020-12-27 17:05:55", "ordinal_weekday"),
+    VariantSeed(
+        "the last Sunday of the year", "2020-12-27 17:05:55", "ordinal_weekday"
+    ),
     VariantSeed("the hundredth day of the year", "2020-04-09 17:05:55", "day_of_year"),
     VariantSeed("the hundreth day of the year", "2020-04-09 17:05:55", "day_of_year"),
     VariantSeed("end of business tomorrow", "2020-12-26 17:00:00", "business"),
@@ -165,7 +181,9 @@ SEED_CASES = (
     VariantSeed("Tuesday gone", "2020-12-22 17:05:55", "relative_weekday"),
     VariantSeed("Tuesday past", "2020-12-22 17:05:55", "relative_weekday"),
     VariantSeed("the 2nd week of january", "2021-01-08 17:05:55", "week_period"),
-    VariantSeed("the day before the 2nd week of january", "2021-01-07 17:05:55", "week_period"),
+    VariantSeed(
+        "the day before the 2nd week of january", "2021-01-07 17:05:55", "week_period"
+    ),
     VariantSeed("3 weeks ago at 2am", "2020-12-04 02:00:00", "relative_time"),
     VariantSeed("plus 1 day", "2020-12-26 17:05:55", "add_subtract"),
     VariantSeed("minus 1 day", "2020-12-24 17:05:55", "add_subtract"),
@@ -199,9 +217,17 @@ SEED_CASES = (
     VariantSeed("blue moon", "2023-08-31 10:58:01", "moon"),
     VariantSeed("3 days after start of Q2", "2020-04-04 17:05:55", "anchor_registry"),
     VariantSeed("at dusk on end of month", "2020-12-31 16:30:00", "anchor_registry"),
-    VariantSeed("2 days after the first Monday in May", "2020-05-06 17:05:55", "anchor_registry"),
-    VariantSeed("at dawn on the 2nd week of january", "2021-01-08 07:30:00", "anchor_registry"),
-    VariantSeed("the first business day after the hundredth day of the year", "2020-04-10 17:05:55", "anchor_registry"),
+    VariantSeed(
+        "2 days after the first Monday in May", "2020-05-06 17:05:55", "anchor_registry"
+    ),
+    VariantSeed(
+        "at dawn on the 2nd week of january", "2021-01-08 07:30:00", "anchor_registry"
+    ),
+    VariantSeed(
+        "the first business day after the hundredth day of the year",
+        "2020-04-10 17:05:55",
+        "anchor_registry",
+    ),
     VariantSeed("next summer", "2021-06-01 17:05:55", "season"),
     VariantSeed("spring equinox", "2021-03-20 12:00:00", "solstice_equinox"),
     VariantSeed("fiscal year end", "2020-12-31 17:05:55", "fiscal"),
@@ -209,32 +235,76 @@ SEED_CASES = (
     VariantSeed("start of week", "2020-12-21 17:05:55", "recurring_week"),
     VariantSeed("on wednesdays", "2020-12-30 17:05:55", "recurring_weekday"),
     VariantSeed("wolf moon", "2021-01-28 11:28:29", "named_lunar"),
-    VariantSeed("the last tuesday before the end of last autumn", "2020-11-24 17:05:55", "stacked_anchor"),
-    VariantSeed("the first business day after fiscal year end", "2021-01-01 17:05:55", "stacked_anchor"),
-    VariantSeed("the first business day after month close", "2021-01-01 17:05:55", "stacked_anchor"),
-    VariantSeed("at dusk on the spring equinox", "2021-03-20 18:40:00", "stacked_anchor"),
+    VariantSeed(
+        "the last tuesday before the end of last autumn",
+        "2020-11-24 17:05:55",
+        "stacked_anchor",
+    ),
+    VariantSeed(
+        "the first business day after fiscal year end",
+        "2021-01-01 17:05:55",
+        "stacked_anchor",
+    ),
+    VariantSeed(
+        "the first business day after month close",
+        "2021-01-01 17:05:55",
+        "stacked_anchor",
+    ),
+    VariantSeed(
+        "at dusk on the spring equinox", "2021-03-20 18:40:00", "stacked_anchor"
+    ),
     VariantSeed("at dawn on wolf moon", "2021-01-28 07:30:00", "stacked_anchor"),
-    VariantSeed("in the evening on fiscal year end", "2020-12-31 19:00:00", "stacked_anchor"),
-    VariantSeed("the first business day after the wolf moon", "2021-01-29 11:28:29", "stacked_anchor"),
-    VariantSeed("the last tuesday before the next summer", "2021-05-25 17:05:55", "stacked_anchor"),
-    VariantSeed("2 fridays after spring equinox", "2021-04-02 12:00:00", "stacked_anchor"),
-    VariantSeed("the 7th of the 6th eighty one", "1981-06-07 17:05:55", "ordinal_month_year"),
-    VariantSeed("the first of the 3rd 22 @ 3pm", "2022-03-01 15:00:00", "ordinal_month_year"),
-    VariantSeed("the first of the 3rd 22 at 3pm", "2022-03-01 15:00:00", "ordinal_month_year"),
-    VariantSeed("the first of september at 2pm 2029", "2029-09-01 14:00:00", "ordinal_month_year"),
+    VariantSeed(
+        "in the evening on fiscal year end", "2020-12-31 19:00:00", "stacked_anchor"
+    ),
+    VariantSeed(
+        "the first business day after the wolf moon",
+        "2021-01-29 11:28:29",
+        "stacked_anchor",
+    ),
+    VariantSeed(
+        "the last tuesday before the next summer",
+        "2021-05-25 17:05:55",
+        "stacked_anchor",
+    ),
+    VariantSeed(
+        "2 fridays after spring equinox", "2021-04-02 12:00:00", "stacked_anchor"
+    ),
+    VariantSeed(
+        "the 7th of the 6th eighty one", "1981-06-07 17:05:55", "ordinal_month_year"
+    ),
+    VariantSeed(
+        "the first of the 3rd 22 @ 3pm", "2022-03-01 15:00:00", "ordinal_month_year"
+    ),
+    VariantSeed(
+        "the first of the 3rd 22 at 3pm", "2022-03-01 15:00:00", "ordinal_month_year"
+    ),
+    VariantSeed(
+        "the first of september at 2pm 2029",
+        "2029-09-01 14:00:00",
+        "ordinal_month_year",
+    ),
     VariantSeed("7th of the 6th 81", "1981-06-07 17:05:55", "ordinal_month_year"),
     VariantSeed("the 7th of the sixth 81", "1981-06-07 17:05:55", "ordinal_month_year"),
     VariantSeed("2pm september 1st 2029", "2029-09-01 14:00:00", "ordinal_month_year"),
-    VariantSeed("the fourteenth week after xmas", "2021-04-02 17:05:55", "anchor_offset"),
+    VariantSeed(
+        "the fourteenth week after xmas", "2021-04-02 17:05:55", "anchor_offset"
+    ),
     VariantSeed("328 years ago on xmas day", "1692-12-25 17:05:55", "anchor_offset"),
     VariantSeed("two Fridays from now", "2021-01-08 17:05:55", "counted_weekday"),
     VariantSeed("the twelfth month", "2021-12-01 17:05:55", "month_anchor"),
     VariantSeed("the 12th month of the year", "2021-12-01 17:05:55", "month_anchor"),
-    VariantSeed("the day before the twelfth month", "2021-11-30 17:05:55", "month_anchor"),
+    VariantSeed(
+        "the day before the twelfth month", "2021-11-30 17:05:55", "month_anchor"
+    ),
     VariantSeed("the day before the 12th month", "2021-11-30 17:05:55", "month_anchor"),
     VariantSeed("the middle of september", "2021-09-15 17:05:55", "month_anchor"),
-    VariantSeed("on the last day of the month in february", "2020-02-29 17:05:55", "boundary"),
-    VariantSeed("at 12 on the first day of the month in june", "2020-06-01 12:00:00", "boundary"),
+    VariantSeed(
+        "on the last day of the month in february", "2020-02-29 17:05:55", "boundary"
+    ),
+    VariantSeed(
+        "at 12 on the first day of the month in june", "2020-06-01 12:00:00", "boundary"
+    ),
     VariantSeed("the night before last", "2020-12-23 21:00:00", "parts_of_day"),
     VariantSeed("the night b4 yesterday", "2020-12-23 21:00:00", "parts_of_day"),
     VariantSeed(
@@ -563,10 +633,16 @@ COMPOSITION_ANCHORS = (
     CompositionAnchor("month close", "2020-12-31 17:05:55", "fiscal"),
     CompositionAnchor("end of month", "2020-12-31 17:05:55", "boundary"),
     CompositionAnchor("start of Q2", "2020-04-01 17:05:55", "quarter"),
-    CompositionAnchor("the first Monday in May", "2020-05-04 17:05:55", "ordinal_weekday"),
-    CompositionAnchor("the last Sunday of the year", "2020-12-27 17:05:55", "ordinal_weekday"),
+    CompositionAnchor(
+        "the first Monday in May", "2020-05-04 17:05:55", "ordinal_weekday"
+    ),
+    CompositionAnchor(
+        "the last Sunday of the year", "2020-12-27 17:05:55", "ordinal_weekday"
+    ),
     CompositionAnchor("the twelfth month", "2021-12-01 17:05:55", "month_anchor"),
-    CompositionAnchor("the hundredth day of the year", "2020-04-09 17:05:55", "day_of_year"),
+    CompositionAnchor(
+        "the hundredth day of the year", "2020-04-09 17:05:55", "day_of_year"
+    ),
     CompositionAnchor("the 2nd week of january", "2021-01-08 17:05:55", "week_period"),
     CompositionAnchor("start of week", "2020-12-21 17:05:55", "recurring_week"),
 )
@@ -575,61 +651,271 @@ COMPOSITION_ANCHORS = (
 LADDER_STEPS = (
     LadderStep("xmas", "2020-12-25 17:05:55", "ladder_supported", "xmas_ladder"),
     LadderStep("before xmas", None, "ladder_exploratory", "xmas_ladder"),
-    LadderStep("a week before xmas", "2020-12-18 17:05:55", "ladder_supported", "xmas_ladder"),
+    LadderStep(
+        "a week before xmas", "2020-12-18 17:05:55", "ladder_supported", "xmas_ladder"
+    ),
     LadderStep("the week before xmas", None, "ladder_exploratory", "xmas_ladder"),
-    LadderStep("Friday before xmas", "2020-12-18 17:05:55", "ladder_supported", "xmas_ladder"),
-    LadderStep("5pm on Friday before xmas", "2020-12-18 17:00:00", "ladder_supported", "xmas_ladder"),
-    LadderStep("palm sunday", "2020-04-05 17:05:55", "ladder_supported", "palm_sunday_ladder"),
-    LadderStep("Friday after palm sunday", "2020-04-10 17:05:55", "ladder_supported", "palm_sunday_ladder"),
-    LadderStep("at 4 past 10 on friday after palm sunday", "2020-04-10 10:04:00", "ladder_supported", "palm_sunday_ladder"),
-    LadderStep("full moon", "2020-12-29 22:44:26", "ladder_supported", "full_moon_ladder"),
-    LadderStep("3 days after full moon", "2021-01-01 22:44:26", "ladder_supported", "full_moon_ladder"),
-    LadderStep("at dusk on 3 days after full moon", "2021-01-01 17:00:00", "ladder_supported", "full_moon_ladder"),
-    LadderStep("start of Q2", "2020-04-01 17:05:55", "ladder_supported", "quarter_ladder"),
-    LadderStep("2 days before start of Q2", "2020-03-30 17:05:55", "ladder_supported", "quarter_ladder"),
-    LadderStep("in the evening on 2 days before start of Q2", "2020-03-30 19:00:00", "ladder_supported", "quarter_ladder"),
-    LadderStep("next summer", "2021-06-01 17:05:55", "ladder_supported", "season_ladder"),
-    LadderStep("3 days after next summer", "2021-06-04 17:05:55", "ladder_supported", "season_ladder"),
-    LadderStep("in the evening on 3 days after next summer", "2021-06-04 19:00:00", "ladder_supported", "season_ladder"),
-    LadderStep("spring equinox", "2021-03-20 12:00:00", "ladder_supported", "solstice_ladder"),
-    LadderStep("Friday after spring equinox", "2021-03-26 12:00:00", "ladder_supported", "solstice_ladder"),
-    LadderStep("at 4 past 10 on friday after spring equinox", "2021-03-26 10:04:00", "ladder_supported", "solstice_ladder"),
-    LadderStep("fiscal year end", "2020-12-31 17:05:55", "ladder_supported", "fiscal_ladder"),
-    LadderStep("the first business day after fiscal year end", "2021-01-01 17:05:55", "ladder_supported", "fiscal_ladder"),
-    LadderStep("in the evening on the first business day after fiscal year end", "2021-01-01 19:00:00", "ladder_supported", "fiscal_ladder"),
-    LadderStep("start of week", "2020-12-21 17:05:55", "ladder_supported", "recurring_week_ladder"),
-    LadderStep("3 days after start of week", "2020-12-24 17:05:55", "ladder_supported", "recurring_week_ladder"),
-    LadderStep("noon on 3 days after start of week", "2020-12-24 12:00:00", "ladder_supported", "recurring_week_ladder"),
-    LadderStep("the first Monday in May", "2020-05-04 17:05:55", "ladder_supported", "ordinal_weekday_ladder"),
-    LadderStep("2 days after the first Monday in May", "2020-05-06 17:05:55", "ladder_supported", "ordinal_weekday_ladder"),
-    LadderStep("noon on 2 days after the first Monday in May", "2020-05-06 12:00:00", "ladder_supported", "ordinal_weekday_ladder"),
-    LadderStep("the hundredth day of the year", "2020-04-09 17:05:55", "ladder_supported", "day_of_year_ladder"),
-    LadderStep("the first business day after the hundredth day of the year", "2020-04-10 17:05:55", "ladder_supported", "day_of_year_ladder"),
-    LadderStep("at dusk on the first business day after the hundredth day of the year", "2020-04-10 19:35:00", "ladder_supported", "day_of_year_ladder"),
-    LadderStep("the 2nd week of january", "2021-01-08 17:05:55", "ladder_supported", "week_period_ladder"),
-    LadderStep("2 days before the 2nd week of january", "2021-01-06 17:05:55", "ladder_supported", "week_period_ladder"),
-    LadderStep("in the evening on 2 days before the 2nd week of january", "2021-01-06 19:00:00", "ladder_supported", "week_period_ladder"),
-    LadderStep("the twelfth month", "2021-12-01 17:05:55", "ladder_supported", "month_anchor_ladder"),
-    LadderStep("Friday before the twelfth month", "2021-11-26 17:05:55", "ladder_supported", "month_anchor_ladder"),
-    LadderStep("5pm on Friday before the twelfth month", "2021-11-26 17:00:00", "ladder_supported", "month_anchor_ladder"),
-    LadderStep("end of month", "2020-12-31 17:05:55", "ladder_supported", "boundary_ladder"),
-    LadderStep("Friday before end of month", "2020-12-25 17:05:55", "ladder_supported", "boundary_ladder"),
-    LadderStep("5pm on Friday before end of month", "2020-12-25 17:00:00", "ladder_supported", "boundary_ladder"),
+    LadderStep(
+        "Friday before xmas", "2020-12-18 17:05:55", "ladder_supported", "xmas_ladder"
+    ),
+    LadderStep(
+        "5pm on Friday before xmas",
+        "2020-12-18 17:00:00",
+        "ladder_supported",
+        "xmas_ladder",
+    ),
+    LadderStep(
+        "palm sunday", "2020-04-05 17:05:55", "ladder_supported", "palm_sunday_ladder"
+    ),
+    LadderStep(
+        "Friday after palm sunday",
+        "2020-04-10 17:05:55",
+        "ladder_supported",
+        "palm_sunday_ladder",
+    ),
+    LadderStep(
+        "at 4 past 10 on friday after palm sunday",
+        "2020-04-10 10:04:00",
+        "ladder_supported",
+        "palm_sunday_ladder",
+    ),
+    LadderStep(
+        "full moon", "2020-12-29 22:44:26", "ladder_supported", "full_moon_ladder"
+    ),
+    LadderStep(
+        "3 days after full moon",
+        "2021-01-01 22:44:26",
+        "ladder_supported",
+        "full_moon_ladder",
+    ),
+    LadderStep(
+        "at dusk on 3 days after full moon",
+        "2021-01-01 17:00:00",
+        "ladder_supported",
+        "full_moon_ladder",
+    ),
+    LadderStep(
+        "start of Q2", "2020-04-01 17:05:55", "ladder_supported", "quarter_ladder"
+    ),
+    LadderStep(
+        "2 days before start of Q2",
+        "2020-03-30 17:05:55",
+        "ladder_supported",
+        "quarter_ladder",
+    ),
+    LadderStep(
+        "in the evening on 2 days before start of Q2",
+        "2020-03-30 19:00:00",
+        "ladder_supported",
+        "quarter_ladder",
+    ),
+    LadderStep(
+        "next summer", "2021-06-01 17:05:55", "ladder_supported", "season_ladder"
+    ),
+    LadderStep(
+        "3 days after next summer",
+        "2021-06-04 17:05:55",
+        "ladder_supported",
+        "season_ladder",
+    ),
+    LadderStep(
+        "in the evening on 3 days after next summer",
+        "2021-06-04 19:00:00",
+        "ladder_supported",
+        "season_ladder",
+    ),
+    LadderStep(
+        "spring equinox", "2021-03-20 12:00:00", "ladder_supported", "solstice_ladder"
+    ),
+    LadderStep(
+        "Friday after spring equinox",
+        "2021-03-26 12:00:00",
+        "ladder_supported",
+        "solstice_ladder",
+    ),
+    LadderStep(
+        "at 4 past 10 on friday after spring equinox",
+        "2021-03-26 10:04:00",
+        "ladder_supported",
+        "solstice_ladder",
+    ),
+    LadderStep(
+        "fiscal year end", "2020-12-31 17:05:55", "ladder_supported", "fiscal_ladder"
+    ),
+    LadderStep(
+        "the first business day after fiscal year end",
+        "2021-01-01 17:05:55",
+        "ladder_supported",
+        "fiscal_ladder",
+    ),
+    LadderStep(
+        "in the evening on the first business day after fiscal year end",
+        "2021-01-01 19:00:00",
+        "ladder_supported",
+        "fiscal_ladder",
+    ),
+    LadderStep(
+        "start of week",
+        "2020-12-21 17:05:55",
+        "ladder_supported",
+        "recurring_week_ladder",
+    ),
+    LadderStep(
+        "3 days after start of week",
+        "2020-12-24 17:05:55",
+        "ladder_supported",
+        "recurring_week_ladder",
+    ),
+    LadderStep(
+        "noon on 3 days after start of week",
+        "2020-12-24 12:00:00",
+        "ladder_supported",
+        "recurring_week_ladder",
+    ),
+    LadderStep(
+        "the first Monday in May",
+        "2020-05-04 17:05:55",
+        "ladder_supported",
+        "ordinal_weekday_ladder",
+    ),
+    LadderStep(
+        "2 days after the first Monday in May",
+        "2020-05-06 17:05:55",
+        "ladder_supported",
+        "ordinal_weekday_ladder",
+    ),
+    LadderStep(
+        "noon on 2 days after the first Monday in May",
+        "2020-05-06 12:00:00",
+        "ladder_supported",
+        "ordinal_weekday_ladder",
+    ),
+    LadderStep(
+        "the hundredth day of the year",
+        "2020-04-09 17:05:55",
+        "ladder_supported",
+        "day_of_year_ladder",
+    ),
+    LadderStep(
+        "the first business day after the hundredth day of the year",
+        "2020-04-10 17:05:55",
+        "ladder_supported",
+        "day_of_year_ladder",
+    ),
+    LadderStep(
+        "at dusk on the first business day after the hundredth day of the year",
+        "2020-04-10 19:35:00",
+        "ladder_supported",
+        "day_of_year_ladder",
+    ),
+    LadderStep(
+        "the 2nd week of january",
+        "2021-01-08 17:05:55",
+        "ladder_supported",
+        "week_period_ladder",
+    ),
+    LadderStep(
+        "2 days before the 2nd week of january",
+        "2021-01-06 17:05:55",
+        "ladder_supported",
+        "week_period_ladder",
+    ),
+    LadderStep(
+        "in the evening on 2 days before the 2nd week of january",
+        "2021-01-06 19:00:00",
+        "ladder_supported",
+        "week_period_ladder",
+    ),
+    LadderStep(
+        "the twelfth month",
+        "2021-12-01 17:05:55",
+        "ladder_supported",
+        "month_anchor_ladder",
+    ),
+    LadderStep(
+        "Friday before the twelfth month",
+        "2021-11-26 17:05:55",
+        "ladder_supported",
+        "month_anchor_ladder",
+    ),
+    LadderStep(
+        "5pm on Friday before the twelfth month",
+        "2021-11-26 17:00:00",
+        "ladder_supported",
+        "month_anchor_ladder",
+    ),
+    LadderStep(
+        "end of month", "2020-12-31 17:05:55", "ladder_supported", "boundary_ladder"
+    ),
+    LadderStep(
+        "Friday before end of month",
+        "2020-12-25 17:05:55",
+        "ladder_supported",
+        "boundary_ladder",
+    ),
+    LadderStep(
+        "5pm on Friday before end of month",
+        "2020-12-25 17:00:00",
+        "ladder_supported",
+        "boundary_ladder",
+    ),
 )
 
 
 EXPLORATORY_SEEDS = (
-    ExploratorySeed("december 2027 @ 5pm", "mixed_precision_exploratory", "incomplete_month_year_time"),
-    ExploratorySeed("on friday in june at 5 past 10", "mixed_precision_exploratory", "ambiguous_weekday_in_month"),
-    ExploratorySeed("5 past 10 on friday in june", "mixed_precision_exploratory", "ambiguous_weekday_in_month"),
-    ExploratorySeed("friday in june at 5 past 10", "mixed_precision_exploratory", "ambiguous_weekday_in_month"),
-    ExploratorySeed("5 past 10 friday in june", "mixed_precision_exploratory", "ambiguous_weekday_in_month"),
-    ExploratorySeed("in the evening the first Monday in May", "connector_drift_exploratory", "missing_connector"),
-    ExploratorySeed("5 past 10 at the first Monday in May", "connector_drift_exploratory", "awkward_connector"),
-    ExploratorySeed("ten past on the 14th", "incomplete_clock_exploratory", "missing_clock_target"),
-    ExploratorySeed("friday and the 2nd of december 2023", "contradiction_exploratory", "weekday_date_conflict"),
-    ExploratorySeed("monday the 1st of december 2023 at noon", "contradiction_exploratory", "weekday_date_conflict"),
-    ExploratorySeed("4 hours before midnight in december 2027", "incomplete_anchor_exploratory", "missing_day_anchor"),
+    ExploratorySeed(
+        "december 2027 @ 5pm",
+        "mixed_precision_exploratory",
+        "incomplete_month_year_time",
+    ),
+    ExploratorySeed(
+        "on friday in june at 5 past 10",
+        "mixed_precision_exploratory",
+        "ambiguous_weekday_in_month",
+    ),
+    ExploratorySeed(
+        "5 past 10 on friday in june",
+        "mixed_precision_exploratory",
+        "ambiguous_weekday_in_month",
+    ),
+    ExploratorySeed(
+        "friday in june at 5 past 10",
+        "mixed_precision_exploratory",
+        "ambiguous_weekday_in_month",
+    ),
+    ExploratorySeed(
+        "5 past 10 friday in june",
+        "mixed_precision_exploratory",
+        "ambiguous_weekday_in_month",
+    ),
+    ExploratorySeed(
+        "in the evening the first Monday in May",
+        "connector_drift_exploratory",
+        "missing_connector",
+    ),
+    ExploratorySeed(
+        "5 past 10 at the first Monday in May",
+        "connector_drift_exploratory",
+        "awkward_connector",
+    ),
+    ExploratorySeed(
+        "ten past on the 14th", "incomplete_clock_exploratory", "missing_clock_target"
+    ),
+    ExploratorySeed(
+        "friday and the 2nd of december 2023",
+        "contradiction_exploratory",
+        "weekday_date_conflict",
+    ),
+    ExploratorySeed(
+        "monday the 1st of december 2023 at noon",
+        "contradiction_exploratory",
+        "weekday_date_conflict",
+    ),
+    ExploratorySeed(
+        "4 hours before midnight in december 2027",
+        "incomplete_anchor_exploratory",
+        "missing_day_anchor",
+    ),
 )
 
 
@@ -746,7 +1032,9 @@ def _common_variants(phrase):
         variants.append(phrase.title())
         variants.append(phrase.upper())
 
-    return _dedupe_keep_order([variant.strip() for variant in variants if variant.strip()])
+    return _dedupe_keep_order(
+        [variant.strip() for variant in variants if variant.strip()]
+    )
 
 
 def _connector_variants(seed):
@@ -806,7 +1094,9 @@ def _connector_variants(seed):
         if phrase == "close of year":
             variants.extend(("close of the year", "end of the year"))
         if phrase == "start of next quarter":
-            variants.extend(("start of the next quarter", "the start of the next quarter"))
+            variants.extend(
+                ("start of the next quarter", "the start of the next quarter")
+            )
         if phrase == "end of business tomorrow":
             variants.extend(("end of business by tomorrow",))
 
@@ -818,7 +1108,9 @@ def _connector_variants(seed):
 
     if seed.family == "month_anchor":
         if phrase == "the twelfth month":
-            variants.extend(("the twelfth month of the year", "the 12th month of the year"))
+            variants.extend(
+                ("the twelfth month of the year", "the 12th month of the year")
+            )
         if phrase == "the day before the twelfth month":
             variants.extend(("the day before the twelfth month of the year",))
 
@@ -834,7 +1126,9 @@ def _connector_variants(seed):
         if phrase == "tomorrow at 5pm UTC+2":
             variants.extend(("at 5pm UTC+2 tomorrow",))
 
-    return _dedupe_keep_order([variant for variant in variants if variant and variant != phrase])
+    return _dedupe_keep_order(
+        [variant for variant in variants if variant and variant != phrase]
+    )
 
 
 def _swap_at_joiners(phrase):
@@ -935,24 +1229,39 @@ def _positional_axis_cases(case):
         phrase,
         re.IGNORECASE,
     )
-    if time_on_anchor is not None and _looks_anchor_like(time_on_anchor.group("anchor")):
-        variants.append(f"{time_on_anchor.group('anchor')} {time_on_anchor.group('time')}")
+    if time_on_anchor is not None and _looks_anchor_like(
+        time_on_anchor.group("anchor")
+    ):
+        variants.append(
+            f"{time_on_anchor.group('anchor')} {time_on_anchor.group('time')}"
+        )
 
     anchor_at_time = re.fullmatch(
         r"(?P<anchor>.+?)\s+(?P<joiner>at|@)\s+(?P<time>.+)",
         phrase,
         re.IGNORECASE,
     )
-    if anchor_at_time is not None and _looks_anchor_like(anchor_at_time.group("anchor")):
+    if anchor_at_time is not None and _looks_anchor_like(
+        anchor_at_time.group("anchor")
+    ):
         variants.append(
             f"at {anchor_at_time.group('time')} on {anchor_at_time.group('anchor')}"
         )
 
-    anchor_year = re.fullmatch(r"(?P<anchor>.+?)\s+(?P<year>\d{4})", phrase, re.IGNORECASE)
+    anchor_year = re.fullmatch(
+        r"(?P<anchor>.+?)\s+(?P<year>\d{4})", phrase, re.IGNORECASE
+    )
     if (
         anchor_year is not None
         and case.family
-        in {"holiday", "boundary", "ordinal_weekday", "month_anchor", "day_of_year", "long_composition"}
+        in {
+            "holiday",
+            "boundary",
+            "ordinal_weekday",
+            "month_anchor",
+            "day_of_year",
+            "long_composition",
+        }
         and _looks_anchor_like(anchor_year.group("anchor"))
     ):
         variants.append(f"{anchor_year.group('year')} {anchor_year.group('anchor')}")
@@ -1013,35 +1322,71 @@ def _relative_named_month_day_time_variants(seed):
     if time is not None:
         variants.extend(_swap_at_joiners(seed.phrase))
         variants.extend(_space_meridiem_variants(seed.phrase))
-    variants.append(f"{relation} {month.title()} {day}{f' {joiner} {time}' if time else ''}")
+    variants.append(
+        f"{relation} {month.title()} {day}{f' {joiner} {time}' if time else ''}"
+    )
     return variants
 
 
 def _clock_phrase_matrix(seed):
-    if seed.family not in {"clock_phrase", "long_composition", "reordered_composition", "mixed_precision"}:
+    if seed.family not in {
+        "clock_phrase",
+        "long_composition",
+        "reordered_composition",
+        "mixed_precision",
+    }:
         return []
     phrase = seed.phrase
     variants = []
 
-    if re.search(r"\b(?:December|January|February|March|April|May|June|July|August|September|October|November)\s+\d", phrase):
+    if re.search(
+        r"\b(?:December|January|February|March|April|May|June|July|August|September|October|November)\s+\d",
+        phrase,
+    ):
         variants.extend(_swap_at_joiners(phrase))
         variants.extend(_space_meridiem_variants(phrase))
 
-    if re.search(r"\b(?:today|tomorrow|yesterday|next monday|next friday)\b", phrase, re.IGNORECASE):
+    if re.search(
+        r"\b(?:today|tomorrow|yesterday|next monday|next friday)\b",
+        phrase,
+        re.IGNORECASE,
+    ):
         variants.extend(_swap_at_joiners(phrase))
 
     clock_forms = (
-        ("quarter past 5", ("quarter past five", "a quarter past 5", "quarter past 05")),
+        (
+            "quarter past 5",
+            ("quarter past five", "a quarter past 5", "quarter past 05"),
+        ),
         ("half past 5", ("half past five", "half past 05")),
         ("quarter to 6", ("quarter to six", "a quarter to 6", "quarter to 06")),
-        ("4 and twenty past 7", ("four and twenty past 7", "4 and 20 past 7", "four and 20 past 7", "4 and twenty past seven")),
-        ("when the clock strikes 6", ("the clock strikes 6", "when the clock strikes six", "the clock strikes six")),
+        (
+            "4 and twenty past 7",
+            (
+                "four and twenty past 7",
+                "4 and 20 past 7",
+                "four and 20 past 7",
+                "4 and twenty past seven",
+            ),
+        ),
+        (
+            "when the clock strikes 6",
+            (
+                "the clock strikes 6",
+                "when the clock strikes six",
+                "the clock strikes six",
+            ),
+        ),
     )
     for source, replacements in clock_forms:
         if phrase == source:
             variants.extend(replacements)
 
-    if re.search(r"\b(?:yesterday|tomorrow|next monday)\b.*\b(?:past|to)\b", phrase, re.IGNORECASE):
+    if re.search(
+        r"\b(?:yesterday|tomorrow|next monday)\b.*\b(?:past|to)\b",
+        phrase,
+        re.IGNORECASE,
+    ):
         variants.extend(_swap_at_joiners(phrase))
 
     if re.search(r"\b\d{1,2}\s+minutes?\s+to\s+\d{1,2}\s?pm\b", phrase, re.IGNORECASE):
@@ -1056,7 +1401,9 @@ def _business_matrix(seed):
     phrase = seed.phrase
     variants = []
 
-    match = re.fullmatch(r"(?P<label>end of play|end of business|eop)\s+(?P<anchor>.+)", phrase)
+    match = re.fullmatch(
+        r"(?P<label>end of play|end of business|eop)\s+(?P<anchor>.+)", phrase
+    )
     if match is not None:
         label = match.group("label")
         anchor = match.group("anchor")
@@ -1110,7 +1457,9 @@ def _ordinal_weekday_matrix(seed):
         )
     )
     if period.startswith("the "):
-        variants.append(f"the {occurrence} {weekday} {link} {period.removeprefix('the ')}")
+        variants.append(
+            f"the {occurrence} {weekday} {link} {period.removeprefix('the ')}"
+        )
     return variants
 
 
@@ -1168,14 +1517,23 @@ def _parts_of_day_matrix(seed):
         if re.search(rf"\b{re.escape(source)}\b", phrase, flags=re.IGNORECASE):
             for target in targets:
                 variants.append(
-                    re.sub(rf"\b{re.escape(source)}\b", target, phrase, flags=re.IGNORECASE)
+                    re.sub(
+                        rf"\b{re.escape(source)}\b", target, phrase, flags=re.IGNORECASE
+                    )
                 )
 
-    match = re.fullmatch(r"(?P<date>.+?)\s+(?P<part>morning|afternoon|evening|night)", phrase, re.IGNORECASE)
+    match = re.fullmatch(
+        r"(?P<date>.+?)\s+(?P<part>morning|afternoon|evening|night)",
+        phrase,
+        re.IGNORECASE,
+    )
     if match is not None:
         date = match.group("date")
         part = match.group("part")
-        if not date.lower().startswith("on ") and date.lower() not in {"the other", "other"}:
+        if not date.lower().startswith("on ") and date.lower() not in {
+            "the other",
+            "other",
+        }:
             variants.append(f"on {date} {part}")
             variants.append(f"{part} on {date}")
 
@@ -1183,7 +1541,12 @@ def _parts_of_day_matrix(seed):
 
 
 def _business_family_matrix(seed):
-    if seed.family not in {"business", "business_phrase", "stacked_anchor", "long_composition"}:
+    if seed.family not in {
+        "business",
+        "business_phrase",
+        "stacked_anchor",
+        "long_composition",
+    }:
         return []
     phrase = seed.phrase
     variants = []
@@ -1207,14 +1570,20 @@ def _business_family_matrix(seed):
             )
         )
 
-    match = re.fullmatch(r"(?P<label>end of business|end of play|eop)\s+(?P<anchor>.+)", phrase, re.IGNORECASE)
+    match = re.fullmatch(
+        r"(?P<label>end of business|end of play|eop)\s+(?P<anchor>.+)",
+        phrase,
+        re.IGNORECASE,
+    )
     if match is not None:
         label = match.group("label")
         anchor = match.group("anchor")
         if label == "end of play":
             variants.extend((f"close of play {anchor}", f"eop {anchor}"))
         elif label == "end of business":
-            variants.extend((f"close of business {anchor}", f"eob {anchor}", f"cob {anchor}"))
+            variants.extend(
+                (f"close of business {anchor}", f"eob {anchor}", f"cob {anchor}")
+            )
 
     return variants
 
@@ -1304,28 +1673,77 @@ def _stacked_anchor_matrix(seed):
     phrase = seed.phrase
     variants = []
 
-    match = re.fullmatch(r"the last tuesday before (?P<anchor>.+)", phrase, re.IGNORECASE)
+    match = re.fullmatch(
+        r"the last tuesday before (?P<anchor>.+)", phrase, re.IGNORECASE
+    )
     if match is not None:
         anchor = match.group("anchor")
-        variants.extend((f"last tuesday before {anchor}", f"the last tuesday before the {anchor}" if not anchor.startswith("the ") else f"last tuesday before {anchor}"))
+        variants.extend(
+            (
+                f"last tuesday before {anchor}",
+                (
+                    f"the last tuesday before the {anchor}"
+                    if not anchor.startswith("the ")
+                    else f"last tuesday before {anchor}"
+                ),
+            )
+        )
 
-    match = re.fullmatch(r"the first business day after (?P<anchor>.+)", phrase, re.IGNORECASE)
+    match = re.fullmatch(
+        r"the first business day after (?P<anchor>.+)", phrase, re.IGNORECASE
+    )
     if match is not None:
         anchor = match.group("anchor")
-        variants.extend((f"first business day after {anchor}", f"the first working day after {anchor}"))
+        variants.extend(
+            (
+                f"first business day after {anchor}",
+                f"the first working day after {anchor}",
+            )
+        )
 
-    match = re.fullmatch(r"at (?P<time>dawn|dusk) on (?P<anchor>.+)", phrase, re.IGNORECASE)
+    match = re.fullmatch(
+        r"at (?P<time>dawn|dusk) on (?P<anchor>.+)", phrase, re.IGNORECASE
+    )
     if match is not None:
-        variants.extend((f"{match.group('time')} on {match.group('anchor')}", f"at {match.group('time')} on the {match.group('anchor')}" if not match.group('anchor').startswith('the ') else f"{match.group('time')} on {match.group('anchor')}"))
+        variants.extend(
+            (
+                f"{match.group('time')} on {match.group('anchor')}",
+                (
+                    f"at {match.group('time')} on the {match.group('anchor')}"
+                    if not match.group("anchor").startswith("the ")
+                    else f"{match.group('time')} on {match.group('anchor')}"
+                ),
+            )
+        )
 
     match = re.fullmatch(r"in the evening on (?P<anchor>.+)", phrase, re.IGNORECASE)
     if match is not None:
         anchor = match.group("anchor")
-        variants.extend((f"evening on {anchor}", f"in the evening on the {anchor}" if not anchor.startswith("the ") else f"evening on {anchor}"))
+        variants.extend(
+            (
+                f"evening on {anchor}",
+                (
+                    f"in the evening on the {anchor}"
+                    if not anchor.startswith("the ")
+                    else f"evening on {anchor}"
+                ),
+            )
+        )
 
-    match = re.fullmatch(r"(?P<count>\d+|two)\s+fridays after (?P<anchor>.+)", phrase, re.IGNORECASE)
+    match = re.fullmatch(
+        r"(?P<count>\d+|two)\s+fridays after (?P<anchor>.+)", phrase, re.IGNORECASE
+    )
     if match is not None:
-        variants.extend((f"two fridays after {match.group('anchor')}", f"{match.group('count')} fridays after the {match.group('anchor')}" if not match.group('anchor').startswith('the ') else f"two fridays after {match.group('anchor')}"))
+        variants.extend(
+            (
+                f"two fridays after {match.group('anchor')}",
+                (
+                    f"{match.group('count')} fridays after the {match.group('anchor')}"
+                    if not match.group("anchor").startswith("the ")
+                    else f"two fridays after {match.group('anchor')}"
+                ),
+            )
+        )
 
     return variants
 
@@ -1372,7 +1790,11 @@ def _family_variants(seed):
             )
         if phrase == "the start of june":
             variants.extend(
-                ("start of june", "the beginning of june", "the start of the month of june")
+                (
+                    "start of june",
+                    "the beginning of june",
+                    "the start of the month of june",
+                )
             )
         if phrase == "the first day in october":
             variants.extend(
@@ -1433,7 +1855,9 @@ def _family_variants(seed):
         if phrase == "shrove tuesday":
             variants.extend(("Shrove Tuesday", "pancake day"))
         if phrase == "Christmas Eve":
-            variants.extend(("xmas eve", "christmas eve", "Xmas Eve", "the night before christmas"))
+            variants.extend(
+                ("xmas eve", "christmas eve", "Xmas Eve", "the night before christmas")
+            )
         if phrase == "New Year's Day":
             variants.extend(
                 ("new years day", "new year's day", "New Years Day", "new year's")
@@ -1466,7 +1890,9 @@ def _family_variants(seed):
         if phrase == "half five tomorrow night":
             variants.extend(("5:30 tomorrow night", "half 5 tomorrow night"))
         if phrase == "quarter past 5":
-            variants.extend(("quarter past five", "a quarter past 5", "quarter past 05"))
+            variants.extend(
+                ("quarter past five", "a quarter past 5", "quarter past 05")
+            )
         if phrase == "half past 5":
             variants.extend(("half past five", "half past 05"))
         if phrase == "quarter to 6":
@@ -1537,40 +1963,17 @@ def _family_variants(seed):
                 )
             )
         if phrase == "4 minutes to 4pm":
-            variants.extend(
-                (
-                    "4 minutes to 4 pm",
-                )
-            )
+            variants.extend(("4 minutes to 4 pm",))
         if phrase == "4 minutes to 4pm tomorrow":
-            variants.extend(
-                (
-                    "4 minutes to 4 pm tomorrow",
-                )
-            )
+            variants.extend(("4 minutes to 4 pm tomorrow",))
         if phrase == "10 seconds to midnight":
-            variants.extend(
-                (
-                )
-            )
+            variants.extend(())
         if phrase == "10 seconds to midnight tomorrow":
-            variants.extend(
-                (
-                    "10 seconds to midnight  tomorrow",
-                )
-            )
+            variants.extend(("10 seconds to midnight  tomorrow",))
         if phrase == "10 seconds to 4pm":
-            variants.extend(
-                (
-                    "10 seconds to 4 pm",
-                )
-            )
+            variants.extend(("10 seconds to 4 pm",))
         if phrase == "10 seconds to midnight in mid september":
-            variants.extend(
-                (
-                    "10 seconds to midnight on the middle of september",
-                )
-            )
+            variants.extend(("10 seconds to midnight on the middle of september",))
         if phrase == "on the fourteenth of february when the clock strikes 12":
             variants.extend(
                 (
@@ -1733,9 +2136,13 @@ def _family_variants(seed):
         if phrase == "the other day":
             variants.extend(("other day",))
         if phrase == "the day before yesterday":
-            variants.extend(("day before yesterday", "before yesterday", "the day b4 yesterday"))
+            variants.extend(
+                ("day before yesterday", "before yesterday", "the day b4 yesterday")
+            )
         if phrase == "the day after tomorrow":
-            variants.extend(("day after tomorrow", "after tomorrow", "the day after 2moro"))
+            variants.extend(
+                ("day after tomorrow", "after tomorrow", "the day after 2moro")
+            )
         if phrase == "in the morrow":
             variants.extend(("on the morrow", "the morrow"))
 
@@ -1754,7 +2161,9 @@ def _family_variants(seed):
         if phrase == "the hundredth day of the year":
             variants.extend(("hundredth day of the year", "the 100th day of the year"))
         if phrase == "the hundreth day of the year":
-            variants.extend(("hundreth day of the year", "the hundredth day of the year"))
+            variants.extend(
+                ("hundreth day of the year", "the hundredth day of the year")
+            )
 
     if seed.family == "mealtime":
         if phrase == "at dinner time":
@@ -1821,7 +2230,9 @@ def _family_variants(seed):
 
     if seed.family == "moon":
         if phrase == "full moon":
-            variants.extend(("the full moon", "next full moon", "on the next full moon"))
+            variants.extend(
+                ("the full moon", "next full moon", "on the next full moon")
+            )
         if phrase == "next new moon":
             variants.extend(("the next new moon", "on the next new moon", "new moon"))
         if phrase == "harvest moon":
@@ -1837,7 +2248,12 @@ def _family_variants(seed):
         if phrase == "2 days after the first Monday in May":
             variants.extend(("2 days after first Monday in May",))
         if phrase == "at dawn on the 2nd week of january":
-            variants.extend(("dawn on the 2nd week of january", "at dawn on the second week of january"))
+            variants.extend(
+                (
+                    "dawn on the 2nd week of january",
+                    "at dawn on the second week of january",
+                )
+            )
         if phrase == "the first business day after the hundredth day of the year":
             variants.extend(("first business day after the hundredth day of the year",))
 
@@ -1847,7 +2263,9 @@ def _family_variants(seed):
 
     if seed.family == "solstice_equinox":
         if phrase == "spring equinox":
-            variants.extend(("vernal equinox", "the spring equinox", "next spring equinox"))
+            variants.extend(
+                ("vernal equinox", "the spring equinox", "next spring equinox")
+            )
 
     if seed.family == "fiscal":
         if phrase == "fiscal year end":
@@ -1889,7 +2307,12 @@ def _family_variants(seed):
         if phrase == "the last tuesday before the next summer":
             variants.extend(("last tuesday before the next summer",))
         if phrase == "2 fridays after spring equinox":
-            variants.extend(("two fridays after spring equinox", "2 fridays after the spring equinox"))
+            variants.extend(
+                (
+                    "two fridays after spring equinox",
+                    "2 fridays after the spring equinox",
+                )
+            )
 
     if seed.family == "ordinal_month_year":
         if phrase == "the 7th of the 6th eighty one":
@@ -1955,11 +2378,7 @@ def _family_variants(seed):
                 )
             )
         if phrase == "5 fridays ago":
-            variants.extend(
-                (
-                    "five fridays ago",
-                )
-            )
+            variants.extend(("five fridays ago",))
         if phrase == "in 6 fridays time":
             variants.extend(
                 (
@@ -1970,11 +2389,7 @@ def _family_variants(seed):
 
     if seed.family == "counted_holiday":
         if phrase == "3 easters ago":
-            variants.extend(
-                (
-                    "three easters ago",
-                )
-            )
+            variants.extend(("three easters ago",))
 
     if seed.family == "relative_subsecond":
         if phrase == "half a second after 12pm":
@@ -2001,16 +2416,10 @@ def _family_variants(seed):
                 )
             )
         if phrase == "five to midnight on the last day in february next year":
-            variants.extend(
-                (
-                    "five to midnight on the last day of february next year",
-                )
-            )
+            variants.extend(("five to midnight on the last day of february next year",))
         if phrase == "the middle of december at quarter past eight in the evening":
             variants.extend(
-                (
-                    "middle of december at quarter past eight in the evening",
-                )
+                ("middle of december at quarter past eight in the evening",)
             )
         if phrase == "the last working day before fiscal year end at noon":
             variants.extend(
@@ -2021,52 +2430,26 @@ def _family_variants(seed):
             )
         if phrase == "the first tuesday before the harvest moon at half past seven":
             variants.extend(
-                (
-                    "first tuesday before the harvest moon at half past seven",
-                )
+                ("first tuesday before the harvest moon at half past seven",)
             )
         if phrase == "twenty seconds after dusk on the last friday in march":
-            variants.extend(
-                (
-                    "20 seconds after dusk on the last friday in march",
-                )
-            )
+            variants.extend(("20 seconds after dusk on the last friday in march",))
         if phrase == "the second business day after the first full moon in may":
-            variants.extend(
-                (
-                    "second business day after the first full moon in may",
-                )
-            )
+            variants.extend(("second business day after the first full moon in may",))
         if phrase == "quarter to midnight on the penultimate day of next month":
-            variants.extend(
-                (
-                    "quarter to midnight on penultimate day of next month",
-                )
-            )
+            variants.extend(("quarter to midnight on penultimate day of next month",))
         if phrase == "5 past 10 on the first business day after fiscal q1":
             variants.extend(
-                (
-                    "five past ten on the first business day after fiscal q1",
-                )
+                ("five past ten on the first business day after fiscal q1",)
             )
         if phrase == "the first monday in may five past ten":
-            variants.extend(
-                (
-                    "the first monday of may five past ten",
-                )
-            )
+            variants.extend(("the first monday of may five past ten",))
         if phrase == "quarter past eight the first business day after christmas":
             variants.extend(
-                (
-                    "quarter past eight on the first business day after christmas",
-                )
+                ("quarter past eight on the first business day after christmas",)
             )
         if phrase == "the last working day of next month at end of business":
-            variants.extend(
-                (
-                    "last working day of next month at end of business",
-                )
-            )
+            variants.extend(("last working day of next month at end of business",))
         if phrase == "ten seconds to noon the penultimate friday in november":
             variants.extend(
                 (
@@ -2075,11 +2458,7 @@ def _family_variants(seed):
                 )
             )
         if phrase == "friday after the last full moon @ 2:30:12":
-            variants.extend(
-                (
-                    "friday after the last full moon at 2:30:12",
-                )
-            )
+            variants.extend(("friday after the last full moon at 2:30:12",))
         if phrase == "5pm in december 2027":
             variants.extend(
                 (
@@ -2088,11 +2467,7 @@ def _family_variants(seed):
                 )
             )
         if phrase == "10 seconds to midnight the first monday in may":
-            variants.extend(
-                (
-                    "10 seconds to midnight on the first monday in may",
-                )
-            )
+            variants.extend(("10 seconds to midnight on the first monday in may",))
         if phrase == "friday the 1st of last december @ 2":
             variants.extend(
                 (
@@ -2157,7 +2532,9 @@ def _family_variants(seed):
                 )
             )
 
-    return _dedupe_keep_order([variant for variant in variants if variant != seed.phrase or True])
+    return _dedupe_keep_order(
+        [variant for variant in variants if variant != seed.phrase or True]
+    )
 
 
 def _generate_composition_template_cases():
@@ -2361,7 +2738,12 @@ def generate_extraction_cases():
     unique = []
     seen = set()
     for case in cases:
-        key = (case.text.lower(), case.expected_text.lower(), case.expected, case.family)
+        key = (
+            case.text.lower(),
+            case.expected_text.lower(),
+            case.expected,
+            case.family,
+        )
         if key in seen:
             continue
         seen.add(key)

@@ -112,39 +112,110 @@ def _build_builtin_definitions():
         all_aliases = expand_aliases(canonical_name, *aliases)
         definitions.append(HolidayDefinition(canonical_name, all_aliases, resolver))
 
-    add("new year's day", fixed_date(1, 1), "new years day", "new year", "new years", "nyd")
+    add(
+        "new year's day",
+        fixed_date(1, 1),
+        "new years day",
+        "new year",
+        "new years",
+        "nyd",
+    )
     add("new year's eve", fixed_date(12, 31), "new years eve", "nye")
     add("epiphany", fixed_date(1, 6), "three kings day", "twelfth day")
     add("orthodox christmas", fixed_date(1, 7), "orthodox christmas day")
     add("orthodox new year", fixed_date(1, 14))
-    add("martin luther king jr day", nth_weekday(1, 0, 3), "mlk day", "martin luther king day")
+    add(
+        "martin luther king jr day",
+        nth_weekday(1, 0, 3),
+        "mlk day",
+        "martin luther king day",
+    )
     add("australia day", fixed_date(1, 26))
     add("republic day", fixed_date(1, 26), "india republic day")
     add("waitangi day", fixed_date(2, 6))
     add("groundhog day", fixed_date(2, 2))
     add("national freedom day", fixed_date(2, 1))
     add("world cancer day", fixed_date(2, 4))
-    add("international day of zero tolerance for female genital mutilation", fixed_date(2, 6), "fgm awareness day")
+    add(
+        "international day of zero tolerance for female genital mutilation",
+        fixed_date(2, 6),
+        "fgm awareness day",
+    )
     add("lincoln's birthday", fixed_date(2, 12), "lincolns birthday")
     add("darwin day", fixed_date(2, 12))
     add("world radio day", fixed_date(2, 13), "radio day")
     add("galentine's day", fixed_date(2, 13), "galentines day", "galentines")
-    add("valentine's day", fixed_date(2, 14), "valentines day", "valentine's", "valentines", "saint valentine's day", "st valentine's day")
+    add(
+        "valentine's day",
+        fixed_date(2, 14),
+        "valentines day",
+        "valentine's",
+        "valentines",
+        "saint valentine's day",
+        "st valentine's day",
+    )
     add("random acts of kindness day", fixed_date(2, 17), "kindness day february")
-    add("presidents day", nth_weekday(2, 0, 3), "president's day", "washington's birthday", "washingtons birthday")
-    add("international mother language day", fixed_date(2, 21), "international mother language day", "mother language day")
+    add(
+        "presidents day",
+        nth_weekday(2, 0, 3),
+        "president's day",
+        "washington's birthday",
+        "washingtons birthday",
+    )
+    add(
+        "international mother language day",
+        fixed_date(2, 21),
+        "international mother language day",
+        "mother language day",
+    )
     add("leap day", fixed_date(2, 29))
-    add("shrove tuesday", easter_offset(-47), "pancake day", "mardi gras", "fat tuesday")
+    add(
+        "shrove tuesday", easter_offset(-47), "pancake day", "mardi gras", "fat tuesday"
+    )
     add("ash wednesday", easter_offset(-46))
     add("burns night", fixed_date(1, 25), "burns supper")
-    add("international holocaust remembrance day", fixed_date(1, 27), "holocaust remembrance day", "holocaust memorial day")
-    add("st david's day", fixed_date(3, 1), "saint david's day", "saint davids day", "st davids day")
-    add("international women's day", fixed_date(3, 8), "international womens day", "womens day", "women's day")
+    add(
+        "international holocaust remembrance day",
+        fixed_date(1, 27),
+        "holocaust remembrance day",
+        "holocaust memorial day",
+    )
+    add(
+        "st david's day",
+        fixed_date(3, 1),
+        "saint david's day",
+        "saint davids day",
+        "st davids day",
+    )
+    add(
+        "international women's day",
+        fixed_date(3, 8),
+        "international womens day",
+        "womens day",
+        "women's day",
+    )
     add("pi day", fixed_date(3, 14))
-    add("st patrick's day", fixed_date(3, 17), "st patricks day", "saint patrick's day", "saint patricks day")
-    add("st joseph's day", fixed_date(3, 19), "st josephs day", "saint joseph's day", "saint josephs day")
+    add(
+        "st patrick's day",
+        fixed_date(3, 17),
+        "st patricks day",
+        "saint patrick's day",
+        "saint patricks day",
+    )
+    add(
+        "st joseph's day",
+        fixed_date(3, 19),
+        "st josephs day",
+        "saint joseph's day",
+        "saint josephs day",
+    )
     add("international day of happiness", fixed_date(3, 20), "day of happiness")
-    add("human rights day south africa", fixed_date(3, 21), "south africa human rights day", "human rights day sa")
+    add(
+        "human rights day south africa",
+        fixed_date(3, 21),
+        "south africa human rights day",
+        "human rights day sa",
+    )
     add("world poetry day", fixed_date(3, 21), "poetry day")
     add("earth hour", nth_weekday(3, 5, 4))
     add("mothering sunday", mothering_sunday, "mothering day")
@@ -159,12 +230,30 @@ def _build_builtin_definitions():
     add("world health day", fixed_date(4, 7))
     add("earth day", fixed_date(4, 22), "international mother earth day")
     add("world book day", fixed_date(4, 23), "book day")
-    add("st george's day", fixed_date(4, 23), "st georges day", "saint george's day", "saint georges day")
+    add(
+        "st george's day",
+        fixed_date(4, 23),
+        "st georges day",
+        "saint george's day",
+        "saint georges day",
+    )
     add("anzac day", fixed_date(4, 25))
     add("kings day", fixed_date(4, 27), "king's day", "koningsdag")
-    add("freedom day south africa", fixed_date(4, 27), "south africa freedom day", "freedom day sa")
+    add(
+        "freedom day south africa",
+        fixed_date(4, 27),
+        "south africa freedom day",
+        "freedom day sa",
+    )
     add("walpurgis night", fixed_date(4, 30))
-    add("may day", fixed_date(5, 1), "international workers day", "international labour day", "international labor day", "workers day")
+    add(
+        "may day",
+        fixed_date(5, 1),
+        "international workers day",
+        "international labour day",
+        "international labor day",
+        "workers day",
+    )
     add("star wars day", fixed_date(5, 4), "may the fourth")
     add("liberation day netherlands", fixed_date(5, 5), "netherlands liberation day")
     add("cinco de mayo", fixed_date(5, 5))
@@ -172,7 +261,12 @@ def _build_builtin_definitions():
     add("europe day", fixed_date(5, 9))
     add("mother's day", nth_weekday(5, 6, 2), "mothers day")
     add("memorial day", last_weekday(5, 0))
-    add("norway constitution day", fixed_date(5, 17), "constitution day norway", "syttende mai")
+    add(
+        "norway constitution day",
+        fixed_date(5, 17),
+        "constitution day norway",
+        "syttende mai",
+    )
     add("ascension day", easter_offset(39))
     add("pentecost", easter_offset(49), "whit sunday", "pentecost sunday")
     add("whit monday", easter_offset(50), "pentecost monday")
@@ -183,9 +277,21 @@ def _build_builtin_definitions():
     add("world refugee day", fixed_date(6, 20))
     add("international yoga day", fixed_date(6, 21), "yoga day")
     add("st jean baptiste day", fixed_date(6, 24), "saint jean baptiste day")
-    add("midsummer", fixed_date(6, 24), "saint john's day", "st john's day", "st johns day")
+    add(
+        "midsummer",
+        fixed_date(6, 24),
+        "saint john's day",
+        "st john's day",
+        "st johns day",
+    )
     add("canada day", fixed_date(7, 1))
-    add("independence day", fixed_date(7, 4), "fourth of july", "4th of july", "us independence day")
+    add(
+        "independence day",
+        fixed_date(7, 4),
+        "fourth of july",
+        "4th of july",
+        "us independence day",
+    )
     add("bastille day", fixed_date(7, 14), "french national day")
     add("nelson mandela day", fixed_date(7, 18), "mandela day")
     add("international friendship day", fixed_date(7, 30), "friendship day july")
@@ -193,7 +299,12 @@ def _build_builtin_definitions():
     add("swiss national day", fixed_date(8, 1), "switzerland national day")
     add("civic holiday", nth_weekday(8, 0, 1), "august bank holiday canada")
     add("international youth day", fixed_date(8, 12), "youth day")
-    add("international left handers day", fixed_date(8, 13), "left handers day", "left hander's day")
+    add(
+        "international left handers day",
+        fixed_date(8, 13),
+        "left handers day",
+        "left hander's day",
+    )
     add("assumption day", fixed_date(8, 15), "feast of the assumption")
     add("world humanitarian day", fixed_date(8, 19), "humanitarian day")
     add("world photography day", fixed_date(8, 19), "photography day")
@@ -208,10 +319,19 @@ def _build_builtin_definitions():
     add("international day of peace", fixed_date(9, 21), "world peace day", "peace day")
     add("heritage day south africa", fixed_date(9, 24), "south africa heritage day")
     add("world tourism day", fixed_date(9, 27), "tourism day")
-    add("orange shirt day", fixed_date(9, 30), "national day for truth and reconciliation")
+    add(
+        "orange shirt day",
+        fixed_date(9, 30),
+        "national day for truth and reconciliation",
+    )
     add("german unity day", fixed_date(10, 3), "day of german unity")
     add("world teachers' day", fixed_date(10, 5), "world teachers day", "teachers day")
-    add("columbus day", nth_weekday(10, 0, 2), "indigenous peoples day", "indigenous people's day")
+    add(
+        "columbus day",
+        nth_weekday(10, 0, 2),
+        "indigenous peoples day",
+        "indigenous people's day",
+    )
     add("halloween eve", fixed_date(10, 30), "mischief night")
     add("halloween", fixed_date(10, 31), "all hallows eve")
     add("all saints' day", fixed_date(11, 1), "all saints day")
@@ -225,44 +345,75 @@ def _build_builtin_definitions():
     add("thanksgiving", nth_weekday(11, 3, 4), "thanksgiving day", "us thanksgiving")
     add("black friday", relative_to(nth_weekday(11, 3, 4), 1))
     add("cyber monday", cyber_monday)
-    add("st andrew's day", fixed_date(11, 30), "st andrews day", "saint andrew's day", "saint andrews day")
+    add(
+        "st andrew's day",
+        fixed_date(11, 30),
+        "st andrews day",
+        "saint andrew's day",
+        "saint andrews day",
+    )
     add("world aids day", fixed_date(12, 1))
     add("romania national day", fixed_date(12, 1), "great union day")
     add("saint nicholas eve", fixed_date(12, 5), "st nicholas eve")
     add("st nicholas day", fixed_date(12, 6), "saint nicholas day")
     add("constitution day spain", fixed_date(12, 6), "spain constitution day")
-    add("immaculate conception", fixed_date(12, 8), "feast of the immaculate conception")
-    add("hanukkah eve", _specific_year_dates({
-        2020: "2020-12-10",
-        2021: "2021-11-28",
-        2022: "2022-12-18",
-        2023: "2023-12-07",
-        2024: "2024-12-25",
-        2025: "2025-12-14",
-        2026: "2026-12-04",
-        2027: "2027-12-24",
-        2028: "2028-12-12",
-        2029: "2029-12-02",
-        2030: "2030-12-21",
-    }), "hanukkah", "chanukah", "chanukkah")
+    add(
+        "immaculate conception", fixed_date(12, 8), "feast of the immaculate conception"
+    )
+    add(
+        "hanukkah eve",
+        _specific_year_dates(
+            {
+                2020: "2020-12-10",
+                2021: "2021-11-28",
+                2022: "2022-12-18",
+                2023: "2023-12-07",
+                2024: "2024-12-25",
+                2025: "2025-12-14",
+                2026: "2026-12-04",
+                2027: "2027-12-24",
+                2028: "2028-12-12",
+                2029: "2029-12-02",
+                2030: "2030-12-21",
+            }
+        ),
+        "hanukkah",
+        "chanukah",
+        "chanukkah",
+    )
     add("human rights day", fixed_date(12, 10))
     add("international mountain day", fixed_date(12, 11), "mountain day")
-    add("st lucy's day", fixed_date(12, 13), "saint lucy's day", "saint lucys day", "st lucys day")
+    add(
+        "st lucy's day",
+        fixed_date(12, 13),
+        "saint lucy's day",
+        "saint lucys day",
+        "st lucys day",
+    )
     add("las posadas", fixed_date(12, 16))
-    add("day of reconciliation", fixed_date(12, 16), "south africa day of reconciliation")
-    add("winter solstice", _specific_year_dates({
-        2020: "2020-12-21",
-        2021: "2021-12-21",
-        2022: "2022-12-21",
-        2023: "2023-12-22",
-        2024: "2024-12-21",
-        2025: "2025-12-21",
-        2026: "2026-12-21",
-        2027: "2027-12-21",
-        2028: "2028-12-21",
-        2029: "2029-12-21",
-        2030: "2030-12-21",
-    }))
+    add(
+        "day of reconciliation",
+        fixed_date(12, 16),
+        "south africa day of reconciliation",
+    )
+    add(
+        "winter solstice",
+        _specific_year_dates(
+            {
+                2020: "2020-12-21",
+                2021: "2021-12-21",
+                2022: "2022-12-21",
+                2023: "2023-12-22",
+                2024: "2024-12-21",
+                2025: "2025-12-21",
+                2026: "2026-12-21",
+                2027: "2027-12-21",
+                2028: "2028-12-21",
+                2029: "2029-12-21",
+                2030: "2030-12-21",
+            }
+        ),
+    )
     add("christmas eve", fixed_date(12, 24))
     add("christmas", fixed_date(12, 25), "christmas day", "xmas day")
     add("boxing day", fixed_date(12, 26), "st stephen's day", "saint stephen's day")
@@ -308,14 +459,18 @@ def get_registered_holiday_resolver(name):
     return CUSTOM_HOLIDAY_RESOLVERS.get(key) or BUILTIN_HOLIDAY_RESOLVERS.get(key)
 
 
-def register_holiday(name, resolver=None, *, aliases=(), month=None, day=None, dates_by_year=None):
+def register_holiday(
+    name, resolver=None, *, aliases=(), month=None, day=None, dates_by_year=None
+):
     if resolver is None:
         if month is not None and day is not None:
             resolver = fixed_date(month, day)
         elif dates_by_year is not None:
             resolver = _specific_year_dates(dates_by_year)
         else:
-            raise TypeError("register_holiday requires a resolver, month/day, or dates_by_year")
+            raise TypeError(
+                "register_holiday requires a resolver, month/day, or dates_by_year"
+            )
 
     all_aliases = tuple(
         dict.fromkeys(

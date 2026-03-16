@@ -6,11 +6,7 @@ import argparse
 import json
 from dataclasses import asdict, is_dataclass
 
-from stringtime import (
-    Date,
-    __version__,
-    extract_dates,
-)
+from stringtime import Date, __version__, extract_dates
 
 
 def parse_args(argv=None):
@@ -21,9 +17,9 @@ def parse_args(argv=None):
         ),
         epilog=(
             "examples:\n"
-            "  stringtime \"an hour from now\"\n"
-            "  stringtime --relative-to \"2020-12-25 17:05:55\" \"tomorrow night\"\n"
-            "  stringtime --extract \"I will do it in 5 days from tomorrow\""
+            '  stringtime "an hour from now"\n'
+            '  stringtime --relative-to "2020-12-25 17:05:55" "tomorrow night"\n'
+            '  stringtime --extract "I will do it in 5 days from tomorrow"'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -148,9 +144,11 @@ def do_things(arguments, parser):
     if arguments.metadata or arguments.json:
         payload = {
             "date": str(result),
-            "parse_metadata": asdict(result.parse_metadata)
-            if getattr(result, "parse_metadata", None) is not None
-            else None,
+            "parse_metadata": (
+                asdict(result.parse_metadata)
+                if getattr(result, "parse_metadata", None) is not None
+                else None
+            ),
         }
         _print_result(payload, as_json=True)
     else:

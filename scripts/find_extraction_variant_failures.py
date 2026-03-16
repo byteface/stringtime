@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from stringtime.variant_sweeps import DEFAULT_REFERENCE, write_extraction_failures
+from stringtime.variant_sweeps import (DEFAULT_REFERENCE,
+                                       write_extraction_failures)
 
 
 def main():

@@ -1,7 +1,7 @@
 """
-    test_stringtime
-    ~~~~~~~~~~~~~~~
-    unit tests for stringtime
+test_stringtime
+~~~~~~~~~~~~~~~
+unit tests for stringtime
 
 """
 
@@ -11,7 +11,8 @@ import os
 import pytest
 
 import stringtime
-from stringtime import Date, after, extract_dates, is_after, is_before, is_same_day, is_same_time, until
+from stringtime import (Date, after, extract_dates, is_after, is_before,
+                        is_same_day, is_same_time, until)
 
 
 def check_phrase(p: str):
@@ -253,7 +254,10 @@ class TestCaseStrict:
             ("at dusk on end of month", "2020-12-31 16:30:00"),
             ("2 days after the first Monday in May", "2020-05-06 17:05:55"),
             ("at dawn on the 2nd week of january", "2021-01-08 07:30:00"),
-            ("the first business day after the hundredth day of the year", "2020-04-10 17:05:55"),
+            (
+                "the first business day after the hundredth day of the year",
+                "2020-04-10 17:05:55",
+            ),
             ("the last tuesday before the end of last autumn", "2020-11-24 17:05:55"),
             ("2 fridays after spring equinox", "2021-04-02 12:00:00"),
             ("the Friday before xmas eve", "2020-12-18 17:05:55"),
@@ -275,40 +279,112 @@ class TestCaseStrict:
             ("10 seconds to midnight tomorrow", "2020-12-26 23:59:50"),
             ("10 seconds to midnight in mid september", "2021-09-15 23:59:50"),
             ("in the evening on the first Monday in May", "2020-05-04 19:00:00"),
-            ("5 minutes past the hour on the first Monday in May", "2020-05-04 17:05:00"),
-            ("the friday after the second week in june at quarter to six", "2021-06-11 05:45:00"),
-            ("ten seconds before noon on the last sunday in october", "2020-10-25 11:59:50"),
-            ("at five past ten on the second friday after christmas", "2021-01-08 10:05:00"),
-            ("the first business day before the end of next summer", "2021-08-30 17:05:55"),
-            ("half past seven on the hundredth day of next year", "2021-04-10 07:30:00"),
+            (
+                "5 minutes past the hour on the first Monday in May",
+                "2020-05-04 17:05:00",
+            ),
+            (
+                "the friday after the second week in june at quarter to six",
+                "2021-06-11 05:45:00",
+            ),
+            (
+                "ten seconds before noon on the last sunday in october",
+                "2020-10-25 11:59:50",
+            ),
+            (
+                "at five past ten on the second friday after christmas",
+                "2021-01-08 10:05:00",
+            ),
+            (
+                "the first business day before the end of next summer",
+                "2021-08-30 17:05:55",
+            ),
+            (
+                "half past seven on the hundredth day of next year",
+                "2021-04-10 07:30:00",
+            ),
             ("the tuesday after the first full moon in april", "2021-05-04 01:40:38"),
-            ("five to midnight on the last day in february next year", "2021-02-28 23:55:00"),
-            ("the middle of december at quarter past eight in the evening", "2021-12-15 20:15:00"),
+            (
+                "five to midnight on the last day in february next year",
+                "2021-02-28 23:55:00",
+            ),
+            (
+                "the middle of december at quarter past eight in the evening",
+                "2021-12-15 20:15:00",
+            ),
             ("three days before the spring equinox at dawn", "2021-03-17 05:45:00"),
-            ("the penultimate friday in november at twenty to six", "2020-11-20 05:40:00"),
+            (
+                "the penultimate friday in november at twenty to six",
+                "2020-11-20 05:40:00",
+            ),
             ("2 hours after dusk on the first monday in may", "2020-05-04 22:20:00"),
-            ("the last working day before fiscal year end at noon", "2020-12-30 12:00:00"),
+            (
+                "the last working day before fiscal year end at noon",
+                "2020-12-30 12:00:00",
+            ),
             ("5pm in december 2027", "2027-12-01 17:00:00"),
             ("10 seconds to midnight the first monday in may", "2020-05-04 23:59:50"),
             ("friday the 1st of last december @ 2", "2019-12-06 02:00:00"),
-            ("on the fourteenth of february when the clock strikes 12", "2020-02-14 12:00:00"),
+            (
+                "on the fourteenth of february when the clock strikes 12",
+                "2020-02-14 12:00:00",
+            ),
             ("at 4 past 10 on friday after palm sunday", "2020-04-10 10:04:00"),
-            ("5 minutes past the hour on the Friday before xmas eve", "2020-12-18 17:05:00"),
-            ("the first tuesday before the harvest moon at half past seven", "2021-09-14 07:30:00"),
-            ("twenty seconds after dusk on the last friday in march", "2020-03-27 18:40:20"),
-            ("the second business day after the first full moon in may", "2021-05-28 14:24:40"),
-            ("quarter to midnight on the penultimate day of next month", "2021-01-30 23:45:00"),
-            ("the third monday after the spring equinox at dawn", "2021-04-05 04:45:00"),
-            ("5 past 10 on the first business day after fiscal q1", "2021-01-04 10:05:00"),
-            ("the last sunday before the middle of december at noon", "2021-12-12 12:00:00"),
-            ("two hours before sunrise on the hundredth day of 2027", "2027-04-10 03:25:00"),
-            ("the friday after the last day in february 2028 at 3pm", "2028-03-03 15:00:00"),
+            (
+                "5 minutes past the hour on the Friday before xmas eve",
+                "2020-12-18 17:05:00",
+            ),
+            (
+                "the first tuesday before the harvest moon at half past seven",
+                "2021-09-14 07:30:00",
+            ),
+            (
+                "twenty seconds after dusk on the last friday in march",
+                "2020-03-27 18:40:20",
+            ),
+            (
+                "the second business day after the first full moon in may",
+                "2021-05-28 14:24:40",
+            ),
+            (
+                "quarter to midnight on the penultimate day of next month",
+                "2021-01-30 23:45:00",
+            ),
+            (
+                "the third monday after the spring equinox at dawn",
+                "2021-04-05 04:45:00",
+            ),
+            (
+                "5 past 10 on the first business day after fiscal q1",
+                "2021-01-04 10:05:00",
+            ),
+            (
+                "the last sunday before the middle of december at noon",
+                "2021-12-12 12:00:00",
+            ),
+            (
+                "two hours before sunrise on the hundredth day of 2027",
+                "2027-04-10 03:25:00",
+            ),
+            (
+                "the friday after the last day in february 2028 at 3pm",
+                "2028-03-03 15:00:00",
+            ),
             ("the second week in october at five to midnight", "2021-10-08 23:55:00"),
             ("the first friday of next winter at dusk", "2021-12-03 16:30:00"),
             ("the first monday in may five past ten", "2020-05-04 10:05:00"),
-            ("quarter past eight the first business day after christmas", "2020-12-28 08:15:00"),
-            ("the last working day of next month at end of business", "2021-01-29 17:00:00"),
-            ("ten seconds to noon the penultimate friday in november", "2020-11-20 11:59:50"),
+            (
+                "quarter past eight the first business day after christmas",
+                "2020-12-28 08:15:00",
+            ),
+            (
+                "the last working day of next month at end of business",
+                "2021-01-29 17:00:00",
+            ),
+            (
+                "ten seconds to noon the penultimate friday in november",
+                "2020-11-20 11:59:50",
+            ),
             ("friday after the last full moon @ 2:30:12", "2020-12-04 02:30:12"),
             ("3 easters ago", "2018-04-01 17:05:55"),
             ("5 fridays ago", "2020-11-20 17:05:55"),
@@ -826,7 +902,9 @@ class TestCaseStrict:
         )
         assert str(matches[0].date) == "2001-02-24 17:05:55"
 
-    def test_extract_dates_prefers_full_relative_phrase_with_specific_morning_time(self):
+    def test_extract_dates_prefers_full_relative_phrase_with_specific_morning_time(
+        self,
+    ):
         matches = extract_dates("3 weeks ago at 2 in the morning")
 
         assert len(matches) == 1
@@ -848,9 +926,7 @@ class TestCaseStrict:
         assert str(matches[0].date) == "2020-12-25 01:01:00"
 
     def test_extract_dates_prefers_full_relative_weekday_phrase(self):
-        matches = extract_dates(
-            "Tuesday before last is good for me I think."
-        )
+        matches = extract_dates("Tuesday before last is good for me I think.")
 
         assert len(matches) == 1
         assert matches[0].text == "Tuesday before last"
@@ -1494,10 +1570,15 @@ class TestCaseStrict:
         assert str(matches[0].date) == "2021-01-08 07:30:00"
 
     def test_extract_dates_prefers_full_business_day_after_day_of_year_anchor(self):
-        matches = extract_dates("the first business day after the hundredth day of the year")
+        matches = extract_dates(
+            "the first business day after the hundredth day of the year"
+        )
 
         assert len(matches) == 1
-        assert matches[0].text == "the first business day after the hundredth day of the year"
+        assert (
+            matches[0].text
+            == "the first business day after the hundredth day of the year"
+        )
         assert str(matches[0].date) == "2020-04-10 17:05:55"
 
     def test_extract_dates_prefers_full_ordinal_weekday_before_anchor_phrase(self):
@@ -1525,7 +1606,9 @@ class TestCaseStrict:
         matches = extract_dates("5 minutes past the hour on the Friday before xmas eve")
 
         assert len(matches) == 1
-        assert matches[0].text == "5 minutes past the hour on the Friday before xmas eve"
+        assert (
+            matches[0].text == "5 minutes past the hour on the Friday before xmas eve"
+        )
         assert str(matches[0].date) == "2020-12-18 17:05:00"
 
     def test_extract_dates_prefers_full_clock_on_anchor_phrase(self):
@@ -1563,7 +1646,9 @@ class TestCaseStrict:
         assert matches[0].text == "December 1st @ twenty to 6pm"
         assert str(matches[0].date) == "2020-12-01 17:40:00"
 
-    def test_extract_dates_prefers_full_date_then_twenty_five_to_meridiem_clock_phrase(self):
+    def test_extract_dates_prefers_full_date_then_twenty_five_to_meridiem_clock_phrase(
+        self,
+    ):
         matches = extract_dates("December 1st @ twenty five to 7pm")
 
         assert len(matches) == 1
@@ -1584,7 +1669,9 @@ class TestCaseStrict:
         assert matches[0].text == "10 seconds to midnight"
         assert str(matches[0].date) == "2020-12-25 23:59:50"
 
-    def test_extract_dates_prefers_full_seconds_to_midnight_in_month_anchor_phrase(self):
+    def test_extract_dates_prefers_full_seconds_to_midnight_in_month_anchor_phrase(
+        self,
+    ):
         matches = extract_dates("10 seconds to midnight in mid september")
 
         assert len(matches) == 1
@@ -1607,29 +1694,80 @@ class TestCaseStrict:
 
     def test_extract_dates_prefers_full_long_composed_phrase_batch(self):
         phrases = (
-            ("the friday after the second week in june at quarter to six", "2021-06-11 05:45:00"),
-            ("at five past ten on the second friday after christmas", "2021-01-08 10:05:00"),
-            ("five to midnight on the last day in february next year", "2021-02-28 23:55:00"),
-            ("the middle of december at quarter past eight in the evening", "2021-12-15 20:15:00"),
-            ("the last working day before fiscal year end at noon", "2020-12-30 12:00:00"),
+            (
+                "the friday after the second week in june at quarter to six",
+                "2021-06-11 05:45:00",
+            ),
+            (
+                "at five past ten on the second friday after christmas",
+                "2021-01-08 10:05:00",
+            ),
+            (
+                "five to midnight on the last day in february next year",
+                "2021-02-28 23:55:00",
+            ),
+            (
+                "the middle of december at quarter past eight in the evening",
+                "2021-12-15 20:15:00",
+            ),
+            (
+                "the last working day before fiscal year end at noon",
+                "2020-12-30 12:00:00",
+            ),
             ("5pm in december 2027", "2027-12-01 17:00:00"),
             ("10 seconds to midnight the first monday in may", "2020-05-04 23:59:50"),
             ("friday the 1st of last december @ 2", "2019-12-06 02:00:00"),
-            ("the first tuesday before the harvest moon at half past seven", "2021-09-14 07:30:00"),
-            ("twenty seconds after dusk on the last friday in march", "2020-03-27 18:40:20"),
-            ("the second business day after the first full moon in may", "2021-05-28 14:24:40"),
-            ("quarter to midnight on the penultimate day of next month", "2021-01-30 23:45:00"),
-            ("the third monday after the spring equinox at dawn", "2021-04-05 04:45:00"),
-            ("5 past 10 on the first business day after fiscal q1", "2021-01-04 10:05:00"),
-            ("the last sunday before the middle of december at noon", "2021-12-12 12:00:00"),
-            ("two hours before sunrise on the hundredth day of 2027", "2027-04-10 03:25:00"),
-            ("the friday after the last day in february 2028 at 3pm", "2028-03-03 15:00:00"),
+            (
+                "the first tuesday before the harvest moon at half past seven",
+                "2021-09-14 07:30:00",
+            ),
+            (
+                "twenty seconds after dusk on the last friday in march",
+                "2020-03-27 18:40:20",
+            ),
+            (
+                "the second business day after the first full moon in may",
+                "2021-05-28 14:24:40",
+            ),
+            (
+                "quarter to midnight on the penultimate day of next month",
+                "2021-01-30 23:45:00",
+            ),
+            (
+                "the third monday after the spring equinox at dawn",
+                "2021-04-05 04:45:00",
+            ),
+            (
+                "5 past 10 on the first business day after fiscal q1",
+                "2021-01-04 10:05:00",
+            ),
+            (
+                "the last sunday before the middle of december at noon",
+                "2021-12-12 12:00:00",
+            ),
+            (
+                "two hours before sunrise on the hundredth day of 2027",
+                "2027-04-10 03:25:00",
+            ),
+            (
+                "the friday after the last day in february 2028 at 3pm",
+                "2028-03-03 15:00:00",
+            ),
             ("the second week in october at five to midnight", "2021-10-08 23:55:00"),
             ("the first friday of next winter at dusk", "2021-12-03 16:30:00"),
             ("the first monday in may five past ten", "2020-05-04 10:05:00"),
-            ("quarter past eight the first business day after christmas", "2020-12-28 08:15:00"),
-            ("the last working day of next month at end of business", "2021-01-29 17:00:00"),
-            ("ten seconds to noon the penultimate friday in november", "2020-11-20 11:59:50"),
+            (
+                "quarter past eight the first business day after christmas",
+                "2020-12-28 08:15:00",
+            ),
+            (
+                "the last working day of next month at end of business",
+                "2021-01-29 17:00:00",
+            ),
+            (
+                "ten seconds to noon the penultimate friday in november",
+                "2020-11-20 11:59:50",
+            ),
             ("friday after the last full moon @ 2:30:12", "2020-12-04 02:30:12"),
             ("3 easters ago", "2018-04-01 17:05:55"),
             ("5 fridays ago", "2020-11-20 17:05:55"),
@@ -1645,10 +1783,14 @@ class TestCaseStrict:
             assert str(matches[0].date) == expected
 
     def test_extract_dates_prefers_full_date_when_clock_strikes_phrase(self):
-        matches = extract_dates("on the fourteenth of february when the clock strikes 12")
+        matches = extract_dates(
+            "on the fourteenth of february when the clock strikes 12"
+        )
 
         assert len(matches) == 1
-        assert matches[0].text == "on the fourteenth of february when the clock strikes 12"
+        assert (
+            matches[0].text == "on the fourteenth of february when the clock strikes 12"
+        )
         assert str(matches[0].date) == "2020-02-14 12:00:00"
 
     def test_extract_dates_prefers_full_solstice_phrase(self):
@@ -2011,11 +2153,16 @@ def test_recent_composition_regressions():
     assert str(Date("the month after next easter")) == "2021-05-04 17:05:55"
     assert str(Date("quarter to six by the end of june")) == "2021-06-30 05:45:00"
     assert str(Date("the second half of december")) == "2021-12-16 17:05:55"
-    assert str(Date("late afternoon on the first monday in may")) == "2020-05-04 16:30:00"
+    assert (
+        str(Date("late afternoon on the first monday in may")) == "2020-05-04 16:30:00"
+    )
     assert str(Date("5pm by december 2027")) == "2027-12-01 17:00:00"
     assert str(Date("the weekend after next christmas")) == "2022-01-01 17:05:55"
     assert str(Date("half a millisecond after noon")) == "2020-12-25 12:00:00.000500"
-    assert str(Date("the first tuesday in june in the evening at 5 past 10")) == "2020-06-02 22:05:00"
+    assert (
+        str(Date("the first tuesday in june in the evening at 5 past 10"))
+        == "2020-06-02 22:05:00"
+    )
     assert str(Date("the full moon before last")) == "2020-10-31 21:16:20"
     assert str(Date("the friday and the 1st of december 2023")) == "2023-12-01 17:05:55"
 
@@ -2040,60 +2187,113 @@ def test_recent_composition_regression_extraction_spans():
 
 
 def test_end_of_play_with_composed_anchor_and_precise_seconds_tail():
-    assert str(Date("end of play tuesday in feb", relative_to="2020-12-25 17:05:55")) == "2021-02-02 17:00:00"
-    assert str(Date("feb 2nd @ 2:20 and 20 seconds", relative_to="2020-12-25 17:05:55")) == "2020-02-02 02:20:20"
+    assert (
+        str(Date("end of play tuesday in feb", relative_to="2020-12-25 17:05:55"))
+        == "2021-02-02 17:00:00"
+    )
+    assert (
+        str(Date("feb 2nd @ 2:20 and 20 seconds", relative_to="2020-12-25 17:05:55"))
+        == "2020-02-02 02:20:20"
+    )
 
-    matches = Date("end of play tuesday in feb", extract=True, relative_to="2020-12-25 17:05:55")
+    matches = Date(
+        "end of play tuesday in feb", extract=True, relative_to="2020-12-25 17:05:55"
+    )
     assert matches[0].text == "end of play tuesday in feb"
 
-    matches = Date("feb 2nd @ 2:20 and 20 seconds", extract=True, relative_to="2020-12-25 17:05:55")
+    matches = Date(
+        "feb 2nd @ 2:20 and 20 seconds", extract=True, relative_to="2020-12-25 17:05:55"
+    )
     assert matches[0].text == "feb 2nd @ 2:20 and 20 seconds"
 
 
 def test_relative_named_month_day_with_time():
-    assert str(Date("last september 22nd @ 3:30pm", relative_to="2020-12-25 17:05:55")) == "2020-09-22 15:30:00"
-    assert str(Date("next september 22nd @ 3:30pm", relative_to="2020-12-25 17:05:55")) == "2021-09-22 15:30:00"
+    assert (
+        str(Date("last september 22nd @ 3:30pm", relative_to="2020-12-25 17:05:55"))
+        == "2020-09-22 15:30:00"
+    )
+    assert (
+        str(Date("next september 22nd @ 3:30pm", relative_to="2020-12-25 17:05:55"))
+        == "2021-09-22 15:30:00"
+    )
 
-    matches = Date("last september 22nd @ 3:30pm", extract=True, relative_to="2020-12-25 17:05:55")
+    matches = Date(
+        "last september 22nd @ 3:30pm", extract=True, relative_to="2020-12-25 17:05:55"
+    )
     assert matches[0].text == "last september 22nd @ 3:30pm"
 
 
 def test_month_boundary_and_year_position_compositions():
     reference = "2020-12-25 17:05:55"
 
-    assert str(Date("on the last day of the month in february", relative_to=reference)) == "2020-02-29 17:05:55"
-    assert str(Date("at 12 on the first day of the month in june", relative_to=reference)) == "2020-06-01 12:00:00"
-    assert str(Date("at 3pm on boxing day 2028", relative_to=reference)) == "2028-12-26 15:00:00"
-    assert str(Date("2028 at 4pm on the first friday of June", relative_to=reference)) == "2028-06-02 16:00:00"
-    assert str(Date("the last friday of the year 2029 @ 3pm", relative_to=reference)) == "2029-12-28 15:00:00"
+    assert (
+        str(Date("on the last day of the month in february", relative_to=reference))
+        == "2020-02-29 17:05:55"
+    )
+    assert (
+        str(Date("at 12 on the first day of the month in june", relative_to=reference))
+        == "2020-06-01 12:00:00"
+    )
+    assert (
+        str(Date("at 3pm on boxing day 2028", relative_to=reference))
+        == "2028-12-26 15:00:00"
+    )
+    assert (
+        str(Date("2028 at 4pm on the first friday of June", relative_to=reference))
+        == "2028-06-02 16:00:00"
+    )
+    assert (
+        str(Date("the last friday of the year 2029 @ 3pm", relative_to=reference))
+        == "2029-12-28 15:00:00"
+    )
 
-    matches = Date("on the last day of the month in february", extract=True, relative_to=reference)
+    matches = Date(
+        "on the last day of the month in february", extract=True, relative_to=reference
+    )
     assert matches[0].text == "on the last day of the month in february"
 
     matches = Date("at 3pm on boxing day 2028", extract=True, relative_to=reference)
     assert matches[0].text == "at 3pm on boxing day 2028"
 
-    assert str(Date("2pm september 1st 2029", relative_to=reference)) == "2029-09-01 14:00:00"
-    assert str(Date("2pm september 1st. 2029", relative_to=reference)) == "2029-09-01 14:00:00"
-    assert str(Date("the first of september at 2pm 2029", relative_to=reference)) == "2029-09-01 14:00:00"
+    assert (
+        str(Date("2pm september 1st 2029", relative_to=reference))
+        == "2029-09-01 14:00:00"
+    )
+    assert (
+        str(Date("2pm september 1st. 2029", relative_to=reference))
+        == "2029-09-01 14:00:00"
+    )
+    assert (
+        str(Date("the first of september at 2pm 2029", relative_to=reference))
+        == "2029-09-01 14:00:00"
+    )
 
     matches = Date("2pm september 1st 2029", extract=True, relative_to=reference)
     assert matches[0].text == "2pm september 1st 2029"
 
-    matches = Date("the first of september at 2pm 2029", extract=True, relative_to=reference)
+    matches = Date(
+        "the first of september at 2pm 2029", extract=True, relative_to=reference
+    )
     assert matches[0].text == "the first of september at 2pm 2029"
 
-    matches = Date("2028 at 4pm on the first friday of June", extract=True, relative_to=reference)
+    matches = Date(
+        "2028 at 4pm on the first friday of June", extract=True, relative_to=reference
+    )
     assert matches[0].text == "2028 at 4pm on the first friday of June"
 
-    matches = Date("the last friday of the year 2029 @ 3pm", extract=True, relative_to=reference)
+    matches = Date(
+        "the last friday of the year 2029 @ 3pm", extract=True, relative_to=reference
+    )
     assert matches[0].text == "the last friday of the year 2029 @ 3pm"
 
 
 def test_anchor_offset_on_holiday_anchor():
     reference = "2020-12-25 17:05:55"
 
-    assert str(Date("328 years ago on xmas day", relative_to=reference)) == "1692-12-25 17:05:55"
+    assert (
+        str(Date("328 years ago on xmas day", relative_to=reference))
+        == "1692-12-25 17:05:55"
+    )
 
     matches = Date("328 years ago on xmas day", extract=True, relative_to=reference)
     assert matches[0].text == "328 years ago on xmas day"

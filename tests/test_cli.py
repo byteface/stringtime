@@ -13,7 +13,9 @@ def test_cli_parses_phrase_with_positional_input(capsys):
 
 
 def test_cli_supports_legacy_phrase_flag(capsys):
-    result = run(["--phrase", "tomorrow", "night", "--relative-to", "2020-12-25 17:05:55"])
+    result = run(
+        ["--phrase", "tomorrow", "night", "--relative-to", "2020-12-25 17:05:55"]
+    )
 
     captured = capsys.readouterr()
 

@@ -1,15 +1,11 @@
 from pathlib import Path
 
-from stringtime.variant_sweeps import (
-    DEFAULT_REFERENCE,
-    generate_extraction_cases,
-    generate_variant_cases,
-    run_exploratory_structure_sweep,
-    run_extraction_sweep,
-    run_ladder_sweep,
-    run_range_glue_sweep,
-    run_variant_sweep,
-)
+from stringtime.variant_sweeps import (DEFAULT_REFERENCE,
+                                       generate_extraction_cases,
+                                       generate_variant_cases,
+                                       run_exploratory_structure_sweep,
+                                       run_extraction_sweep, run_ladder_sweep,
+                                       run_range_glue_sweep, run_variant_sweep)
 
 
 def test_variant_sweeps_generate_at_least_one_hundred_cases():
@@ -45,12 +41,21 @@ def test_variant_sweeps_include_expected_families():
     assert "last september 22nd @ 3:30 pm" in phrases
     assert "end of play tuesday in feb" in phrases
     assert "close of play tuesday in feb" in phrases
-    assert "2028 at 3pm on boxing day" in phrases or "2028 at 3pm on boxing day 2028" in phrases
+    assert (
+        "2028 at 3pm on boxing day" in phrases
+        or "2028 at 3pm on boxing day 2028" in phrases
+    )
     assert "at 4pm on the first friday of june 2028" in phrases
-    assert "the first friday of june 2028 at 4pm" in phrases or "the first friday of june 2028 @ 4pm" in phrases
+    assert (
+        "the first friday of june 2028 at 4pm" in phrases
+        or "the first friday of june 2028 @ 4pm" in phrases
+    )
     assert "the first monday of may" in phrases
     assert "in 3 days from next wednesday" in phrases
-    assert "evening on fiscal year end" in phrases or "in the evening on fiscal year end" in phrases
+    assert (
+        "evening on fiscal year end" in phrases
+        or "in the evening on fiscal year end" in phrases
+    )
     assert "the first working day after fiscal year end" in phrases
     assert "quarter past five" in phrases
     assert "the 1st of the 3rd 22 @ 3pm" in phrases
