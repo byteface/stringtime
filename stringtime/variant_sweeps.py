@@ -216,8 +216,10 @@ SEED_CASES = (
     VariantSeed("the 7th of the 6th eighty one", "1981-06-07 17:05:55", "ordinal_month_year"),
     VariantSeed("the first of the 3rd 22 @ 3pm", "2022-03-01 15:00:00", "ordinal_month_year"),
     VariantSeed("the first of the 3rd 22 at 3pm", "2022-03-01 15:00:00", "ordinal_month_year"),
+    VariantSeed("the first of september at 2pm 2029", "2029-09-01 14:00:00", "ordinal_month_year"),
     VariantSeed("7th of the 6th 81", "1981-06-07 17:05:55", "ordinal_month_year"),
     VariantSeed("the 7th of the sixth 81", "1981-06-07 17:05:55", "ordinal_month_year"),
+    VariantSeed("2pm september 1st 2029", "2029-09-01 14:00:00", "ordinal_month_year"),
     VariantSeed("the fourteenth week after xmas", "2021-04-02 17:05:55", "anchor_offset"),
     VariantSeed("328 years ago on xmas day", "1692-12-25 17:05:55", "anchor_offset"),
     VariantSeed("two Fridays from now", "2021-01-08 17:05:55", "counted_weekday"),
@@ -1239,6 +1241,46 @@ def _ordinal_month_year_matrix(seed):
         if time is not None:
             variants.extend(_swap_at_joiners(phrase))
             variants.extend(_space_meridiem_variants(phrase))
+
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<day>\d{1,2}(?:st|nd|rd|th)?|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)\s+of\s+(?P<month>[a-z]+)\s+(?P<joiner>@|at)\s+(?P<time>.+)\s+(?P<year>\d{4})",
+        phrase,
+        re.IGNORECASE,
+    )
+    if match is not None:
+        day = match.group("day")
+        month = match.group("month")
+        joiner = match.group("joiner")
+        time = match.group("time")
+        year = match.group("year")
+        variants.extend(
+            (
+                f"the {day} of {month} {joiner} {time} {year}",
+                f"{day} of {month} {joiner} {time} {year}",
+                f"the {day} of {month} {year} {joiner} {time}",
+            )
+        )
+        variants.extend(_space_meridiem_variants(phrase))
+        variants.extend(_swap_at_joiners(phrase))
+
+    match = re.fullmatch(
+        r"(?P<time>.+?)\s+(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)\s+(?P<day>\d{1,2}(?:st|nd|rd|th)?)(?:[,.]?\s+(?P<year>\d{4}))$",
+        phrase,
+        re.IGNORECASE,
+    )
+    if match is not None:
+        time = match.group("time")
+        month = match.group("month")
+        day = match.group("day")
+        year = match.group("year")
+        variants.extend(
+            (
+                f"{time} {month} {day}. {year}",
+                f"{time} on {month} {day} {year}",
+                f"{time} on {month} {day}. {year}",
+            )
+        )
+        variants.extend(_space_meridiem_variants(phrase))
 
     match = re.fullmatch(
         r"(?P<relation>last|next|this)\s+(?P<month>[a-z]+)\s+(?P<day>\d{1,2}(?:st|nd|rd|th)?)(?:\s+(?P<joiner>@|at)\s+(?P<time>.+))?",

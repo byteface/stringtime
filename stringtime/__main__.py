@@ -10,10 +10,6 @@ from stringtime import (
     Date,
     __version__,
     extract_dates,
-    nearest_phrase_for,
-    nearest_phrases_for,
-    phrase_for,
-    phrases_for,
 )
 
 
@@ -21,16 +17,13 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         prog="stringtime",
         description=(
-            "Parse natural language dates, extract date phrases from sentences, "
-            "and reverse known datetimes back to phrases."
+            "Parse natural language dates and extract date phrases from sentences."
         ),
         epilog=(
             "examples:\n"
             "  stringtime \"an hour from now\"\n"
             "  stringtime --relative-to \"2020-12-25 17:05:55\" \"tomorrow night\"\n"
-            "  stringtime --extract \"I will do it in 5 days from tomorrow\"\n"
-            "  stringtime --reverse \"2021-01-01 17:05:55\" --relative-to \"2020-12-25 17:05:55\"\n"
-            "  stringtime --nearest --all --json \"2021-01-01 12:34:56\""
+            "  stringtime --extract \"I will do it in 5 days from tomorrow\""
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -59,29 +52,11 @@ def parse_args(argv=None):
         action="store_true",
         help="Extract matching date phrases from a longer sentence.",
     )
-    mode_group.add_argument(
-        "-r",
-        "--reverse",
-        action="store_true",
-        help="Reverse an exact datetime into a known phrase from the registry.",
-    )
-    mode_group.add_argument(
-        "-n",
-        "--nearest",
-        action="store_true",
-        help="Reverse a datetime into the nearest known phrase from the registry.",
-    )
     parser.add_argument(
         "-a",
         "--all",
         action="store_true",
-        help="Return all matches or candidates for extract, reverse, or nearest modes.",
-    )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        default=5,
-        help="Maximum number of nearest candidates to return with --nearest --all.",
+        help="Return all matches in extract mode.",
     )
     parser.add_argument(
         "--relative-to",
@@ -167,24 +142,6 @@ def do_things(arguments, parser):
                 print(f"{match.text} -> {match.date}")
         elif result:
             print(result[0].date)
-        return result
-
-    if arguments.reverse:
-        result = phrases_for(text, relative_to=arguments.relative_to) if arguments.all else phrase_for(
-            text, relative_to=arguments.relative_to
-        )
-        _print_result(result if result is not None else ([] if arguments.all else "None"), as_json=arguments.json)
-        return result
-
-    if arguments.nearest:
-        result = (
-            nearest_phrases_for(
-                text, relative_to=arguments.relative_to, limit=arguments.limit
-            )
-            if arguments.all
-            else nearest_phrase_for(text, relative_to=arguments.relative_to)
-        )
-        _print_result(result if result is not None else ([] if arguments.all else "None"), as_json=arguments.json)
         return result
 
     result = Date(text, **parse_kwargs)

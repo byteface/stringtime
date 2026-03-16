@@ -3,9 +3,7 @@ __all__ = [
     "after",
     "Date",
     "DateMatch",
-    "PhraseCandidate",
     "ParseMetadata",
-    "Phrase",
     "builtin_holiday_alias_count",
     "builtin_holiday_definition_count",
     "clear_custom_holidays",
@@ -14,10 +12,6 @@ __all__ = [
     "is_before",
     "is_same_day",
     "is_same_time",
-    "nearest_phrase_for",
-    "nearest_phrases_for",
-    "phrase_for",
-    "phrases_for",
     "register_holiday",
     "register_holiday_date",
     "register_holiday_dates",
@@ -116,6 +110,10 @@ MOON_PHASE_EPOCH = datetime.datetime(2000, 1, 6, 18, 14, 0)
 SYNODIC_MONTH_DAYS = 29.530588853
 
 NORMALIZATION_ALIASES = {
+    "the end of time": "forever",
+    "end of time": "forever",
+    "for eternity": "forever",
+    "eternity": "forever",
     "2moro": "tomorrow",
     "2morro": "tomorrow",
     "2moz": "tomorrow",
@@ -565,17 +563,6 @@ class ParseMetadata:
     representative_granularity: str
 
 
-@dataclass
-class PhraseCandidate:
-    phrase: str
-    parsed: str
-    delta_seconds: int
-    phrase_count: int
-    categories: list[str]
-    locales: list[str]
-    styles: list[str]
-
-
 @dataclass(frozen=True)
 class AnchorDefinition:
     name: str
@@ -586,6 +573,8 @@ class AnchorDefinition:
 def clone_date(date_obj):
     cloned = stDate()
     cloned._date = date_obj.to_datetime().replace()
+    cloned.is_infinite = getattr(date_obj, "is_infinite", False)
+    cloned.infinite_direction = getattr(date_obj, "infinite_direction", 0)
     cloned.parse_metadata = getattr(date_obj, "parse_metadata", None)
     return cloned
 
@@ -625,13 +614,36 @@ def coerce_value_date(value, *, argument_name="value", default_now=False):
 
 
 def normalize_duration_datetime(value):
+    if getattr(value, "is_infinite", False):
+        raise ValueError("Cannot format a bounded duration against infinity")
     if value.tzinfo is None:
         return value.replace(microsecond=0)
     return value.astimezone(datetime.timezone.utc).replace(tzinfo=None, microsecond=0)
 
 
 def comparable_datetime(value):
+    if getattr(value, "is_infinite", False):
+        return value
     return normalize_duration_datetime(value.to_datetime())
+
+
+def compare_date_values(first, second):
+    if getattr(first, "is_infinite", False) or getattr(second, "is_infinite", False):
+        if getattr(first, "is_infinite", False) and getattr(second, "is_infinite", False):
+            if first.infinite_direction == second.infinite_direction:
+                return 0
+            return 1 if first.infinite_direction > second.infinite_direction else -1
+        if getattr(first, "is_infinite", False):
+            return 1 if first.infinite_direction > 0 else -1
+        return -1 if second.infinite_direction > 0 else 1
+
+    first_dt = comparable_datetime(first)
+    second_dt = comparable_datetime(second)
+    if first_dt < second_dt:
+        return -1
+    if first_dt > second_dt:
+        return 1
+    return 0
 
 
 def format_duration_string(from_value, to_value):
@@ -758,6 +770,9 @@ def build_parse_metadata(
 
 def infer_phrase_semantics(phrase):
     phrase = (phrase or "").strip().lower()
+
+    if phrase in {"forever", "for ever", "infinity", "∞"}:
+        return "infinity", "unbounded"
 
     if phrase == "" or is_now(phrase):
         return "instant", "second"
@@ -3038,6 +3053,35 @@ def get_ordinal_month_year_date(phrase):
         elif relation == "last":
             if month >= reference_month:
                 year -= 1
+
+        return build_calendar_anchor_date(year, month, day)
+
+    month_first_match = re.fullmatch(
+        rf"(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)\s+(?P<day>{day_pattern})(?:[,.]?\s+(?P<year>{year_pattern}))?",
+        phrase,
+    )
+    if month_first_match is not None:
+        raw_day = month_first_match.group("day")
+        ordinal_match = re.fullmatch(r"(\d{1,2})(?:st|nd|rd|th)?", raw_day)
+        if ordinal_match is not None:
+            day = int(ordinal_match.group(1))
+        else:
+            day = ordinal_day_lookup.get(raw_day)
+            if day is None:
+                return None
+
+        month = month_lookup[month_first_match.group("month")]
+        raw_year = month_first_match.group("year")
+        reference = get_reference_date()
+        if raw_year is None:
+            year = reference.get_year()
+            candidate = build_calendar_anchor_date(year, month, day)
+            if candidate.to_datetime().replace(tzinfo=None) < reference.to_datetime().replace(tzinfo=None):
+                year += 1
+        else:
+            year = parse_year_value(raw_year)
+            if year is None:
+                return None
 
         return build_calendar_anchor_date(year, month, day)
 
@@ -5526,6 +5570,221 @@ def merge_date_with_relative_time_phrase(base_date, time_phrase):
     return d
 
 
+def parse_structured_date_text(candidate, *args, timezone_aware=False, **kwargs):
+    if not candidate:
+        return None
+
+    parsed = parse_natural_date_strict(
+        candidate,
+        *args,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    if parsed is not None:
+        return parsed
+
+    normalized_candidate = normalize_phrase(candidate)
+    if normalized_candidate != candidate:
+        return parse_natural_date_strict(
+            normalized_candidate,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+
+    return None
+
+
+def parse_anchor_like_text(candidate, *args, timezone_aware=False, **kwargs):
+    if not candidate:
+        return None
+
+    anchor_date = parse_anchor_date(
+        candidate,
+        *args,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    if anchor_date is not None:
+        return anchor_date
+
+    return parse_structured_date_text(
+        candidate,
+        *args,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+
+
+def parse_structured_time_text(
+    candidate, *args, reference_override=None, timezone_aware=False, **kwargs
+):
+    if not candidate:
+        return None
+
+    def parse_clock_with_part_of_day(value, part):
+        clock_date = get_clock_phrase_date(value)
+        if clock_date is None:
+            return None
+
+        hour = clock_date.get_hours()
+        if part in {"afternoon", "evening", "night"} and hour < 12:
+            hour += 12
+        if part == "morning" and hour == 12:
+            hour = 0
+
+        d = clone_date(clock_date)
+        d.set_hours(hour)
+        return d
+
+    token = None
+    if reference_override is not None:
+        token = CURRENT_REFERENCE.set(clone_date(reference_override))
+
+    try:
+        time_date = get_clock_phrase_date(candidate)
+        if time_date is not None:
+            return time_date
+
+        if TIME_TOKEN_RE.fullmatch(candidate) or candidate in {
+            "noon",
+            "midnight",
+            "midday",
+        }:
+            time_date = parse_natural_date_strict(
+                candidate,
+                *args,
+                timezone_aware=timezone_aware,
+                **kwargs,
+            )
+            if time_date is not None:
+                return time_date
+
+        precise_time_match = re.fullmatch(
+            r"\d{1,2}:\d{2}:\d{2}(?:\s?(?:am|pm))?",
+            candidate,
+            re.IGNORECASE,
+        )
+        if precise_time_match is not None:
+            time_date = parse_natural_date_strict(
+                candidate,
+                *args,
+                timezone_aware=timezone_aware,
+                **kwargs,
+            )
+            if time_date is not None:
+                return time_date
+
+        part_of_day_match = re.fullmatch(
+            r"(?P<clock>.+?)\s+in\s+the\s+(?P<part>morning|afternoon|evening|night)",
+            candidate,
+        )
+        if part_of_day_match is not None:
+            time_date = parse_clock_with_part_of_day(
+                part_of_day_match.group("clock"),
+                part_of_day_match.group("part"),
+            )
+            if time_date is not None:
+                return time_date
+
+        time_date = get_part_of_day_phrase_date(
+            candidate, *args, timezone_aware=timezone_aware, **kwargs
+        )
+        if time_date is not None:
+            return time_date
+
+        time_date = get_business_phrase_date(candidate)
+        if time_date is not None:
+            return time_date
+
+        if re.fullmatch(r"\d{1,2}", candidate):
+            return build_structured_time_date(int(candidate), 0, 0)
+
+        return None
+    finally:
+        if token is not None:
+            CURRENT_REFERENCE.reset(token)
+
+
+def try_merge_date_time_pattern(
+    phrase,
+    pattern,
+    *,
+    date_group,
+    time_group,
+    args=(),
+    timezone_aware=False,
+    **kwargs,
+):
+    match = re.fullmatch(pattern, phrase)
+    if match is None:
+        return None
+
+    date_part = parse_structured_date_text(
+        match.group(date_group),
+        *args,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    if date_part is None:
+        return None
+
+    time_part = parse_structured_time_text(
+        match.group(time_group),
+        *args,
+        reference_override=date_part,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    if time_part is None:
+        return None
+
+    return merge_date_with_explicit_time(date_part, time_part)
+
+
+def try_merge_time_date_pattern(
+    phrase,
+    pattern,
+    *,
+    time_group,
+    date_group,
+    args=(),
+    timezone_aware=False,
+    **kwargs,
+):
+    match = re.fullmatch(pattern, phrase)
+    if match is None:
+        return None
+
+    date_part = parse_structured_date_text(
+        match.group(date_group),
+        *args,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    if date_part is None:
+        return None
+
+    relative_time_merge = merge_date_with_relative_time_phrase(
+        date_part,
+        match.group(time_group),
+    )
+    if relative_time_merge is not None:
+        return relative_time_merge
+
+    time_part = parse_structured_time_text(
+        match.group(time_group),
+        *args,
+        reference_override=date_part,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    if time_part is None:
+        return None
+
+    return merge_date_with_explicit_time(date_part, time_part)
+
+
 def apply_relative_offset(base_date, unit, amount, sign=1):
     d = clone_date(base_date)
     amount = amount * sign
@@ -5756,19 +6015,12 @@ def get_anchor_offset_phrase_date(phrase, *args, timezone_aware=False, **kwargs)
 
         components = parse_compound_offset(raw_offset_text)
         if components is not None:
-            anchor_date = parse_anchor_date(
+            anchor_date = parse_anchor_like_text(
                 on_anchor_match.group("anchor"),
                 *args,
                 timezone_aware=timezone_aware,
                 **kwargs,
             )
-            if anchor_date is None:
-                anchor_date = parse_natural_date_strict(
-                    on_anchor_match.group("anchor"),
-                    *args,
-                    timezone_aware=timezone_aware,
-                    **kwargs,
-                )
             if anchor_date is not None:
                 return apply_relative_offsets(anchor_date, components, sign)
 
@@ -5800,7 +6052,7 @@ def get_anchor_offset_phrase_date(phrase, *args, timezone_aware=False, **kwargs)
     sign = -1 if direction == "before" else 1
 
     anchor_text = match.group("anchor").strip()
-    anchor_date = parse_anchor_date(
+    anchor_date = parse_anchor_like_text(
         anchor_text,
         *args,
         timezone_aware=timezone_aware,
@@ -5849,12 +6101,44 @@ def get_year_wrapped_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
     return inner_date
 
 
+def get_year_suffix_wrapped_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
+    match = re.fullmatch(r"(?P<rest>.+?)\s+(?P<year>\d{4})", phrase)
+    if match is None:
+        return None
+
+    target_year = int(match.group("year"))
+    shifted_reference = clone_date(get_reference_date())
+    shifted_reference.set_fullyear(target_year)
+    parse_kwargs = dict(kwargs)
+    parse_kwargs["relative_to"] = shifted_reference
+    inner_date = parse_natural_date_strict(
+        match.group("rest"),
+        *args,
+        timezone_aware=timezone_aware,
+        **parse_kwargs,
+    )
+    if inner_date is None:
+        return None
+
+    if inner_date.get_year() != target_year:
+        inner_date = clone_date(inner_date)
+        inner_date.set_fullyear(target_year)
+
+    return inner_date
+
+
 def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
     year_wrapped = get_year_wrapped_phrase_date(
         phrase, *args, timezone_aware=timezone_aware, **kwargs
     )
     if year_wrapped is not None:
         return year_wrapped
+
+    trailing_year_wrapped = get_year_suffix_wrapped_phrase_date(
+        phrase, *args, timezone_aware=timezone_aware, **kwargs
+    )
+    if trailing_year_wrapped is not None:
+        return trailing_year_wrapped
 
     compound_amount_pattern = (
         r"(?:twenty|thirty|forty|fifty)(?:[- ](?:one|two|three|four|five|six|seven|eight|nine))?"
@@ -5866,73 +6150,24 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         rf"|(?:a|an|\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|{compound_amount_pattern})\s+(?:minutes?\s+|seconds?\s+)?(?:past|to)\s+(?:the\s+hour|midnight|noon|midday|\d{{1,2}}(?:am|pm)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)"
     )
 
-    def parse_time_like(candidate, reference_override=None):
-        token = None
-        if reference_override is not None:
-            token = CURRENT_REFERENCE.set(clone_date(reference_override))
-        try:
-            time_date = get_clock_phrase_date(candidate)
-            if time_date is not None:
-                return time_date
-            if TIME_TOKEN_RE.fullmatch(candidate) or candidate in {
-                "noon",
-                "midnight",
-                "midday",
-            }:
-                time_date = parse_natural_date_strict(
-                    candidate,
-                    *args,
-                    timezone_aware=timezone_aware,
-                    **kwargs,
-                )
-                if time_date is not None:
-                    return time_date
-            precise_time_match = re.fullmatch(
-                r"\d{1,2}:\d{2}:\d{2}(?:\s?(?:am|pm))?",
-                candidate,
-                re.IGNORECASE,
-            )
-            if precise_time_match is not None:
-                time_date = parse_natural_date_strict(
-                    candidate,
-                    *args,
-                    timezone_aware=timezone_aware,
-                    **kwargs,
-                )
-                if time_date is not None:
-                    return time_date
-            time_date = get_part_of_day_phrase_date(
-                candidate, *args, timezone_aware=timezone_aware, **kwargs
-            )
-            if time_date is not None:
-                return time_date
-            time_date = get_business_phrase_date(candidate)
-            if time_date is not None:
-                return time_date
-            if re.fullmatch(r"\d{1,2}", candidate):
-                d = get_reference_date()
-                d.set_hours(int(candidate))
-                d.set_minutes(0)
-                d.set_seconds(0)
-                return d
-            return None
-        finally:
-            if token is not None:
-                CURRENT_REFERENCE.reset(token)
-
     date_with_part_then_time_match = re.fullmatch(
         r"(?P<date>.+?)\s+in\s+the\s+(?P<part>morning|late morning|afternoon|late afternoon|evening|night)\s+(?:at|@)\s+(?P<time>.+)",
         phrase,
     )
     if date_with_part_then_time_match is not None:
-        head_date = parse_natural_date_strict(
+        head_date = parse_structured_date_text(
             date_with_part_then_time_match.group("date"),
             *args,
             timezone_aware=timezone_aware,
             **kwargs,
         )
-        tail_clock = parse_time_like(
+        tail_clock = parse_structured_time_text(
             f"{date_with_part_then_time_match.group('time')} in the {date_with_part_then_time_match.group('part')}"
+            ,
+            *args,
+            reference_override=head_date,
+            timezone_aware=timezone_aware,
+            **kwargs,
         )
         if head_date is not None and tail_clock is not None:
             return merge_date_with_explicit_time(head_date, tail_clock)
@@ -5942,10 +6177,16 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         phrase,
     )
     if generic_time_by_date_match is not None:
-        head_time = parse_time_like(generic_time_by_date_match.group("time"))
-        tail_date = parse_natural_date_strict(
+        tail_date = parse_structured_date_text(
             generic_time_by_date_match.group("date"),
             *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        head_time = parse_structured_time_text(
+            generic_time_by_date_match.group("time"),
+            *args,
+            reference_override=tail_date,
             timezone_aware=timezone_aware,
             **kwargs,
         )
@@ -5983,51 +6224,14 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         phrase,
     )
     if generic_date_when_time_match is not None:
-        head_date = parse_natural_date_strict(
+        head_date = parse_structured_date_text(
             generic_date_when_time_match.group("head"),
             *args,
             timezone_aware=timezone_aware,
             **kwargs,
         )
-        if head_date is None:
-            normalized_head = normalize_phrase(generic_date_when_time_match.group("head"))
-            if normalized_head != generic_date_when_time_match.group("head"):
-                head_date = parse_natural_date_strict(
-                    normalized_head,
-                    *args,
-                    timezone_aware=timezone_aware,
-                    **kwargs,
-                )
         if head_date is not None:
             tail_clock = get_clock_phrase_date(generic_date_when_time_match.group("tail"))
-            if tail_clock is not None:
-                return merge_date_with_explicit_time(head_date, tail_clock)
-
-    generic_date_at_time_match = re.fullmatch(
-        r"(?P<head>.+?)\s+(?:at|@)\s+(?P<tail>.+)",
-        phrase,
-    )
-    if generic_date_at_time_match is not None:
-        head_date = parse_natural_date_strict(
-            generic_date_at_time_match.group("head"),
-            *args,
-            timezone_aware=timezone_aware,
-            **kwargs,
-        )
-        if head_date is None:
-            normalized_head = normalize_phrase(generic_date_at_time_match.group("head"))
-            if normalized_head != generic_date_at_time_match.group("head"):
-                head_date = parse_natural_date_strict(
-                    normalized_head,
-                    *args,
-                    timezone_aware=timezone_aware,
-                    **kwargs,
-                )
-        if head_date is not None:
-            tail_clock = parse_time_like(
-                generic_date_at_time_match.group("tail"),
-                reference_override=head_date,
-            )
             if tail_clock is not None:
                 return merge_date_with_explicit_time(head_date, tail_clock)
 
@@ -6036,15 +6240,18 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         phrase,
     )
     if bare_date_then_clock_match is not None:
-        head_date = parse_natural_date_strict(
+        head_date = parse_structured_date_text(
             bare_date_then_clock_match.group("head"),
             *args,
             timezone_aware=timezone_aware,
             **kwargs,
         )
-        tail_clock = parse_time_like(
+        tail_clock = parse_structured_time_text(
             bare_date_then_clock_match.group("tail"),
             reference_override=head_date,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
         )
         if head_date is not None and tail_clock is not None:
             return merge_date_with_explicit_time(head_date, tail_clock)
@@ -6054,15 +6261,18 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         phrase,
     )
     if bare_clock_then_date_match is not None:
-        tail_date = parse_natural_date_strict(
+        tail_date = parse_structured_date_text(
             bare_clock_then_date_match.group("tail"),
             *args,
             timezone_aware=timezone_aware,
             **kwargs,
         )
-        head_clock = parse_time_like(
+        head_clock = parse_structured_time_text(
             bare_clock_then_date_match.group("head"),
             reference_override=tail_date,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
         )
         if head_clock is not None and tail_date is not None:
             return merge_date_with_explicit_time(tail_date, head_clock)
@@ -6074,7 +6284,7 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         tail_text = " ".join(tokens[-tail_size:]).strip()
         if not head_text or not tail_text:
             continue
-        head_date = parse_natural_date_strict(
+        head_date = parse_structured_date_text(
             head_text,
             *args,
             timezone_aware=timezone_aware,
@@ -6082,7 +6292,13 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         )
         if head_date is None:
             continue
-        tail_time = parse_time_like(tail_text)
+        tail_time = parse_structured_time_text(
+            tail_text,
+            *args,
+            reference_override=head_date,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
         if tail_time is None:
             continue
         return merge_date_with_explicit_time(head_date, tail_time)
@@ -6093,16 +6309,22 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         tail_text = " ".join(tokens[head_size:]).strip()
         if not head_text or not tail_text:
             continue
-        head_time = parse_time_like(head_text)
-        if head_time is None:
-            continue
-        tail_date = parse_natural_date_strict(
+        tail_date = parse_structured_date_text(
             tail_text,
             *args,
             timezone_aware=timezone_aware,
             **kwargs,
         )
         if tail_date is None:
+            continue
+        head_time = parse_structured_time_text(
+            head_text,
+            *args,
+            reference_override=tail_date,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if head_time is None:
             continue
         return merge_date_with_explicit_time(tail_date, head_time)
 
@@ -6116,6 +6338,7 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
         r"(?P<head>.+?)\s+(?:at|@)\s+(?P<tail>(?:a\s+)?quarter\s+(?:past|to)\s+(?:\d{1,2}(?:am|pm)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)|half\s+past\s+(?:\d{1,2}(?:am|pm)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)|half\s+(?:\d{1,2}(?:am|pm)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve))",
     ]
     time_then_date_patterns = [
+        r"(?P<time>\d{1,2}(?::\d{2})?(?::\d{2})?\s?(?:am|pm)|noon|midnight|midday)\s+(?P<date>.+)",
         r"(?P<time>.+?)\s+(?P<date>(?:on\s+)?(?:today|tomorrow|yesterday|this)\b.*)",
         r"(?P<time>.+?)\s+(?P<date>(?:the\s+)?(?:first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|last|penultimate)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.*)",
         r"(?P<time>.+?)\s+on\s+(?P<date>.+)",
@@ -6124,63 +6347,30 @@ def get_composed_date_time_phrase_date(phrase, *args, timezone_aware=False, **kw
     ]
 
     for pattern in date_then_time_patterns:
-        match = re.fullmatch(pattern, phrase)
-        if match is None:
-            continue
-
-        head_date = parse_natural_date_strict(
-            match.group("head"),
-            *args,
+        merged = try_merge_date_time_pattern(
+            phrase,
+            pattern,
+            date_group="head",
+            time_group="tail",
+            args=args,
             timezone_aware=timezone_aware,
             **kwargs,
         )
-        if head_date is None:
-            continue
-
-        tail_date = get_clock_phrase_date(match.group("tail"))
-        if tail_date is None:
-            tail_date = parse_natural_date_strict(
-                match.group("tail"),
-                *args,
-                timezone_aware=timezone_aware,
-                **kwargs,
-            )
-        if tail_date is None:
-            continue
-
-        return merge_date_with_explicit_time(head_date, tail_date)
+        if merged is not None:
+            return merged
 
     for pattern in time_then_date_patterns:
-        match = re.fullmatch(pattern, phrase)
-        if match is None:
-            continue
-
-        date_part = parse_natural_date_strict(
-            match.group("date"),
-            *args,
+        merged = try_merge_time_date_pattern(
+            phrase,
+            pattern,
+            time_group="time",
+            date_group="date",
+            args=args,
             timezone_aware=timezone_aware,
             **kwargs,
         )
-        if date_part is None:
-            continue
-
-        relative_time_merge = merge_date_with_relative_time_phrase(
-            date_part,
-            match.group("time"),
-        )
-        if relative_time_merge is not None:
-            return relative_time_merge
-
-        time_date = parse_natural_date_strict(
-            match.group("time"),
-            *args,
-            timezone_aware=timezone_aware,
-            **kwargs,
-        )
-        if time_date is None:
-            continue
-
-        return merge_date_with_explicit_time(date_part, time_date)
+        if merged is not None:
+            return merged
 
     return None
 
@@ -6209,12 +6399,43 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
             ),
         )
 
+    if phrase in {"forever", "for ever", "infinity", "∞"}:
+        infinite_date = stDate("forever")
+        return attach_parse_metadata(
+            infinite_date,
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="infinity",
+                representative_granularity="unbounded",
+            ),
+        )
+
     phrase, tzinfo = extract_timezone_suffix(phrase)
     phrase = normalize_phrase(phrase)
     phrase = apply_word_aliases(phrase)
     phrase = normalize_phrase(phrase)
     phrase = apply_literal_aliases(phrase)
     phrase = normalize_phrase(phrase)
+    if phrase in {"forever", "for ever", "infinity", "∞"}:
+        infinite_date = stDate("forever")
+        return attach_parse_metadata(
+            infinite_date,
+            build_parse_metadata(
+                raw_text,
+                matched_text or raw_text,
+                phrase,
+                exact=not fuzzy,
+                fuzzy=fuzzy,
+                used_dateutil=False,
+                semantic_kind="infinity",
+                representative_granularity="unbounded",
+            ),
+        )
     phrase, trailing_tzinfo = extract_timezone_suffix(phrase)
     if tzinfo is None:
         tzinfo = trailing_tzinfo
@@ -6776,6 +6997,9 @@ def is_extraction_anchor(token, next_token=None):
     token = token.lower()
     next_token = next_token.lower() if next_token is not None else None
 
+    if token == "for" and next_token == "ever":
+        return True
+
     if "@" in token:
         left, _, right = token.partition("@")
         if left and right:
@@ -6916,6 +7140,9 @@ def is_extraction_anchor(token, next_token=None):
         "week",
         "month",
         "y2k",
+        "forever",
+        "infinity",
+        "eternity",
         "lunch",
         "dinner",
         "tea",
@@ -7492,96 +7719,6 @@ def get_date(date, *args, **kwargs):
     )
 
 
-def phrases_for(value, *, relative_to=None):
-    target = coerce_reference_date(value)
-    if target is None:
-        raise TypeError(
-            "phrases_for value must be a string, int, date, datetime, or Date"
-        )
-
-    reference = coerce_reference_date(relative_to)
-    if reference is None:
-        reference = get_reference_date()
-
-    from stringtime.phrase_registry import build_registry
-
-    registry = build_registry(str(reference))
-    reverse_entry = registry["reverse_map"].get(str(target))
-    if reverse_entry is None:
-        return []
-    return list(reverse_entry["phrases"])
-
-
-def nearest_phrases_for(value, *, relative_to=None, limit=5):
-    target = coerce_reference_date(value)
-    if target is None:
-        raise TypeError(
-            "nearest_phrases_for value must be a string, int, date, datetime, or Date"
-        )
-
-    reference = coerce_reference_date(relative_to)
-    if reference is None:
-        reference = get_reference_date()
-
-    from stringtime.phrase_registry import build_registry
-
-    registry = build_registry(str(reference))
-    target_dt = target.to_datetime().replace(tzinfo=None)
-
-    def sort_key(entry):
-        entry_dt = datetime.datetime.strptime(entry["parsed"], "%Y-%m-%d %H:%M:%S")
-        day_delta = abs((entry_dt.date() - target_dt.date()).days)
-        time_delta = abs(int((entry_dt - target_dt).total_seconds()))
-        style_rank = {
-            "natural": 0,
-            "formal": 1,
-            "compact": 2,
-            "colloquial": 3,
-            "variant": 4,
-        }.get(entry["canonical_style"], 99)
-        category_penalty = 1 if "timezone" in entry["categories"] else 0
-        return (
-            day_delta,
-            category_penalty,
-            style_rank,
-            -entry["phrase_count"],
-            time_delta,
-            entry["canonical_phrase"],
-        )
-
-    candidates = []
-    for entry in sorted(registry["reverse_records"], key=sort_key)[:limit]:
-        entry_dt = datetime.datetime.strptime(entry["parsed"], "%Y-%m-%d %H:%M:%S")
-        delta = abs(int((entry_dt - target_dt).total_seconds()))
-        candidates.append(
-            PhraseCandidate(
-                phrase=entry["canonical_phrase"],
-                parsed=entry["parsed"],
-                delta_seconds=delta,
-                phrase_count=entry["phrase_count"],
-                categories=list(entry["categories"]),
-                locales=list(entry["locales"]),
-                styles=list(entry["styles"]),
-            )
-        )
-
-    return candidates
-
-
-def phrase_for(value, *, relative_to=None):
-    phrases = phrases_for(value, relative_to=relative_to)
-    if not phrases:
-        return None
-    return phrases[0]
-
-
-def nearest_phrase_for(value, *, relative_to=None):
-    candidates = nearest_phrases_for(value, relative_to=relative_to, limit=1)
-    if not candidates:
-        return None
-    return candidates[0].phrase
-
-
 def until(*args, from_=None, to=None, **kwargs):
     used_default_start = from_ is None and "from" not in kwargs
     from_, to = resolve_duration_arguments(
@@ -7606,24 +7743,28 @@ def after(*args, from_=None, to=None, **kwargs):
 def is_before(a, b):
     first = coerce_value_date(a, argument_name="a")
     second = coerce_value_date(b, argument_name="b")
-    return comparable_datetime(first) < comparable_datetime(second)
+    return compare_date_values(first, second) < 0
 
 
 def is_after(a, b):
     first = coerce_value_date(a, argument_name="a")
     second = coerce_value_date(b, argument_name="b")
-    return comparable_datetime(first) > comparable_datetime(second)
+    return compare_date_values(first, second) > 0
 
 
 def is_same_day(a, b):
     first = coerce_value_date(a, argument_name="a")
     second = coerce_value_date(b, argument_name="b")
+    if getattr(first, "is_infinite", False) or getattr(second, "is_infinite", False):
+        return compare_date_values(first, second) == 0
     return comparable_datetime(first).date() == comparable_datetime(second).date()
 
 
 def is_same_time(a, b):
     first = coerce_value_date(a, argument_name="a")
     second = coerce_value_date(b, argument_name="b")
+    if getattr(first, "is_infinite", False) or getattr(second, "is_infinite", False):
+        return compare_date_values(first, second) == 0
     first_dt = comparable_datetime(first)
     second_dt = comparable_datetime(second)
     return (
@@ -7635,12 +7776,6 @@ def is_same_time(a, b):
         second_dt.minute,
         second_dt.second,
     )
-
-
-def Phrase(value, *, relative_to=None):
-    return phrase_for(value, relative_to=relative_to)
-
-
 def Date(date=None, *args, length: int = None, **kwargs):
     """
     # if 2nd argument is a string its a date range

@@ -39,6 +39,9 @@ class Month:
 class Date:
     """Date"""
 
+    POSITIVE_INFINITY_LABEL = "infinity"
+    POSITIVE_INFINITY_SYMBOL = "∞"
+
     @staticmethod
     def get_month_length(month, year):  # = None):
         """Returns the number of days in the current month"""
@@ -104,6 +107,8 @@ class Date:
 
         self.formatter = formatter
         self.parse_metadata = None
+        self.is_infinite = False
+        self.infinite_direction = 0
         if isinstance(date, int):
             self._date = datetime.datetime.fromtimestamp(date)
             return
@@ -117,10 +122,37 @@ class Date:
         if date is None:
             self._date = datetime.datetime.now()
         else:
+            if isinstance(date, str) and date.strip().lower() in {
+                "forever",
+                "for ever",
+                "infinity",
+                self.POSITIVE_INFINITY_SYMBOL,
+            }:
+                self._set_infinity(1)
+                return
             self._date = self.parse_date(date)
+
+    def _set_infinity(self, direction=1):
+        self.is_infinite = True
+        self.infinite_direction = 1 if direction >= 0 else -1
+        if self.infinite_direction > 0:
+            self._date = datetime.datetime.max.replace(microsecond=0)
+        else:
+            self._date = datetime.datetime.min.replace(microsecond=0)
+
+    def _coerce_comparison_other(self, other):
+        if isinstance(other, Date):
+            return other
+        if isinstance(other, datetime.datetime):
+            wrapped = Date()
+            wrapped._date = other
+            return wrapped
+        return None
 
     def __str__(self):
         """Returns a string representation of the date"""
+        if self.is_infinite:
+            return self.POSITIVE_INFINITY_SYMBOL
         if self.formatter == "python":
             if self._date.microsecond:
                 return self._date.strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -571,10 +603,14 @@ class Date:
 
     def toJSON(self):
         """Returns the date as a string, formatted as a JSON date"""
+        if self.is_infinite:
+            return json.dumps(self.POSITIVE_INFINITY_LABEL)
         return json.dumps(self._date.strftime("%Y-%m-%d"))
 
     def toISOString(self):
         """Returns the date as a string, using the ISO standard"""
+        if self.is_infinite:
+            return self.POSITIVE_INFINITY_LABEL
         return self._date.strftime("%Y-%m-%d")
 
     def toLocaleDateString(self):
@@ -685,26 +721,49 @@ class Date:
         return "<Date: {}>".format(self)
 
     def __eq__(self, other):
-        try:
-            return self._date == other._date
-        except AttributeError:
-            if isinstance(other, datetime.datetime):
-                return self._date == other
-            # if isinstance(other, str):
-            #     return self._date.date() == other
-        return False
+        coerced = self._coerce_comparison_other(other)
+        if coerced is None:
+            return False
+        if self.is_infinite or coerced.is_infinite:
+            return (
+                self.is_infinite
+                and coerced.is_infinite
+                and self.infinite_direction == coerced.infinite_direction
+            )
+        return self._date == coerced._date
 
-    # def __ne__(self, other):
-    #     return self._date != other.date
+    def __lt__(self, other):
+        coerced = self._coerce_comparison_other(other)
+        if coerced is None:
+            return NotImplemented
+        if self.is_infinite:
+            return self.infinite_direction < 0 and not (
+                coerced.is_infinite and coerced.infinite_direction < 0
+            )
+        if coerced.is_infinite:
+            return coerced.infinite_direction > 0
+        return self._date < coerced._date
 
-    # def __lt__(self, other):
-    #     return self._date < other.date
+    def __le__(self, other):
+        result = self.__lt__(other)
+        if result is NotImplemented:
+            return NotImplemented
+        return result or self.__eq__(other)
 
-    # def __le__(self, other):
-    #     return self._date <= other.date
+    def __gt__(self, other):
+        coerced = self._coerce_comparison_other(other)
+        if coerced is None:
+            return NotImplemented
+        if self.is_infinite:
+            return self.infinite_direction > 0 and not (
+                coerced.is_infinite and coerced.infinite_direction > 0
+            )
+        if coerced.is_infinite:
+            return coerced.infinite_direction < 0
+        return self._date > coerced._date
 
-    # def __gt__(self, other):
-    #     return self._date > other.date
-
-    # def __ge__(self, other):
-    #     return self._date >= other.date
+    def __ge__(self, other):
+        result = self.__gt__(other)
+        if result is NotImplemented:
+            return NotImplemented
+        return result or self.__eq__(other)

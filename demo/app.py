@@ -22,13 +22,8 @@ except ImportError as exc:  # pragma: no cover - convenience for local demo use
 
 from stringtime import (
     Date,
-    Phrase,
     extract_dates,
-    nearest_phrase_for,
-    nearest_phrases_for,
     parse_natural_date_strict,
-    phrase_for,
-    phrases_for,
 )
 
 
@@ -98,7 +93,8 @@ def match_to_payload(match):
 
 def _normalize_chunk(chunk):
     normalized = re.sub(r"\s+", " ", chunk.strip(" ,.;:-")).strip()
-    normalized = re.sub(r"^(?:and|then|at|on|in)\s+", "", normalized, flags=re.I)
+    normalized = re.sub(r"^(?:and|then|at|on|in|@)\s+", "", normalized, flags=re.I)
+    normalized = re.sub(r"^@\s*", "", normalized)
     return normalized.strip()
 
 
@@ -137,6 +133,37 @@ def _reference_datetime(options):
     return Date(relative_to or "now").to_datetime()
 
 
+def _month_number_from_text(text):
+    lowered = text.lower().strip()
+    months = {
+        "january": 1,
+        "jan": 1,
+        "february": 2,
+        "feb": 2,
+        "march": 3,
+        "mar": 3,
+        "april": 4,
+        "apr": 4,
+        "may": 5,
+        "june": 6,
+        "jun": 6,
+        "july": 7,
+        "jul": 7,
+        "august": 8,
+        "aug": 8,
+        "september": 9,
+        "sep": 9,
+        "sept": 9,
+        "october": 10,
+        "oct": 10,
+        "november": 11,
+        "nov": 11,
+        "december": 12,
+        "dec": 12,
+    }
+    return months.get(lowered)
+
+
 def _parse_demo_clock_chunk(chunk, options):
     lowered = chunk.lower().strip()
     match = re.fullmatch(
@@ -171,61 +198,112 @@ def _parse_demo_clock_chunk(chunk, options):
     )
 
 
+def _parse_demo_component_chunk(chunk, options):
+    normalized = _normalize_chunk(chunk)
+    if not normalized:
+        return None
+
+    if re.fullmatch(r"\d{4}", normalized):
+        year = int(normalized)
+        return {
+            "text": normalized,
+            "kind": "year",
+            "date": {
+                "display": normalized,
+                "iso": f"{year:04d}-01-01T00:00:00",
+                "year": year,
+                "month": 1,
+                "day": 1,
+                "hour": 0,
+                "minute": 0,
+                "second": 0,
+                "weekday": datetime(year, 1, 1).weekday(),
+                "metadata": {
+                    "semantic_kind": "date",
+                    "representative_granularity": "year",
+                },
+            },
+        }
+
+    month_number = _month_number_from_text(normalized)
+    if month_number is not None:
+        reference = _reference_datetime(options)
+        year = reference.year
+        return {
+            "text": normalized,
+            "kind": "month",
+            "date": {
+                "display": f"{year:04d}-{month_number:02d}-01 00:00:00",
+                "iso": f"{year:04d}-{month_number:02d}-01T00:00:00",
+                "year": year,
+                "month": month_number,
+                "day": 1,
+                "hour": 0,
+                "minute": 0,
+                "second": 0,
+                "weekday": datetime(year, month_number, 1).weekday(),
+                "metadata": {
+                    "semantic_kind": "period",
+                    "representative_granularity": "month",
+                },
+            },
+        }
+
+    clock_date = _parse_demo_clock_chunk(normalized, options)
+    if clock_date is None:
+        clock_date = parse_natural_date_strict(normalized.lower(), **options)
+    if clock_date is None:
+        return None
+
+    return {
+        "text": normalized,
+        "kind": "clock_phrase",
+        "date": datetime_to_payload(clock_date)
+        if isinstance(clock_date, datetime)
+        else date_to_payload(clock_date),
+    }
+
+
 def _find_additional_components(phrase, matches, options):
     components = []
+    seen = set()
     cursor = 0
+
+    def add_component_chunk(raw_chunk):
+        for piece in re.split(r"[,.!?;]+", raw_chunk):
+            component = _parse_demo_component_chunk(piece, options)
+            if component is None:
+                continue
+            key = (component["kind"], component["text"].lower())
+            if key in seen:
+                continue
+            seen.add(key)
+            components.append(component)
+
     for match in matches:
         if cursor < match.start:
-            chunk = _normalize_chunk(phrase[cursor:match.start])
-            if chunk:
-                clock_date = _parse_demo_clock_chunk(chunk, options)
-                if clock_date is None:
-                    clock_date = parse_natural_date_strict(chunk.lower(), **options)
-                if clock_date is not None:
-                    components.append(
-                        {
-                            "text": chunk,
-                            "kind": "clock_phrase",
-                            "date": datetime_to_payload(clock_date)
-                            if isinstance(clock_date, datetime)
-                            else date_to_payload(clock_date),
-                        }
-                    )
+            add_component_chunk(phrase[cursor:match.start])
         cursor = match.end
 
     if cursor < len(phrase):
-        chunk = _normalize_chunk(phrase[cursor:])
-        if chunk:
-            clock_date = _parse_demo_clock_chunk(chunk, options)
-            if clock_date is None:
-                clock_date = parse_natural_date_strict(chunk.lower(), **options)
-            if clock_date is not None:
-                components.append(
-                    {
-                        "text": chunk,
-                        "kind": "clock_phrase",
-                        "date": datetime_to_payload(clock_date)
-                        if isinstance(clock_date, datetime)
-                        else date_to_payload(clock_date),
-                    }
-                )
+        add_component_chunk(phrase[cursor:])
 
     return components
 
 
 def _weekday_index_from_text(text):
     lowered = text.lower()
-    weekdays = [
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        "sunday",
-    ]
-    for index, weekday in enumerate(weekdays):
-        if weekday in lowered:
+    weekday_aliases = {
+        0: ("monday", "mon"),
+        1: ("tuesday", "tues", "tue"),
+        2: ("wednesday", "weds", "wed"),
+        3: ("thursday", "thurs", "thur", "thu"),
+        4: ("friday", "fri"),
+        5: ("saturday", "sat"),
+        6: ("sunday", "sun"),
+    }
+    for index, aliases in weekday_aliases.items():
+        if any(re.search(rf"\b{alias}\b", lowered) for alias in aliases):
             return index
     return None
 
@@ -243,24 +321,6 @@ def build_aggregation_suggestion(phrase, options):
     if not matches:
         return None
 
-    if len(matches) == 1:
-        match = matches[0]
-        return {
-            "used": True,
-            "status": "suggested",
-            "message": "Observed one strong extracted date phrase inside the input and promoted it as a suggested result.",
-            "consumed_parts": [match.text],
-            "components": [
-                {
-                    "text": match.text,
-                    "kind": "extracted_match",
-                    "date": date_to_payload(match.date),
-                }
-            ],
-            "candidate_dates": [],
-            "suggested_date": date_to_payload(match.date),
-        }
-
     components = [
         {
             "text": match.text,
@@ -270,6 +330,18 @@ def build_aggregation_suggestion(phrase, options):
         for match in matches
     ]
     components.extend(_find_additional_components(phrase, matches, options))
+
+    if len(matches) == 1 and len(components) == 1:
+        match = matches[0]
+        return {
+            "used": True,
+            "status": "suggested",
+            "message": "Observed one strong extracted date phrase inside the input and promoted it as a suggested result.",
+            "consumed_parts": [match.text],
+            "components": components,
+            "candidate_dates": [],
+            "suggested_date": date_to_payload(match.date),
+        }
 
     time_component = next(
         (
@@ -288,11 +360,15 @@ def build_aggregation_suggestion(phrase, options):
         (
             component
             for component in components
-            if component["date"]["metadata"]
-            and component["date"]["metadata"].get("representative_granularity") == "month"
+            if component["kind"] == "month"
+            or (
+                component["date"]["metadata"]
+                and component["date"]["metadata"].get("representative_granularity") == "month"
+            )
         ),
         None,
     )
+    year_component = next((component for component in components if component["kind"] == "year"), None)
     weekday_component = next(
         (
             component
@@ -338,12 +414,12 @@ def build_aggregation_suggestion(phrase, options):
     if month_component and weekday_component:
         month_payload = month_component["date"]
         weekday_index = _weekday_index_from_text(weekday_component["text"])
-        year = month_payload["year"]
+        year = year_component["date"]["year"] if year_component is not None else month_payload["year"]
         month = month_payload["month"]
         _, last_day = calendar.monthrange(year, month)
         candidates = []
         for day in range(1, last_day + 1):
-            dt = datetime(year, month, day, month_payload["hour"], month_payload["minute"], month_payload["second"])
+            dt = datetime(year, month, day, 0, 0, 0)
             if dt.weekday() != weekday_index:
                 continue
             if time_component is not None:
@@ -355,6 +431,8 @@ def build_aggregation_suggestion(phrase, options):
             parts.append(time_component["text"])
         parts.append(weekday_component["text"])
         parts.append(month_component["text"])
+        if year_component is not None:
+            parts.append(year_component["text"])
 
         return {
             "used": True,
@@ -411,55 +489,6 @@ def parse_api():
                 "match_count": len(matches),
                 "matches": [match_to_payload(match) for match in matches],
                 "highlight_date": date_to_payload(highlight) if highlight else None,
-            }
-        elif mode == "reverse":
-            candidates = phrases_for(phrase, relative_to=relative_to)
-            if include_all:
-                chosen = candidates[0] if candidates else None
-                result = {
-                    "mode": mode,
-                    "input": phrase,
-                    "relative_to": relative_to,
-                    "timezone_aware": timezone_aware,
-                    "phrase": chosen,
-                    "phrases": candidates,
-                    "highlight_date": date_to_payload(Date(phrase, relative_to=relative_to)) if chosen else None,
-                }
-            else:
-                chosen = phrase_for(phrase, relative_to=relative_to)
-                result = {
-                    "mode": mode,
-                    "input": phrase,
-                    "relative_to": relative_to,
-                    "timezone_aware": timezone_aware,
-                    "phrase": chosen,
-                    "phrases": candidates[:1] if chosen else [],
-                    "highlight_date": date_to_payload(Date(phrase, relative_to=relative_to)) if chosen else None,
-                }
-        elif mode == "nearest":
-            candidates = nearest_phrases_for(phrase, relative_to=relative_to, limit=6)
-            chosen = candidates[0].phrase if candidates else nearest_phrase_for(
-                phrase, relative_to=relative_to
-            )
-            result = {
-                "mode": mode,
-                "input": phrase,
-                "relative_to": relative_to,
-                "timezone_aware": timezone_aware,
-                "phrase": chosen,
-                "candidates": [
-                    {
-                        "phrase": candidate.phrase,
-                        "parsed": candidate.parsed,
-                        "delta_seconds": candidate.delta_seconds,
-                        "phrase_count": candidate.phrase_count,
-                        "categories": candidate.categories,
-                        "locales": candidate.locales,
-                        "styles": candidate.styles,
-                    }
-                    for candidate in candidates
-                ],
-                "highlight_date": date_to_payload(Date(phrase, relative_to=relative_to)) if chosen else None,
             }
         else:
             parsed = Date(phrase, **options)

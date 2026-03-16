@@ -26,8 +26,6 @@ What it shows:
 
 - normal parsing
 - extraction from longer text
-- exact reverse phrase lookup
-- nearest reverse phrase lookup
 - a dedicated metadata panel for parse semantics
 - parse metadata and match output
 - a simple calendar view that jumps to the resolved date
@@ -38,3 +36,6 @@ The metadata panel is useful for seeing things like:
 - `semantic_kind` such as `date`, `boundary`, `period`, or `recurring`
 - `representative_granularity` such as `day`, `week`, `month`, or `part_of_day`
 - extracted-match metadata when you run in `extract` mode
+
+It will also surface sentinel values like `Date("forever")`, which report
+`semantic_kind="infinity"` and `representative_granularity="unbounded"`.

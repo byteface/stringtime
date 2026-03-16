@@ -64,43 +64,6 @@ def test_cli_parse_metadata_json_output(capsys):
     assert payload["parse_metadata"]["representative_granularity"] == "day"
 
 
-def test_cli_reverse_mode_returns_canonical_phrase(capsys):
-    result = run(
-        [
-            "--reverse",
-            "2021-01-01 17:05:55",
-            "--relative-to",
-            "2020-12-25 17:05:55",
-        ]
-    )
-
-    captured = capsys.readouterr()
-
-    assert result == "start of next quarter"
-    assert captured.out.strip() == "start of next quarter"
-
-
-def test_cli_nearest_mode_returns_json_candidates(capsys):
-    result = run(
-        [
-            "--nearest",
-            "--all",
-            "--json",
-            "--limit",
-            "2",
-            "2021-01-01 12:34:56",
-            "--relative-to",
-            "2020-12-25 17:05:55",
-        ]
-    )
-
-    payload = json.loads(capsys.readouterr().out)
-
-    assert len(result) == 2
-    assert payload[0]["phrase"] == "start of next quarter"
-    assert "delta_seconds" in payload[0]
-
-
 def test_cli_extract_mode_can_emit_json_metadata(capsys):
     run(
         [
@@ -133,7 +96,5 @@ def test_cli_help_mentions_new_modes(capsys):
     output = capsys.readouterr().out
 
     assert "--extract" in output
-    assert "--reverse" in output
-    assert "--nearest" in output
     assert "--relative-to" in output
     assert "examples:" in output

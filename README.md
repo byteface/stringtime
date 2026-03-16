@@ -10,7 +10,7 @@ A grammar for deriving Date objects from phrases.
 ## Usage
 
 ```bash
-from stringtime import Date, Phrase, after, is_after, is_before, is_same_day, is_same_time, nearest_phrase_for, nearest_phrases_for, phrase_for, phrases_for, until
+from stringtime import Date, after, is_after, is_before, is_same_day, is_same_time, until
 
 d = Date('an hour from now')
 d.day  # the day of the week 0-6
@@ -33,16 +33,14 @@ str(d)  # '2021-06-01 11:30:00'
 # relative_to can also be another parsed Date
 d = Date("an hour from now", relative_to=Date("47 hours ago"))
 
-# reverse lookup from a datetime/date string to a known phrase
-Phrase("2021-01-01 17:05:55", relative_to="2020-12-25 17:05:55")
-# 'start of next quarter'
+# unbounded sentinel dates are available too
+d = Date("forever")
+str(d)  # '∞'
+d.parse_metadata.semantic_kind  # 'infinity'
 
-phrase_for("2021-01-01 17:05:55", relative_to="2020-12-25 17:05:55")
-phrases_for("2021-01-01 17:05:55", relative_to="2020-12-25 17:05:55")
-
-# nearest lookup is available for datetimes that do not have an exact registry hit
-nearest_phrase_for("2021-01-01 12:34:56", relative_to="2020-12-25 17:05:55")
-nearest_phrases_for("2037-06-01 12:34:56", relative_to="2020-12-25 17:05:55")
+# a few equivalent phrases resolve to the same sentinel
+Date("the end of time")
+Date("eternity")
 
 # plain-English durations between two dates
 until(Date("valentines"))
@@ -88,8 +86,6 @@ Requires Python 3.10 or newer.
 stringtime "an hour from now"
 stringtime --relative-to "2020-12-25 17:05:55" "tomorrow night"
 stringtime --extract "I will do it in 5 days from tomorrow."
-stringtime --reverse --relative-to "2020-12-25 17:05:55" "2021-01-01 17:05:55"
-stringtime --nearest --all --json "2021-01-01 12:34:56"
 stringtime --metadata --json "Friday"
 ```
 
@@ -97,9 +93,7 @@ Useful flags:
 
 ```bash
 --extract         find date phrases inside longer text
---reverse         reverse an exact datetime into a known phrase
---nearest         find the nearest known reverse phrase
---all             return all matches/candidates in extract or reverse modes
+--all             return all matches in extract mode
 --relative-to     set the reference datetime for relative phrases
 --timezone-aware  keep timezone info when the phrase includes a timezone suffix
 --metadata        include parse metadata in the output
@@ -123,7 +117,7 @@ It runs on `http://127.0.0.1:5050` by default.
 
 The demo gives you:
 
-- a phrase input with parse, extract, reverse, and nearest-reverse modes
+- a phrase input with parse and extract modes
 - a simple calendar that jumps to the resolved date
 - a metadata panel showing parse semantics directly
 - a raw JSON log showing metadata and extraction matches
@@ -273,53 +267,22 @@ Useful fields on `parse_metadata` include:
 - `fuzzy`: `True` when the parser matched a phrase inside larger text
 - `used_dateutil`: `True` when parsing fell back to `dateutil`
 - `semantic_kind`: the kind of thing the phrase represents, such as `date`,
-  `boundary`, `period`, `relative_offset`, or `recurring`
+  `boundary`, `period`, `relative_offset`, `recurring`, or `infinity`
 - `representative_granularity`: the main grain of the result, such as `second`,
-  `day`, `week`, `month`, `quarter`, `season`, or `part_of_day`
+  `day`, `week`, `month`, `quarter`, `season`, `part_of_day`, or `unbounded`
 
 That metadata is also what the local demo uses in its dedicated metadata panel,
 so you can see when a phrase was interpreted as recurring, boundary-like, or a
 fuzzy extracted match instead of a plain exact date.
 
+`Date("forever")` returns an infinite sentinel date rather than a normal finite
+timestamp. It compares after any finite date and carries `semantic_kind` of
+`infinity` in its metadata.
+
 Business-day phrases currently treat Monday-Friday as working days and skip
 weekends only.
 
-## Phrase Registry
-
-There is now a phrase-registry builder that expands many known template
-families, parses them against a fixed reference date, and writes out both a
-flat corpus and a reverse map of `datetime -> phrases`.
-
-Generate it with:
-
-```bash
-make registry
-```
-
-That produces:
-
-```bash
-data/phrase_registry.json
-data/phrase_reverse_map.json
-data/phrase_reverse_records.json
-data/phrase_registry_failures.json
-```
-
-The default build uses `relative_to="2020-12-25 17:05:55"` so relative phrases
-are deterministic. The reverse outputs now include a canonical phrase choice
-per datetime along with the full set of known variants, which is the starting
-point for turning datetimes back into natural phrases. The runtime helpers
-`Phrase(...)`, `phrase_for(...)`, and `phrases_for(...)` use that same exact
-registry data for reverse lookup. `nearest_phrase_for(...)` and
-`nearest_phrases_for(...)` provide an in-memory nearest-date search on top of
-the same registry when there is no exact match.
-
-The registry also now distinguishes between semantic kinds such as `instant`,
-`period`, `boundary`, and `relative_offset`. See
-[SEMANTIC_REGISTRY.md](/Users/byteface/Desktop/projects/stringtime/SEMANTIC_REGISTRY.md)
-for the current model and next steps.
-
-If anything is broken or you feel is missing please raise an issue or make a pull request.
+If anything is broken, missing, or you hit a phrase that stringtime cannot parse yet, please raise an issue or make a pull request.
 
 ## CLI
 
@@ -357,4 +320,4 @@ Uses David Beazley's PLY parser.
 
 ## Disclaimer
 
-Might be buggy... still only recent
+If you hit a phrase that stringtime cannot parse yet, please feel free to raise an issue or open a pull request.

@@ -217,8 +217,6 @@ async function runDemo(event) {
 
   if (result.mode === "extract") {
     summary.textContent = `Found ${result.match_count} match${result.match_count === 1 ? "" : "es"}.`;
-  } else if (result.mode === "reverse" || result.mode === "nearest") {
-    summary.textContent = result.phrase ? `Best phrase: ${result.phrase}` : "No phrase found.";
   } else {
     if (result.recognized === false) {
       if (result.aggregation && result.aggregation.used) {

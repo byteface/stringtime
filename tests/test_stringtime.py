@@ -105,6 +105,44 @@ def test_is_same_time_ignores_date_component():
     assert is_same_time("2020-12-25 17:05:55", "2021-02-14 17:05:55") is True
 
 
+def test_forever_parses_as_infinite_date():
+    d = Date("forever")
+
+    assert d.is_infinite is True
+    assert str(d) == "∞"
+    assert d.parse_metadata.semantic_kind == "infinity"
+    assert d.parse_metadata.representative_granularity == "unbounded"
+
+
+def test_forever_extracts_as_full_match():
+    matches = Date("it lasts forever", extract=True)
+
+    assert matches[0].text == "forever"
+    assert matches[0].date.is_infinite is True
+
+
+def test_infinity_phrase_variants_parse_and_extract():
+    for phrase in ("the end of time", "end of time", "eternity"):
+        parsed = Date(phrase)
+        assert parsed.is_infinite is True
+        assert parsed.parse_metadata.semantic_kind == "infinity"
+
+        matches = Date(f"until {phrase}", extract=True)
+        assert matches[0].text == phrase
+        assert matches[0].date.is_infinite is True
+
+
+def test_infinite_date_comparisons_work():
+    forever = Date("forever")
+    someday = Date("2020-12-25 17:05:55")
+
+    assert is_before(someday, forever) is True
+    assert is_after(forever, someday) is True
+    assert (someday > forever) is False
+    assert (forever > someday) is True
+    assert Date("forever") == forever
+
+
 # pytest -s -v tests/test_stringtime.py::TestCaseStrict::test_assert_phrases
 class TestCaseStrict:
 
@@ -2029,6 +2067,16 @@ def test_month_boundary_and_year_position_compositions():
 
     matches = Date("at 3pm on boxing day 2028", extract=True, relative_to=reference)
     assert matches[0].text == "at 3pm on boxing day 2028"
+
+    assert str(Date("2pm september 1st 2029", relative_to=reference)) == "2029-09-01 14:00:00"
+    assert str(Date("2pm september 1st. 2029", relative_to=reference)) == "2029-09-01 14:00:00"
+    assert str(Date("the first of september at 2pm 2029", relative_to=reference)) == "2029-09-01 14:00:00"
+
+    matches = Date("2pm september 1st 2029", extract=True, relative_to=reference)
+    assert matches[0].text == "2pm september 1st 2029"
+
+    matches = Date("the first of september at 2pm 2029", extract=True, relative_to=reference)
+    assert matches[0].text == "the first of september at 2pm 2029"
 
     matches = Date("2028 at 4pm on the first friday of June", extract=True, relative_to=reference)
     assert matches[0].text == "2028 at 4pm on the first friday of June"
