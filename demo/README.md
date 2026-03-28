@@ -1,7 +1,6 @@
 # stringtime demo
 
-This is a local Flask demo for showing off `stringtime` without changing the
-package itself.
+This is a local Flask demo for showing off `stringtime`.
 
 Run it from the project root:
 
@@ -41,8 +40,22 @@ It will also surface sentinel values like `Date("forever")`, which report
 `semantic_kind="infinity"` and `representative_granularity="unbounded"`.
 
 
-# aggregated answer.
+# Aggregated answer.
 
-if the demo can't fully parse a date it will try to aggregate an answer
+If the demo can't fully parse a date it will try to aggregate an answer
+
+i.e. it should build an array of date items and add them together.
+
+For example a complex phrase might be broken up.
+
+"I went to the shop at 3pm. It was August. I think in 2022. The first of the month"
+
+The extract parser might find 3 'dates'
+
+- ['3pm', 'August', '2022', 'the first of the month']
+
+The demo should compose them into a single date as a best guess.
+
+
 
 TODO - explain how this works

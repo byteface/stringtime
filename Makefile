@@ -1,5 +1,29 @@
 test:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -m "not slow and not variant and not regression" tests/
+
+test-canonical:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock tests/test_core_api.py tests/test_parser_canonical.py tests/test_cli.py tests/test_recurring.py
+
+test-all:
 	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock tests/
+
+test-fast:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -m "not slow and not variant and not regression" tests/
+
+test-slow:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -m "slow and not variant" tests/
+
+test-regressions:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -m regression tests/
+
+test-variants:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -m variant tests/
+
+test-variants-fast:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock tests/test_parser_variants.py
+
+test-parallel:
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -p pytest_mock -p xdist.plugin -n auto -m "not slow and not variant and not regression" tests/
 
 testp:
 	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -vvv -s -p pytest_mock tests/

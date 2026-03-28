@@ -7,13 +7,10 @@
 
 A grammar for deriving `Date` objects from natural-language phrases.
 
-Use the examples below as a sample of the kinds of phrasing supported, not as a
-complete list of every accepted variation.
-
 ## Usage
 
-```bash
-from stringtime import Date, after, is_after, is_before, is_same_day, is_same_time, until
+```python
+from stringtime import Date
 
 d = Date('an hour from now')
 d.day  # the day of the week 0-6
@@ -45,6 +42,22 @@ d.parse_metadata.semantic_kind  # 'infinity'
 Date("the end of time")
 Date("eternity")
 
+# extract date phrases from longer sentences
+matches = Date("I will do it in an hour from now.", extract=True)
+matches[0].text  # 'in an hour from now'
+str(matches[0].date)  # '2020-12-25 18:05:55'
+
+# each parsed Date includes parse metadata
+d = Date("Sat Oct 11 17:13:46 UTC 2003")
+d.parse_metadata.used_dateutil  # True
+d.parse_metadata.exact  # False
+```
+
+There's also various utilities.
+
+```python
+from stringtime import until, after
+
 # plain-English durations between two dates
 until(Date("valentines"))
 # '1 month, 2 weeks and 6 days'
@@ -56,22 +69,14 @@ until(from_="2020-01-01 10:00:00", to="2024-04-15 10:05:00")
 after(from_=Date("valentines"), to=Date("the last friday in March"))
 # '1 month, 1 week and 6 days'
 
+
+from stringtime import is_after, is_before, is_same_day, is_same_time
+
 # readable comparisons
 is_before("2020-01-01 00:00:00", "2020-01-01 00:00:01")
 is_after(Date("tomorrow"), Date("today"))
 is_same_day("2020-12-25 01:00:00", "2020-12-25 23:59:59")
 is_same_time("2020-12-25 17:05:55", "2021-02-14 17:05:55")
-
-# extract date phrases from longer sentences
-matches = Date("I will do it in an hour from now.", extract=True)
-matches[0].text  # 'in an hour from now'
-str(matches[0].date)  # '2020-12-25 18:05:55'
-
-# each parsed Date includes parse metadata
-d = Date("Sat Oct 11 17:13:46 UTC 2003")
-d.parse_metadata.used_dateutil  # True
-d.parse_metadata.exact  # False
-
 ```
 
 ## Installation
@@ -125,6 +130,8 @@ The demo gives you:
 - a metadata panel showing parse semantics directly
 - a raw JSON log showing metadata and extraction matches
 
+There is also some functionality for uses a best guess when a phrase can't be parsed as a single string. Which is explained in the README for the demo.
+
 ## Usage and API
 
 `stringtime` is not limited to one narrow phrase style. It handles a mix of:
@@ -166,9 +173,7 @@ all matching spans back with their parsed dates.
 
 Relative phrases are based on the current time by default, but you can override
 that with `relative_to=`. It accepts a `stringtime.Date`, Python
-`datetime.datetime`, `datetime.date`, string, or timestamp integer. The test
-suite uses the same idea by freezing the reference date to
-`2020-12-25 17:05:55` so relative phrases produce stable results.
+`datetime.datetime`, `datetime.date`, string, or timestamp integer.
 
 Each returned `Date` also exposes `parse_metadata` with the original input,
 what matched, whether the parse was exact or fuzzy, and whether parsing fell
@@ -228,6 +233,8 @@ See the make file...
 make test
 ```
 
+The test suite freezes the reference date to `2020-12-25 17:05:55` so relative phrases produce stable test results.
+
 ## License
 
 Do what you want with this code.
@@ -237,3 +244,5 @@ Uses David Beazley's PLY parser.
 ## Disclaimer
 
 If you hit a phrase that stringtime cannot parse yet, please feel free to raise an issue or open a pull request.
+
+See WISHLIST.md for upcoming features.

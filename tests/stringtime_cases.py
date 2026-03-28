@@ -16,7 +16,8 @@ from stringtime import (Date, after, extract_dates, is_after, is_before,
 
 
 def check_phrase(p: str):
-    print("check_phrase:", p)
+    if os.environ.get("STRINGTIME_TEST_DEBUG"):
+        print("check_phrase:", p)
     d = Date(p)
     # print('  - The year is:::', d[0].get_year())
     # print('  - The month is:::', d[0].get_month(to_string=True))
@@ -24,7 +25,8 @@ def check_phrase(p: str):
     # print('  - The hour is:::', d[0].get_hours())
     # print('  - The minute is:::', d[0].get_minutes())
     # print('  - The second is:::', d[0].get_seconds())
-    print("- The date is :::", str(d))
+    if os.environ.get("STRINGTIME_TEST_DEBUG"):
+        print("- The date is :::", str(d))
     return d
 
 
@@ -205,6 +207,8 @@ class TestCaseStrict:
             ("half past 5", "2020-12-25 05:30:00"),
             ("quarter to 6", "2020-12-25 05:45:00"),
             ("today at noon", "2020-12-25 12:00:00"),
+            ("today at 5 pm", "2020-12-25 17:00:00"),
+            ("today 5 pm", "2020-12-25 17:00:00"),
             ("2moro @ noonish", "2020-12-26 12:00:00"),
             ("the beginning of june", "2021-06-01 17:05:55"),
             ("today at midnight", "2020-12-25 00:00:00"),
@@ -387,6 +391,8 @@ class TestCaseStrict:
             ),
             ("friday after the last full moon @ 2:30:12", "2020-12-04 02:30:12"),
             ("3 easters ago", "2018-04-01 17:05:55"),
+            ("3 decembers time", "2023-12-01 17:05:55"),
+            ("3 decembers ago", "2017-12-01 17:05:55"),
             ("5 fridays ago", "2020-11-20 17:05:55"),
             ("in 6 fridays time", "2021-02-05 17:05:55"),
             ("half a second after 12pm", "2020-12-25 12:00:00.500000"),
@@ -456,6 +462,10 @@ class TestCaseStrict:
             ("2day@noon", "2020-12-25 12:00:00"),
             ("tmrw@midnite", "2020-12-26 00:00:00"),
             ("8@night", "2020-12-25 21:00:00"),
+            ("5 nights time", "2020-12-30 17:05:55"),
+            ("12 days prior today", "2020-12-13 17:05:55"),
+            ("12 days earlier today", "2020-12-13 17:05:55"),
+            ("12 days before today", "2020-12-13 17:05:55"),
             ("5m", "2020-12-25 17:10:55"),
             ("5m ago", "2020-12-25 17:00:55"),
             ("10m", "2020-12-25 17:15:55"),
@@ -540,6 +550,8 @@ class TestCaseStrict:
             ("a day before the next leap year", "2023-12-31 17:05:55"),
             ("5 days from tomorrow", "2020-12-31 17:05:55"),
             ("2 days b4 monday", "2020-12-26 17:05:55"),
+            ("2 days before monday", "2020-12-26 17:05:55"),
+            ("2 days after tomorrow", "2020-12-28 17:05:55"),
             ("3 days from next wednesday", "2021-01-02 17:05:55"),
             ("2 days before next wednesday", "2020-12-28 17:05:55"),
             ("3 years and 2 months before the 16th of december", "2017-10-16 17:05:55"),
@@ -776,8 +788,15 @@ class TestCaseStrict:
             # ("2 days time at 5", "2020-12-27 17:05:55"),
             # ("4 today", "2020-12-25 16:00:00"),
             ("2moro at 3", "2020-12-26 03:00:00"),
+            ("Wednesday 5 pm", "2020-12-30 17:00:00"),
             ("at 5 pm on Wednesday", "2020-12-30 17:00:00"),
             ("at 5:52 pm on Wednesday", "2020-12-30 17:52:00"),
+            ("Wednesday at 17:52", "2020-12-30 17:52:00"),
+            ("at 17:52 on Wednesday", "2020-12-30 17:52:00"),
+            ("the 14th at 17:52", "2020-12-14 17:52:00"),
+            ("at 17:52 on the 14th", "2020-12-14 17:52:00"),
+            ("tomorrow at 17:52", "2020-12-26 17:52:00"),
+            ("yesterday at 17:52", "2020-12-24 17:52:00"),
             # ("Monday before last", "2020-12-22 17:05:55"),?date
         ],
     )
@@ -1191,6 +1210,34 @@ class TestCaseStrict:
         assert len(matches) == 1
         assert matches[0].text == "in the afternoon"
         assert str(matches[0].date) == "2020-12-26 15:00:00"
+
+    def test_extract_dates_prefers_full_numeric_in_the_part_of_day_phrase(self):
+        matches = extract_dates("let's do it 2 in the afternoon")
+
+        assert len(matches) == 1
+        assert matches[0].text == "2 in the afternoon"
+        assert str(matches[0].date) == "2020-12-25 14:00:00"
+
+    def test_extract_dates_prefers_full_prior_today_phrase(self):
+        matches = extract_dates("let's do it 12 days prior today")
+
+        assert len(matches) == 1
+        assert matches[0].text == "12 days prior today"
+        assert str(matches[0].date) == "2020-12-13 17:05:55"
+
+    def test_extract_dates_prefers_full_earlier_today_phrase(self):
+        matches = extract_dates("let's do it 12 days earlier today")
+
+        assert len(matches) == 1
+        assert matches[0].text == "12 days earlier today"
+        assert str(matches[0].date) == "2020-12-13 17:05:55"
+
+    def test_extract_dates_prefers_full_nights_time_phrase(self):
+        matches = extract_dates("let's do it 5 nights time")
+
+        assert len(matches) == 1
+        assert matches[0].text == "5 nights time"
+        assert str(matches[0].date) == "2020-12-30 17:05:55"
 
     def test_extract_dates_prefers_full_part_of_day_of_ordinal_phrase(self):
         matches = extract_dates("on the evening of the 14th sounds right")
@@ -1974,7 +2021,9 @@ class TestCaseStrict:
 
 class TestCaseLazy:
     # tests that are not asserting anything
+    STRESS_COUNTS = [0, 1, 2, 5, 10, 29, 59, 99]
 
+    @pytest.mark.slow
     def test_phrases_future(self):
         # tests for phrases that retrieve dates in the past
         # : x {time} from now : i.e. '5 weeks from now'
@@ -1988,7 +2037,7 @@ class TestCaseLazy:
         # times = ['year', 'month', 'week', 'day']
         # times = ['year', 'month', 'week', 'day', 'hour', 'minute']
         times = ["year", "month", "week", "day", "hour", "minute", "second"]
-        for n in range(100):
+        for n in self.STRESS_COUNTS:
             # print(n)
             for t in times:
                 check_phrase(f"{n} {t} from now")
@@ -1998,14 +2047,14 @@ class TestCaseLazy:
         # check_phrase("One day")
 
         # : x {time} time : i.e. '5 days time'
-        for n in range(100):
+        for n in self.STRESS_COUNTS:
             for t in times:
                 # plural
                 check_phrase(f"{n} {t}s time")
                 # w/o plural (bad grammar allowed)
                 check_phrase(f"{n} {t} time")
 
-        for n in range(100):
+        for n in self.STRESS_COUNTS:
             for t in times:
                 check_phrase(f"{n} {t}s in the future")
                 check_phrase(f"{n} {t}s after now")
@@ -2014,11 +2063,11 @@ class TestCaseLazy:
         # check_phrase(f"29 seconds in the future") # fails???
 
         # In 3 days, In 5 minutes, In 12 hours
-        for n in range(100):
+        for n in self.STRESS_COUNTS:
             for t in times:
                 check_phrase(f"In {n} {t}s")
 
-        for n in range(100):
+        for n in self.STRESS_COUNTS:
             for t in times:
                 check_phrase(f"+ {n} {t}")
                 check_phrase(f"- {n} {t}")
@@ -2028,7 +2077,7 @@ class TestCaseLazy:
         # check_phrase(f"+1 hour before now") # SHOULD fail as it forces 2 conflicting choices
 
         # TODO - check results of these
-        for n in range(100):
+        for n in self.STRESS_COUNTS:
             for t in times:
                 check_phrase(f"{n} {t}")
 
@@ -2044,6 +2093,7 @@ class TestCaseLazy:
         check_phrase("In 10 secs")
         check_phrase("5 secs from now")
 
+    @pytest.mark.slow
     def test_phrases_past(self):
         # tests for phrases that retrieve dates in the past
 
@@ -2052,7 +2102,7 @@ class TestCaseLazy:
 
         # 20 mins ago, 10 secs ago, 10 hrs ago, 10 wks ago
         times = ["yr", "mnth", "wk", "dy", "hr", "min", "sec"]
-        for n in range(100):
+        for n in self.STRESS_COUNTS:
             for t in times:
                 check_phrase(f"{n} {t} ago")  # works
                 check_phrase(f"{n} {t}s ago")  # works
@@ -2327,3 +2377,266 @@ def test_recurring_weekday_with_time_keeps_recurring_metadata():
     assert str(recurring) == "2020-12-30 15:00:00"
     assert recurring.parse_metadata.semantic_kind == "recurring"
     assert recurring.parse_metadata.representative_granularity == "week"
+
+
+def test_recurring_schedule_starter_phrases_parse():
+    reference = "2020-12-25 17:05:55"
+    phrases = [
+        ("every monday", "2020-12-28 17:05:55"),
+        ("every weekday", "2020-12-28 17:05:55"),
+        ("weekdays", "2020-12-28 17:05:55"),
+        ("on weekdays", "2020-12-28 17:05:55"),
+        ("every weekday at 9am", "2020-12-28 09:00:00"),
+        ("weekdays at 9am", "2020-12-28 09:00:00"),
+        ("every weekend", "2020-12-26 17:05:55"),
+        ("weekends", "2020-12-26 17:05:55"),
+        ("on weekends", "2020-12-26 17:05:55"),
+        ("every weekend at noon", "2020-12-26 12:00:00"),
+        ("every saturday at 8pm", "2020-12-26 20:00:00"),
+        ("every sunday at 10am", "2020-12-27 10:00:00"),
+        ("the first friday of each month", "2021-01-01 17:05:55"),
+        ("the first friday of every month at 9am", "2021-01-01 09:00:00"),
+        ("the second tuesday of each month", "2021-01-12 17:05:55"),
+        ("the last sunday of each month", "2020-12-27 17:05:55"),
+        ("the penultimate wednesday of every month", "2021-01-20 17:05:55"),
+        ("the first business day of each month", "2021-01-01 17:05:55"),
+        ("the last business day of each month", "2020-12-31 17:05:55"),
+        ("the first monday of each month at 9am", "2021-01-04 09:00:00"),
+    ]
+
+    for phrase, expected in phrases:
+        assert str(Date(phrase, relative_to=reference)) == expected
+
+
+def test_recurring_schedule_extended_phrases_parse():
+    reference = "2020-12-25 17:05:55"
+    phrases = [
+        ("every month on the 14th", "2021-01-14 17:05:55"),
+        ("the 1st of every month", "2021-01-01 17:05:55"),
+        ("on the 1st of every month at noon", "2021-01-01 12:00:00"),
+        ("every month on the 31st", "2020-12-31 17:05:55"),
+        ("every christmas", "2021-12-25 17:05:55"),
+        ("every christmas at noon", "2021-12-25 12:00:00"),
+        ("every boxing day", "2020-12-26 17:05:55"),
+        ("every halloween", "2021-10-31 17:05:55"),
+        ("every easter", "2021-04-04 17:05:55"),
+        ("every september 1st", "2021-09-01 17:05:55"),
+        ("every september 1st at 2pm", "2021-09-01 14:00:00"),
+        ("every 1st of september", "2021-09-01 17:05:55"),
+        ("every business day", "2020-12-28 17:05:55"),
+        ("every working day at 9am", "2020-12-28 09:00:00"),
+        ("the first business day of each quarter", "2021-01-01 17:05:55"),
+        ("the last business day of every quarter", "2020-12-31 17:05:55"),
+        ("the last business day of every quarter at 6pm", "2020-12-31 18:00:00"),
+        ("every other friday", "2021-01-01 17:05:55"),
+        ("every 2 weeks", "2021-01-08 17:05:55"),
+        ("every 3 months", "2021-03-25 17:05:55"),
+        ("the third working day of each month", "2021-01-05 17:05:55"),
+        ("the last weekend of every month", "2020-12-26 17:05:55"),
+        ("the first monday of every september", "2021-09-06 17:05:55"),
+    ]
+
+    for phrase, expected in phrases:
+        assert str(Date(phrase, relative_to=reference)) == expected
+
+
+def test_recurring_schedule_metadata_stays_recurring():
+    reference = "2020-12-25 17:05:55"
+
+    weekly = Date("every weekday at 9am", relative_to=reference)
+    assert weekly.parse_metadata.semantic_kind == "recurring"
+    assert weekly.parse_metadata.representative_granularity == "week"
+
+    monthly = Date("the first friday of each month", relative_to=reference)
+    assert monthly.parse_metadata.semantic_kind == "recurring"
+    assert monthly.parse_metadata.representative_granularity == "month"
+
+    monthly_timed = Date(
+        "the first friday of every month at 9am", relative_to=reference
+    )
+    assert monthly_timed.parse_metadata.semantic_kind == "recurring"
+    assert monthly_timed.parse_metadata.representative_granularity == "month"
+
+    yearly = Date("every christmas at noon", relative_to=reference)
+    assert yearly.parse_metadata.semantic_kind == "recurring"
+    assert yearly.parse_metadata.representative_granularity == "year"
+
+    quarterly = Date(
+        "the last business day of every quarter at 6pm", relative_to=reference
+    )
+    assert quarterly.parse_metadata.semantic_kind == "recurring"
+    assert quarterly.parse_metadata.representative_granularity == "quarter"
+
+    interval = Date("every 2 weeks", relative_to=reference)
+    assert interval.parse_metadata.semantic_kind == "recurring"
+    assert interval.parse_metadata.representative_granularity == "week"
+    assert interval.parse_metadata.recurrence_frequency == "weekly"
+    assert interval.parse_metadata.recurrence_interval == 2
+
+    yearly_filtered = Date("the first monday of every september", relative_to=reference)
+    assert yearly_filtered.parse_metadata.semantic_kind == "recurring"
+    assert yearly_filtered.parse_metadata.representative_granularity == "year"
+    assert yearly_filtered.parse_metadata.recurrence_frequency == "yearly"
+    assert yearly_filtered.parse_metadata.recurrence_bymonth == 9
+    assert yearly_filtered.parse_metadata.recurrence_byweekday == ("monday",)
+
+    monthly_working = Date("the third working day of each month", relative_to=reference)
+    assert monthly_working.parse_metadata.semantic_kind == "recurring"
+    assert monthly_working.parse_metadata.representative_granularity == "month"
+    assert monthly_working.parse_metadata.recurrence_ordinal == "third"
+
+
+def test_recurring_schedule_extracts_full_phrase():
+    reference = "2020-12-25 17:05:55"
+
+    matches = Date("every weekday at 9am", extract=True, relative_to=reference)
+    assert matches[0].text == "every weekday at 9am"
+
+    matches = Date(
+        "the first friday of every month at 9am",
+        extract=True,
+        relative_to=reference,
+    )
+    assert matches[0].text == "the first friday of every month at 9am"
+
+    matches = Date("every christmas at noon", extract=True, relative_to=reference)
+    assert matches[0].text == "every christmas at noon"
+
+    matches = Date(
+        "the last business day of every quarter at 6pm",
+        extract=True,
+        relative_to=reference,
+    )
+    assert matches[0].text == "the last business day of every quarter at 6pm"
+
+    matches = Date("every 2 weeks", extract=True, relative_to=reference)
+    assert matches[0].text == "every 2 weeks"
+
+    matches = Date(
+        "the first monday of every september",
+        extract=True,
+        relative_to=reference,
+    )
+    assert matches[0].text == "the first monday of every september"
+
+
+def test_recurring_schedule_handles_common_aliases_and_case():
+    reference = "2020-12-25 17:05:55"
+
+    recurring = Date("Every Tues at 3pm", relative_to=reference)
+    assert str(recurring) == "2020-12-29 15:00:00"
+    assert recurring.parse_metadata.semantic_kind == "recurring"
+
+    yearly = Date("the first Monday of every Sept", relative_to=reference)
+    assert str(yearly) == "2021-09-06 17:05:55"
+    assert yearly.parse_metadata.semantic_kind == "recurring"
+
+
+def test_recurring_schedule_advanced_phrases_parse():
+    reference = "2020-12-25 17:05:55"
+    phrases = [
+        ("every monday and wednesday", "2020-12-28 17:05:55"),
+        ("mondays and wednesdays", "2020-12-28 17:05:55"),
+        ("every monday and wednesday at 9am", "2020-12-28 09:00:00"),
+        ("every weekday except friday", "2020-12-28 17:05:55"),
+        ("weekdays except friday at 9am", "2020-12-28 09:00:00"),
+        ("weeknights", "2020-12-28 21:00:00"),
+        ("weeknights at 8", "2020-12-28 20:00:00"),
+        ("every day", "2020-12-26 17:05:55"),
+        ("every morning", "2020-12-26 09:00:00"),
+        ("every day from 9 to 5", "2020-12-26 09:00:00"),
+        ("every weekday from 9 to 5", "2020-12-28 09:00:00"),
+        ("every first monday in april", "2021-04-05 17:05:55"),
+        ("the last friday of every year", "2021-12-31 17:05:55"),
+        ("every 2nd tuesday", "2021-01-12 17:05:55"),
+        ("every 3 months on the 14th", "2021-03-14 17:05:55"),
+        ("every christmas eve at 6pm", "2021-12-24 18:00:00"),
+        ("every monday through june", "2020-12-28 17:05:55"),
+        ("every friday until next christmas", "2021-01-01 17:05:55"),
+        ("every friday from next week", "2021-01-01 17:05:55"),
+        ("recurring fridays from next week", "2021-01-01 17:05:55"),
+    ]
+
+    for phrase, expected in phrases:
+        assert str(Date(phrase, relative_to=reference)) == expected
+
+
+def test_recurring_schedule_advanced_metadata():
+    reference = "2020-12-25 17:05:55"
+
+    multi = Date("every monday and wednesday at 9am", relative_to=reference)
+    assert multi.parse_metadata.semantic_kind == "recurring"
+    assert multi.parse_metadata.recurrence_byweekday == ("monday", "wednesday")
+    assert multi.parse_metadata.recurrence_byhour == 9
+    assert multi.parse_metadata.recurrence_byminute == 0
+
+    bounded = Date("every friday until next christmas", relative_to=reference)
+    assert bounded.parse_metadata.semantic_kind == "recurring"
+    assert bounded.parse_metadata.recurrence_until == "next christmas"
+
+    started = Date("every friday from next week", relative_to=reference)
+    assert started.parse_metadata.semantic_kind == "recurring"
+    assert started.parse_metadata.recurrence_start == "next week"
+
+    excluded = Date("every weekday except friday", relative_to=reference)
+    assert excluded.parse_metadata.semantic_kind == "recurring"
+    assert excluded.parse_metadata.recurrence_byweekday == (
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+    )
+    assert excluded.parse_metadata.recurrence_exclusions == ("friday",)
+
+    windowed = Date("every day from 9 to 5", relative_to=reference)
+    assert windowed.parse_metadata.semantic_kind == "recurring"
+    assert windowed.parse_metadata.recurrence_frequency == "daily"
+    assert windowed.parse_metadata.recurrence_window_start == "09:00:00"
+    assert windowed.parse_metadata.recurrence_window_end == "17:00:00"
+    assert windowed.parse_metadata.recurrence_byhour == 9
+    assert windowed.parse_metadata.recurrence_byminute == 0
+
+    yearly = Date("every first monday in april", relative_to=reference)
+    assert yearly.parse_metadata.semantic_kind == "recurring"
+    assert yearly.parse_metadata.recurrence_frequency == "yearly"
+    assert yearly.parse_metadata.recurrence_bymonth == 4
+    assert yearly.parse_metadata.recurrence_byweekday == ("monday",)
+    assert yearly.parse_metadata.recurrence_ordinal == "first"
+
+    interval = Date("every 3 months on the 14th", relative_to=reference)
+    assert interval.parse_metadata.semantic_kind == "recurring"
+    assert interval.parse_metadata.recurrence_frequency == "monthly"
+    assert interval.parse_metadata.recurrence_interval == 3
+    assert interval.parse_metadata.recurrence_bymonthday == 14
+
+
+def test_recurring_schedule_advanced_extracts_full_phrase():
+    reference = "2020-12-25 17:05:55"
+
+    matches = Date(
+        "every monday and wednesday at 9am",
+        extract=True,
+        relative_to=reference,
+    )
+    assert matches[0].text == "every monday and wednesday at 9am"
+
+    matches = Date(
+        "every weekday except friday",
+        extract=True,
+        relative_to=reference,
+    )
+    assert matches[0].text == "every weekday except friday"
+
+    matches = Date(
+        "every day from 9 to 5",
+        extract=True,
+        relative_to=reference,
+    )
+    assert matches[0].text == "every day from 9 to 5"
+
+    matches = Date(
+        "every friday from next week",
+        extract=True,
+        relative_to=reference,
+    )
+    assert matches[0].text == "every friday from next week"

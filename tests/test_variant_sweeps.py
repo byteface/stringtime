@@ -1,3 +1,4 @@
+import pytest
 from pathlib import Path
 
 from stringtime.variant_sweeps import (DEFAULT_REFERENCE,
@@ -6,6 +7,8 @@ from stringtime.variant_sweeps import (DEFAULT_REFERENCE,
                                        run_exploratory_structure_sweep,
                                        run_extraction_sweep, run_ladder_sweep,
                                        run_range_glue_sweep, run_variant_sweep)
+
+pytestmark = [pytest.mark.variant, pytest.mark.slow]
 
 
 def test_variant_sweeps_generate_at_least_one_hundred_cases():
