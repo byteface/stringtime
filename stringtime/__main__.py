@@ -4,6 +4,7 @@ stringtime CLI entry point.
 
 import argparse
 import json
+import sys
 from dataclasses import asdict, is_dataclass
 
 from stringtime import Date, __version__, extract_dates
@@ -19,7 +20,8 @@ def parse_args(argv=None):
             "examples:\n"
             '  stringtime "an hour from now"\n'
             '  stringtime --relative-to "2020-12-25 17:05:55" "tomorrow night"\n'
-            '  stringtime --extract "I will do it in 5 days from tomorrow"'
+            '  stringtime --extract "I will do it in 5 days from tomorrow"\n'
+            '  echo "tomorrow at 5" | stringtime'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -83,6 +85,10 @@ def _resolve_input_text(arguments):
         return " ".join(arguments.text).strip()
     if arguments.phrase:
         return " ".join(arguments.phrase).strip()
+    if not sys.stdin.isatty():
+        piped_text = sys.stdin.read().strip()
+        if piped_text:
+            return piped_text
     return None
 
 

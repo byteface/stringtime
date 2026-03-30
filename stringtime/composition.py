@@ -4,6 +4,64 @@ import re
 from stringtime.parse_metadata import build_parse_metadata
 
 
+def apply_ambiguous_meridiem_preference(
+    candidate,
+    *,
+    raw_text,
+    matched_text,
+):
+    import stringtime as core
+
+    preference = core.get_ambiguous_meridiem_preference()
+    if candidate is None or preference is None:
+        return candidate
+
+    source_text = (matched_text or raw_text or "").strip().lower()
+    if not source_text:
+        return candidate
+
+    if re.search(r"\b(?:am|pm)\b", source_text) or re.search(
+        r"\d(?:am|pm)\b", source_text
+    ):
+        return candidate
+
+    if re.search(
+        r"\b(?:morning|afternoon|evening|night|noon|midnight|midday|dawn|sunrise|sunset|dusk|twilight)\b",
+        source_text,
+    ):
+        return candidate
+
+    if ":" in source_text:
+        return candidate
+
+    date_head_pattern = (
+        rf"(?:today|tomorrow|yesterday|before yesterday|after tomorrow|"
+        rf"next {core.WEEKDAY_RE}|last {core.WEEKDAY_RE}|this {core.WEEKDAY_RE}|"
+        rf"{core.WEEKDAY_RE}|next week|last week|this week|next month|last month|"
+        rf"this month|next year|last year|this year|{core.MONTH_RE}(?:\s+\d{{1,2}}(?:st|nd|rd|th)?)?)"
+    )
+    ambiguous_pattern = re.fullmatch(
+        rf"(?:(?P<head>{date_head_pattern})\s+(?:at\s+)?)?(?P<hour>\d{{1,2}})",
+        source_text,
+        flags=re.IGNORECASE,
+    )
+    if ambiguous_pattern is None:
+        return candidate
+
+    parsed_hour = candidate.to_datetime().hour
+    adjusted = core.clone_date(candidate)
+
+    if preference == "pm" and 1 <= parsed_hour <= 11:
+        adjusted.set_hours(parsed_hour + 12)
+        return adjusted
+
+    if preference == "am" and 13 <= parsed_hour <= 23:
+        adjusted.set_hours(parsed_hour - 12)
+        return adjusted
+
+    return candidate
+
+
 def finalize_parsed_candidate(
     candidate,
     *,
@@ -20,6 +78,11 @@ def finalize_parsed_candidate(
     if candidate is None:
         return None
 
+    candidate = apply_ambiguous_meridiem_preference(
+        candidate,
+        raw_text=raw_text,
+        matched_text=matched_text,
+    )
     overrides = metadata_overrides or {}
     return core.attach_parse_metadata(
         core.apply_timezone(candidate, tzinfo, timezone_aware=timezone_aware),
@@ -198,6 +261,10 @@ def finalize_composed_stage(
     has_recurring_signal = any(
         recurring_details.get(key) is not None for key in recurring_signal_keys
     )
+    is_relative_day_clock_phrase = re.fullmatch(
+        r"(?:before yesterday|after tomorrow)\s+(?:at\s+)?\d{1,2}:\d{2}(?::\d{2})?(?:\s?(?:am|pm))?",
+        normalized_phrase,
+    )
     if (
         composed_date_time is not None
         and re.search(
@@ -208,6 +275,7 @@ def finalize_composed_stage(
             not re.search(r"\b(?:before|after|from|hence|ago)\b", normalized_phrase)
             or re.search(r"(?:@| at )\s*\d{1,2}:\d{2}(?::\d{2})?(?:\s?(?:am|pm))?$", normalized_phrase)
             or re.search(r"\bby\b", normalized_phrase)
+            or is_relative_day_clock_phrase
         )
         and (registered_anchor_definition is None or registered_anchor_definition.name not in {"solar"})
         and not has_recurring_signal

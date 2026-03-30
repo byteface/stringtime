@@ -17,10 +17,16 @@
             The right side jumps to the resolved date and the log shows the raw parser output.
           </p>
         </div>
-        <div class="chips">
-          {% for example in examples %}
-          <button class="chip" type="button" data-example="{{ example }}">{{ example }}</button>
-          {% endfor %}
+        <div class="panel example-picker">
+          <label class="field">
+            <span>Try a tested phrase</span>
+            <select id="example-select" aria-label="Load a tested example">
+              <option value="">Choose an example...</option>
+              {% for example in examples %}
+              <option value="{{ example }}">{{ example }}</option>
+              {% endfor %}
+            </select>
+          </label>
         </div>
       </section>
 
@@ -73,7 +79,10 @@
           </div>
           <div class="weekdays" id="weekdays"></div>
           <div class="calendar-grid" id="calendar-grid"></div>
-          <div id="selected-date" class="selected-date">No date selected yet.</div>
+          <div class="date-summary">
+            <div id="reference-date" class="reference-date">Reference date: 2020-12-25 17:05:55</div>
+            <div id="selected-date" class="selected-date">Result date: No date selected yet.</div>
+          </div>
         </section>
       </section>
 

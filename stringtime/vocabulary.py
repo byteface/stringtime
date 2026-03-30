@@ -57,6 +57,7 @@ NORMALIZATION_WORD_ALIASES = {
     "tomo": "tomorrow",
     "tomoz": "tomorrow",
     "mrng": "morning",
+    "min": "minute",
     "frdy": "friday",
     "wknd": "weekend",
     "yday": "yesterday",

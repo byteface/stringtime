@@ -33,6 +33,28 @@ str(d)  # '2021-06-01 11:30:00'
 # relative_to can also be another parsed Date
 d = Date("an hour from now", relative_to=Date("47 hours ago"))
 
+# bias ambiguous bare-hour phrases when there is no stronger cue
+d = Date("tomorrow at 3", ambiguous_meridiem="pm")
+str(d)  # '2020-12-26 15:00:00'
+
+# explicit meridiems and stronger cues still win
+Date("tomorrow at 3am", ambiguous_meridiem="pm")
+Date("tomorrow at 3 in the afternoon", ambiguous_meridiem="am")
+
+# bias ambiguous weekday/month phrases toward the past, future, or nearest match
+d = Date("Wednesday", ambiguous_direction="past")
+str(d)  # e.g. '2020-12-23 17:05:55'
+
+Date("in February", ambiguous_direction="future")
+Date("Friday", ambiguous_direction="nearest")
+
+# control how slash dates are interpreted when needed
+d = Date("26/7/2027 at 2pm")
+str(d)  # '2027-07-26 14:00:00'
+
+Date("7/8/99", date_order="dmy")
+Date("7/8/99", date_order="mdy")
+
 # unbounded sentinel dates are available too
 d = Date("forever")
 str(d)  # '∞'
@@ -86,7 +108,7 @@ python3 -m pip install stringtime
 # python3 -m pip install stringtime --upgrade
 ```
 
-Requires Python 3.10 or newer.
+Tested in CI on Python 3.10 through 3.14. Requires Python 3.10 or newer.
 
 ## CLI
 
@@ -95,6 +117,7 @@ stringtime "an hour from now"
 stringtime --relative-to "2020-12-25 17:05:55" "tomorrow night"
 stringtime --extract "I will do it in 5 days from tomorrow."
 stringtime --metadata --json "Friday"
+echo "2 days from now" | stringtime --relative-to "2020-12-25 17:05:55"
 ```
 
 Useful flags:
@@ -143,6 +166,16 @@ There is also some functionality for uses a best guess when a phrase can't be pa
 - business and boundary phrases: `end of month`, `end of play`, `the first business day after fiscal year end`
 - seasonal, holiday, solar, and lunar anchors: `next summer`, `xmas eve`, `dusk on Friday`, `the next full moon`
 - recurring and sentinel phrases: `every Wednesday`, `forever`
+- chained relative offsets: `plus 1 week 2 days 4 hours 2 seconds`
+- signed offset chains: `+1 week 2 days 4 hours 2 seconds`
+- separator variants: `+1 week, 2 days, 4 hours` and `+1 week +2 days`
+- compact date anchors with relative math: `20080229 -1 year`
+- dashed date anchors with relative math: `2008-02-29 -1 year`
+- short year phrases like `back in 82`
+
+For 2-digit years:
+- `00` to `69` map to the 2000s
+- `70` to `99` map to the 1900s
 
 A few quick examples:
 
@@ -161,6 +194,8 @@ A few quick examples:
 "the next full moon"
 "every Wednesday"
 "forever"
+# Let's go even further!
+"the day before the twelfth second of the 14th minute on the 2nd week of the first month 2321 plus 1 hour"
 ```
 
 For a broader real-world sample, look through:
@@ -174,6 +209,23 @@ all matching spans back with their parsed dates.
 Relative phrases are based on the current time by default, but you can override
 that with `relative_to=`. It accepts a `stringtime.Date`, Python
 `datetime.datetime`, `datetime.date`, string, or timestamp integer.
+
+If you want ambiguous bare-hour phrases such as `tomorrow at 3` to lean one way,
+you can pass `ambiguous_meridiem="am"` or `ambiguous_meridiem="pm"`. This only
+applies when the phrase does not already contain a stronger cue such as `am`,
+`pm`, `morning`, `afternoon`, `noon`, or `midnight`.
+
+If you want ambiguous calendar phrases such as `Wednesday`, `on Wednesday`, or
+`in February` to lean one way, you can pass
+`ambiguous_direction="past"`, `"future"`, or `"nearest"`. This only applies to
+phrases that do not already contain an explicit directional cue such as `next`,
+`last`, or an explicit year.
+
+For slash-separated numeric dates, you can pass `date_order="dmy"` or
+`date_order="mdy"` to force day-first or month-first parsing. If you leave
+`date_order` unset, stringtime only parses slash dates natively when the order
+is already unambiguous, such as `26/7/99`. If either side is greater than `12`,
+that impossible month/day check wins regardless of the chosen `date_order`.
 
 Each returned `Date` also exposes `parse_metadata` with the original input,
 what matched, whether the parse was exact or fuzzy, and whether parsing fell
@@ -203,15 +255,6 @@ timestamp. It compares after any finite date and carries `semantic_kind` of
 Business-day phrases currently treat Monday-Friday as working days and skip
 weekends only.
 
-If anything is broken, missing, or you hit a phrase that stringtime cannot parse yet, please raise an issue or make a pull request.
-
-## CLI
-
-Use stringtime from the command line:
-
-```bash
-stringtime -p 2 days from now
-```
 
 ## Dev
 

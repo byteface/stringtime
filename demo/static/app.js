@@ -11,6 +11,8 @@ const resultLog = document.getElementById("result-log");
 const metadataLog = document.getElementById("metadata-log");
 const activityLog = document.getElementById("activity-log");
 const selectedDateLabel = document.getElementById("selected-date");
+const referenceDateLabel = document.getElementById("reference-date");
+const exampleSelect = document.getElementById("example-select");
 const calendarTitle = document.getElementById("calendar-title");
 const calendarGrid = document.getElementById("calendar-grid");
 const weekdaysGrid = document.getElementById("weekdays");
@@ -46,6 +48,13 @@ function formatFriendlyDate(payload) {
   }
 
   return `${payload.display} (${payload.iso})`;
+}
+
+function formatReferenceText() {
+  if (useRelativeToInput.checked && relativeToInput.value.trim()) {
+    return `Reference date: ${relativeToInput.value.trim()}`;
+  }
+  return "Reference date: live current time";
 }
 
 function isFallbackPayload(payload) {
@@ -171,9 +180,9 @@ function setCalendarFromPayload(payload) {
 
   if (dateParts) {
     focusedDate = new Date(dateParts.year, dateParts.monthIndex, 1);
-    selectedDateLabel.textContent = formatFriendlyDate(payload);
+    selectedDateLabel.textContent = `Result date: ${formatFriendlyDate(payload)}`;
   } else {
-    selectedDateLabel.textContent = "No date selected yet.";
+    selectedDateLabel.textContent = "Result date: No date selected yet.";
   }
 
   renderCalendar();
@@ -216,25 +225,30 @@ async function runDemo(event) {
   setCalendarFromPayload(highlight);
 
   if (result.mode === "extract") {
-    summary.textContent = `Found ${result.match_count} match${result.match_count === 1 ? "" : "es"}.`;
+    summary.textContent = `Found ${result.match_count} match${result.match_count === 1 ? "" : "es"} ${describeReference()}.`;
   } else {
     if (result.recognized === false) {
       if (result.aggregation && result.aggregation.used) {
         summary.textContent = formatAggregationMessage(result.aggregation);
         if (result.aggregation.status === "ambiguous") {
-          selectedDateLabel.textContent = "No exact date selected. Aggregation found plausible candidates but the phrase is still ambiguous.";
+          selectedDateLabel.textContent = "Result date: No exact date selected. Aggregation found plausible candidates but the phrase is still ambiguous.";
         } else if (result.aggregation.suggested_date) {
-          selectedDateLabel.textContent = formatFriendlyDate(result.aggregation.suggested_date);
+          selectedDateLabel.textContent = `Result date: ${formatFriendlyDate(result.aggregation.suggested_date)}`;
         } else {
-          selectedDateLabel.textContent = "No exact date selected. The demo observed partial structure from extracted parts.";
+          selectedDateLabel.textContent = "Result date: No exact date selected. The demo observed partial structure from extracted parts.";
         }
         appendLog(`Observed aggregation from extracted parts for "${result.input}"`);
+      } else if (result.fallback_date) {
+        summary.textContent = `Parsed via fallback to ${result.fallback_date.display} ${describeReference()}.`;
+        selectedDateLabel.textContent = `Result date: ${formatFriendlyDate(result.fallback_date)} (fallback)`;
       } else {
         summary.textContent = result.message || "stringtime does not know this phrase yet.";
-        selectedDateLabel.textContent = "No date selected. This phrase is not natively recognized yet.";
+        selectedDateLabel.textContent = "Result date: No date selected. This phrase is not natively recognized yet.";
       }
     } else {
-      summary.textContent = result.date ? `Parsed to ${result.date.display}` : "Parsed.";
+      summary.textContent = result.date
+        ? `Parsed to ${result.date.display} ${describeReference()}.`
+        : `Parsed ${describeReference()}.`;
     }
   }
 
@@ -245,6 +259,16 @@ function syncRelativeToState() {
   const enabled = useRelativeToInput.checked;
   relativeToInput.disabled = !enabled;
   relativeToInput.setAttribute("aria-disabled", String(!enabled));
+  if (referenceDateLabel) {
+    referenceDateLabel.textContent = formatReferenceText();
+  }
+}
+
+function describeReference() {
+  if (useRelativeToInput.checked && relativeToInput.value.trim()) {
+    return `using reference ${relativeToInput.value.trim()}`;
+  }
+  return "using live current time";
 }
 
 document.getElementById("prev-month").addEventListener("click", () => {
@@ -264,12 +288,19 @@ document.getElementById("reset-log").addEventListener("click", () => {
   resultLog.textContent = "Run the demo to see structured output.";
   metadataLog.textContent = "Run the demo to inspect parse metadata.";
   summary.textContent = "Ready.";
+  if (referenceDateLabel) {
+    referenceDateLabel.textContent = formatReferenceText();
+  }
+  selectedDateLabel.textContent = "Result date: No date selected yet.";
 });
 
-for (const chip of document.querySelectorAll("[data-example]")) {
-  chip.addEventListener("click", () => {
-    phraseInput.value = chip.dataset.example;
-    appendLog(`Loaded example "${chip.dataset.example}"`);
+if (exampleSelect) {
+  exampleSelect.addEventListener("change", () => {
+    if (!exampleSelect.value) {
+      return;
+    }
+    phraseInput.value = exampleSelect.value;
+    appendLog(`Loaded example "${exampleSelect.value}"`);
   });
 }
 

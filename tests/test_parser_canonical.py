@@ -73,3 +73,85 @@ def test_canonical_parse_metadata_smoke():
     assert parsed.parse_metadata.exact is True
     assert parsed.parse_metadata.semantic_kind == "period"
     assert parsed.parse_metadata.representative_granularity == "day"
+
+
+def test_ambiguous_meridiem_preference_biases_bare_hours():
+    default = Date("tomorrow at 3", relative_to="2020-12-25 17:05:55")
+    pm_bias = Date(
+        "tomorrow at 3",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_meridiem="pm",
+    )
+    am_bias = Date(
+        "tomorrow at 3",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_meridiem="am",
+    )
+
+    assert str(default) == "2020-12-26 03:00:00"
+    assert str(pm_bias) == "2020-12-26 15:00:00"
+    assert str(am_bias) == "2020-12-26 03:00:00"
+
+
+def test_ambiguous_meridiem_does_not_override_explicit_or_stronger_cues():
+    explicit = Date(
+        "tomorrow at 3am",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_meridiem="pm",
+    )
+    afternoon = Date(
+        "tomorrow at 3 in the afternoon",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_meridiem="am",
+    )
+
+    assert str(explicit) == "2020-12-26 03:00:00"
+    assert str(afternoon) == "2020-12-26 15:00:00"
+
+
+def test_ambiguous_direction_biases_weekday_phrases():
+    default = Date("Wednesday", relative_to="2020-12-25 17:05:55")
+    past = Date(
+        "Wednesday",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_direction="past",
+    )
+    future_same_day = Date(
+        "Friday",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_direction="future",
+    )
+    on_past = Date(
+        "on Wednesday",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_direction="past",
+    )
+
+    assert str(default) == "2020-12-30 17:05:55"
+    assert str(past) == "2020-12-23 17:05:55"
+    assert str(future_same_day) == "2021-01-01 17:05:55"
+    assert str(on_past) == "2020-12-23 17:05:55"
+
+
+def test_ambiguous_direction_biases_month_anchor_phrases():
+    default = Date("in February", relative_to="2020-12-25 17:05:55")
+    past = Date(
+        "in February",
+        relative_to="2020-12-25 17:05:55",
+        ambiguous_direction="past",
+    )
+    nearest = Date(
+        "February",
+        relative_to="2020-03-10 17:05:55",
+        ambiguous_direction="nearest",
+    )
+    future_same_month = Date(
+        "February",
+        relative_to="2020-02-10 17:05:55",
+        ambiguous_direction="future",
+    )
+
+    assert str(default) == "2021-02-01 17:05:55"
+    assert str(past) == "2020-02-01 17:05:55"
+    assert str(nearest) == "2020-02-01 17:05:55"
+    assert str(future_same_month) == "2021-02-01 17:05:55"

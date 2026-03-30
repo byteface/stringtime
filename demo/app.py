@@ -27,15 +27,24 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 
 EXAMPLE_PHRASES = [
     "tomorrow night",
+    "4 days before the end of next month",
+    "the night after xmas",
     "3 days from next Wednesday",
+    "Wednesday",
+    "in February",
     "the second to last day of the month",
     "tmrw@7",
     "5m ago",
+    "5yrs ago",
+    "2yrs from now",
     "1y from now",
     "the first Monday in May",
+    "the last thursday in june 22",
+    "the summer of 69",
     "the fourteenth week after xmas",
     "twilight on the wednesday",
     "the day before the twelth second of the 14th minute on the 2nd week of the first month 2321",
+    "the day before the twelth second of the 14th minute on the 2nd week of the first month 2321 plus 1 hour",
 ]
 
 

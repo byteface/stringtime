@@ -101,6 +101,18 @@ def parse_recurring_exclusions(text):
     return weekdays or ()
 
 
+def _finalize_recurring_details(details, *, exclusions=(), until_text=None, start_text=None):
+    if not details.get("recurrence_frequency"):
+        return {}
+    if exclusions:
+        details["recurrence_exclusions"] = exclusions
+    if until_text is not None:
+        details["recurrence_until"] = until_text
+    if start_text is not None:
+        details["recurrence_start"] = start_text
+    return details
+
+
 def infer_recurring_details(phrase):
     import stringtime as core
 
@@ -167,25 +179,33 @@ def infer_recurring_details(phrase):
                 end_value = f"{end_hour:02d}:{end_minute:02d}:00"
             details["recurrence_window_end"] = end_value
 
-    if exclusions:
-        details["recurrence_exclusions"] = exclusions
-    if until_text is not None:
-        details["recurrence_until"] = until_text
-    if start_text is not None:
-        details["recurrence_start"] = start_text
-
     if re.fullmatch(r"(?:every|each)\s+day|daily", base_phrase):
         details["recurrence_frequency"] = "daily"
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if part_match is not None:
         details["recurrence_frequency"] = "daily"
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(r"(?:every\s+)?weeknights?", base_phrase):
         details["recurrence_frequency"] = "weekly"
         details["recurrence_byweekday"] = ("monday", "tuesday", "wednesday", "thursday", "friday")
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     weekday_series_match = re.fullmatch(
         rf"(?:on\s+)?(?:every\s+)?(?P<days>(?:{core.WEEKDAY_OR_PLURAL_PATTERN})(?:\s+and\s+(?:{core.WEEKDAY_OR_PLURAL_PATTERN}))+)",
@@ -196,7 +216,12 @@ def infer_recurring_details(phrase):
         if weekday_series is not None:
             details["recurrence_frequency"] = "weekly"
             details["recurrence_byweekday"] = weekday_series
-            return details
+            return _finalize_recurring_details(
+                details,
+                exclusions=exclusions,
+                until_text=until_text,
+                start_text=start_text,
+            )
 
     weekday_match = re.fullmatch(
         rf"(?:on\s+)?(?:(?:every)\s+)?(?P<weekday>{core.WEEKDAY_PLURAL_PATTERN})|every\s+(?P<singular>{core.WEEKDAY_PATTERN})",
@@ -208,7 +233,12 @@ def infer_recurring_details(phrase):
             weekday_name = weekday_name[:-1]
         details["recurrence_frequency"] = "weekly"
         details["recurrence_byweekday"] = (core.normalize_weekday_name(weekday_name),)
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(r"(?:on\s+)?(?:every\s+)?(?:weekday|weekdays)", base_phrase):
         details["recurrence_frequency"] = "weekly"
@@ -217,14 +247,24 @@ def infer_recurring_details(phrase):
             for day in ("monday", "tuesday", "wednesday", "thursday", "friday")
             if day not in exclusions
         )
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(r"(?:on\s+)?(?:every\s+)?(?:weekend|weekends)", base_phrase):
         details["recurrence_frequency"] = "weekly"
         details["recurrence_byweekday"] = tuple(
             day for day in ("saturday", "sunday") if day not in exclusions
         )
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     other_weekday_match = re.fullmatch(
         rf"every\s+other\s+(?P<weekday>{core.WEEKDAY_PATTERN})",
@@ -234,7 +274,12 @@ def infer_recurring_details(phrase):
         details["recurrence_frequency"] = "weekly"
         details["recurrence_interval"] = 2
         details["recurrence_byweekday"] = (core.normalize_weekday_name(other_weekday_match.group("weekday")),)
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     interval_match = re.fullmatch(r"every\s+(?P<count>\d+)\s+(?P<unit>days?|weeks?|months?)", base_phrase)
     if interval_match is not None:
@@ -247,7 +292,12 @@ def infer_recurring_details(phrase):
         else:
             details["recurrence_frequency"] = "monthly"
         details["recurrence_interval"] = count
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     monthly_day_match = re.fullmatch(
         rf"(?:every\s+month\s+on\s+|on\s+)?(?:the\s+)?(?P<day>{core.DATE_ORDINAL_PATTERN})\s+of\s+(?:each|every)\s+month|every\s+month\s+on\s+(?:the\s+)?(?P<day_alt>{core.DATE_ORDINAL_PATTERN})",
@@ -257,7 +307,12 @@ def infer_recurring_details(phrase):
         raw_day = monthly_day_match.group("day") or monthly_day_match.group("day_alt")
         details["recurrence_frequency"] = "monthly"
         details["recurrence_bymonthday"] = core.ORDINAL_DAY_MAP.get(raw_day)
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     interval_month_day_match = re.fullmatch(
         rf"every\s+(?P<count>\d+)(?:st|nd|rd|th)?\s+months?\s+on\s+(?:the\s+)?(?P<day>{core.DATE_ORDINAL_PATTERN})",
@@ -267,12 +322,17 @@ def infer_recurring_details(phrase):
         details["recurrence_frequency"] = "monthly"
         details["recurrence_interval"] = int(interval_month_day_match.group("count"))
         details["recurrence_bymonthday"] = core.ORDINAL_DAY_MAP.get(interval_month_day_match.group("day"))
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     monthly_weekday_match = re.fullmatch(
-        rf"(?:the\s+)?(?P<occurrence>{core.ORDINAL_OCCURRENCE_PATTERN})\s+"
+        rf"(?:every\s+)?(?:the\s+)?(?P<occurrence>{core.ORDINAL_OCCURRENCE_PATTERN})\s+"
         rf"(?P<weekday>{core.WEEKDAY_PATTERN})\s+of\s+"
-        r"(?:each|every)\s+month",
+        r"(?:each|every|the)\s+month",
         base_phrase,
     )
     if monthly_weekday_match is not None:
@@ -284,7 +344,12 @@ def infer_recurring_details(phrase):
         details["recurrence_byweekday"] = (
             core.normalize_weekday_name(monthly_weekday_match.group("weekday")),
         )
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     nth_weekday_match = re.fullmatch(
         rf"every\s+(?P<ordinal>{core.POSITIVE_ORDINAL_OCCURRENCE_PATTERN})\s+(?P<weekday>{core.WEEKDAY_PATTERN})",
@@ -299,7 +364,12 @@ def infer_recurring_details(phrase):
         details["recurrence_byweekday"] = (
             core.normalize_weekday_name(nth_weekday_match.group("weekday")),
         )
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(
         rf"(?:the\s+)?(?:{core.BUSINESS_QUARTERLY_ORDINAL_PATTERN})\s+(?:business|working)\s+day\s+of\s+(?:each|every)\s+month",
@@ -307,7 +377,12 @@ def infer_recurring_details(phrase):
     ):
         details["recurrence_frequency"] = "monthly"
         details["recurrence_ordinal"] = "business"
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(
         rf"(?:the\s+)?(?:{core.BUSINESS_MONTHLY_ORDINAL_PATTERN})\s+(?:business|working)\s+day\s+of\s+(?:each|every)\s+month",
@@ -315,7 +390,12 @@ def infer_recurring_details(phrase):
     ):
         details["recurrence_frequency"] = "monthly"
         details["recurrence_ordinal"] = "third"
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(
         rf"(?:the\s+)?(?:{core.WEEKEND_ORDINAL_PATTERN})\s+weekend\s+of\s+(?:each|every)\s+month",
@@ -323,7 +403,12 @@ def infer_recurring_details(phrase):
     ):
         details["recurrence_frequency"] = "monthly"
         details["recurrence_ordinal"] = "weekend"
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     yearly_holiday_match = re.fullmatch(
         r"every\s+(?P<anchor>(?:christmas|boxing day|christmas eve|new year's day|new years day|halloween|easter))",
@@ -331,7 +416,12 @@ def infer_recurring_details(phrase):
     )
     if yearly_holiday_match is not None:
         details["recurrence_frequency"] = "yearly"
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     yearly_month_day_match = re.fullmatch(
         rf"every\s+(?:(?P<month>{core.MONTH_RE})\s+(?P<day>\d{{1,2}}(?:st|nd|rd|th))|(?:the\s+)?(?P<day_first>\d{{1,2}}(?:st|nd|rd|th))\s+of\s+(?P<month_first>{core.MONTH_RE}))",
@@ -346,7 +436,12 @@ def infer_recurring_details(phrase):
         details["recurrence_frequency"] = "yearly"
         details["recurrence_bymonth"] = core.MONTH_INDEX[month_name]
         details["recurrence_bymonthday"] = int(re.match(r"\d+", day_text).group(0))
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     yearly_month_weekday_match = re.fullmatch(
         rf"(?:the\s+)?(?P<occurrence>{core.ORDINAL_OCCURRENCE_PATTERN})\s+"
@@ -365,7 +460,12 @@ def infer_recurring_details(phrase):
         details["recurrence_bymonth"] = core.MONTH_INDEX[
             core.normalize_month_name(yearly_month_weekday_match.group("month"))
         ]
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     yearly_in_month_match = re.fullmatch(
         rf"every\s+(?P<ordinal>{core.ORDINAL_OCCURRENCE_PATTERN})\s+(?P<weekday>{core.WEEKDAY_PATTERN})\s+in\s+(?P<month>{core.MONTH_RE})",
@@ -383,7 +483,12 @@ def infer_recurring_details(phrase):
         details["recurrence_bymonth"] = core.MONTH_INDEX[
             core.normalize_month_name(yearly_in_month_match.group("month"))
         ]
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     yearly_of_year_match = re.fullmatch(
         rf"(?:the\s+)?(?P<occurrence>{core.ORDINAL_OCCURRENCE_PATTERN})\s+(?P<weekday>{core.WEEKDAY_PATTERN})\s+of\s+every\s+year",
@@ -398,21 +503,36 @@ def infer_recurring_details(phrase):
         details["recurrence_byweekday"] = (
             core.normalize_weekday_name(yearly_of_year_match.group("weekday")),
         )
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(r"every\s+(?:business|working)\s+day", base_phrase):
         details["recurrence_frequency"] = "weekly"
         details["recurrence_byweekday"] = ("monday", "tuesday", "wednesday", "thursday", "friday")
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
     if re.fullmatch(
-        rf"(?:the\s+)?(?:{core.BUSINESS_QUARTERLY_ORDINAL_PATTERN})\s+(?:business|working)\s+day\s+of\s+(?:each|every)\s+quarter",
+        rf"(?:every\s+)?(?:the\s+)?(?:{core.BUSINESS_QUARTERLY_ORDINAL_PATTERN})\s+(?:business|working)\s+day\s+of\s+(?:each|every|the)\s+quarter",
         base_phrase,
     ):
         details["recurrence_frequency"] = "quarterly"
-        return details
+        return _finalize_recurring_details(
+            details,
+            exclusions=exclusions,
+            until_text=until_text,
+            start_text=start_text,
+        )
 
-    return details
+    return {}
 
 
 def get_recurring_schedule_granularity(phrase):
@@ -693,9 +813,9 @@ def get_recurring_schedule_date(phrase, *args, timezone_aware=False, **kwargs):
         return next_matching_date(weekday_values)
 
     monthly_weekday_match = re.fullmatch(
-        rf"(?:the\s+)?(?P<occurrence>{core.ORDINAL_OCCURRENCE_PATTERN})\s+"
+        rf"(?:every\s+)?(?:the\s+)?(?P<occurrence>{core.ORDINAL_OCCURRENCE_PATTERN})\s+"
         rf"(?P<weekday>{core.WEEKDAY_PATTERN})\s+of\s+"
-        r"(?:each|every)\s+month",
+        r"(?:each|every|the)\s+month",
         base_phrase,
     )
     if monthly_weekday_match is not None:
@@ -776,7 +896,7 @@ def get_recurring_schedule_date(phrase, *args, timezone_aware=False, **kwargs):
                 year += 1
 
     weekend_of_month_match = re.fullmatch(
-        rf"(?:the\s+)?(?P<occurrence>{core.WEEKEND_ORDINAL_PATTERN})\s+weekend\s+of\s+(?:each|every)\s+month",
+        rf"(?:every\s+)?(?:the\s+)?(?P<occurrence>{core.WEEKEND_ORDINAL_PATTERN})\s+weekend\s+of\s+(?:each|every|the)\s+month",
         base_phrase,
     )
     if weekend_of_month_match is not None:
@@ -938,7 +1058,7 @@ def get_recurring_schedule_date(phrase, *args, timezone_aware=False, **kwargs):
         return next_matching_date(weekday_values)
 
     quarterly_business_match = re.fullmatch(
-        rf"(?:the\s+)?(?P<occurrence>{core.BUSINESS_QUARTERLY_ORDINAL_PATTERN})\s+(?:business|working)\s+day\s+of\s+(?:each|every)\s+quarter",
+        rf"(?:every\s+)?(?:the\s+)?(?P<occurrence>{core.BUSINESS_QUARTERLY_ORDINAL_PATTERN})\s+(?:business|working)\s+day\s+of\s+(?:each|every|the)\s+quarter",
         base_phrase,
     )
     if quarterly_business_match is not None:

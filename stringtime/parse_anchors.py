@@ -18,6 +18,7 @@ def get_registered_anchor_definitions(*args, timezone_aware=False, **kwargs):
         core.AnchorDefinition("boundary", ("structural", "boundary"), lambda phrase: core.get_boundary_phrase_date(phrase)),
         core.AnchorDefinition("ordinal_weekday", ("structural", "calendar"), lambda phrase: core.get_ordinal_weekday_date(phrase)),
         core.AnchorDefinition("month_anchor", ("structural", "calendar"), lambda phrase: core.get_month_anchor_date(phrase)),
+        core.AnchorDefinition("half_period", ("structural", "calendar"), lambda phrase: core.get_half_period_anchor_date(phrase)),
         core.AnchorDefinition("week_of_month", ("structural", "calendar"), lambda phrase: core.get_week_of_month_anchor_date(phrase)),
         core.AnchorDefinition("day_of_year", ("structural", "calendar"), lambda phrase: core.get_day_of_year_phrase_date(phrase)),
         core.AnchorDefinition("leap_anchor", ("structural", "calendar"), lambda phrase: core.get_leap_year_anchor_date(phrase)),
@@ -54,6 +55,8 @@ def get_anchor_metadata_overrides(definition):
         return {}
     if definition.name == "month_anchor":
         return {"semantic_kind": "period", "representative_granularity": "month"}
+    if definition.name == "half_period":
+        return {"semantic_kind": "period", "representative_granularity": "half"}
     if definition.name == "week_of_month":
         return {"semantic_kind": "period", "representative_granularity": "week"}
     if definition.name in {"leap_anchor"}:
@@ -120,6 +123,8 @@ def resolve_nested_anchor_date_text(text, *args, timezone_aware=False, **kwargs)
         if anchor_date is not None:
             return anchor_date
         for resolver in (
+            core.get_ordinal_time_coordinate_date,
+            core.get_anchor_offset_phrase_date,
             core.get_relative_month_day_phrase_date,
             core.get_weekday_in_month_date,
             core.get_weekday_occurrence_period_phrase_date,
@@ -191,12 +196,13 @@ def resolve_period_year_month(period):
         return year, month
 
     month_year_match = re.fullmatch(
-        rf"(?P<month>{core.MONTH_PATTERN})\s+(?P<year>\d{{4}})",
+        rf"(?P<month>{core.MONTH_PATTERN})\s+(?P<year>\d{{2}}|\d{{4}})",
         period,
     )
     if month_year_match is not None:
+        raw_year = month_year_match.group("year")
         return (
-            int(month_year_match.group("year")),
+            core.coerce_two_digit_year(raw_year) if len(raw_year) == 2 else int(raw_year),
             core.MONTH_INDEX[month_year_match.group("month")],
         )
 
@@ -204,13 +210,18 @@ def resolve_period_year_month(period):
         return reference_year, reference_month
 
     ordinal_month_match = re.fullmatch(
-        rf"(?:the\s+)?(?P<month>{core.ORDINAL_MONTH_RE})\s+month(?:\s+(?P<year>\d{{4}}))?",
+        rf"(?:the\s+)?(?P<month>{core.ORDINAL_MONTH_RE})\s+month(?:\s+(?P<year>\d{{2}}|\d{{4}}))?",
         period,
     )
     if ordinal_month_match is not None:
+        raw_year = ordinal_month_match.group("year")
         year = (
-            int(ordinal_month_match.group("year"))
-            if ordinal_month_match.group("year") is not None
+            (
+                core.coerce_two_digit_year(raw_year)
+                if raw_year is not None and len(raw_year) == 2
+                else int(raw_year)
+            )
+            if raw_year is not None
             else reference_year
         )
         return year, core.ORDINAL_MONTH_MAP[ordinal_month_match.group("month")]
@@ -233,9 +244,14 @@ def resolve_year_phrase(period):
     reference = core.get_reference_date()
     current_century_start = (reference.get_year() // 100) * 100
 
-    explicit_year_match = re.fullmatch(r"(?:the\s+)?year\s+(?P<year>\d{4})", period)
+    explicit_year_match = re.fullmatch(r"(?:the\s+)?year\s+(?P<year>\d{2}|\d{4})", period)
     if explicit_year_match is not None:
-        return int(explicit_year_match.group("year"))
+        raw_year = explicit_year_match.group("year")
+        return (
+            core.coerce_two_digit_year(raw_year)
+            if len(raw_year) == 2
+            else int(raw_year)
+        )
 
     if period in {"year", "the year", "this year"}:
         return reference.get_year()
@@ -248,8 +264,8 @@ def resolve_year_phrase(period):
         return current_century_start + 100
     if period == "last century":
         return current_century_start - 100
-    if re.fullmatch(r"\d{4}", period):
-        return int(period)
+    if re.fullmatch(r"\d{2}|\d{4}", period):
+        return core.coerce_two_digit_year(period) if len(period) == 2 else int(period)
     return None
 
 
@@ -308,6 +324,20 @@ def get_ordinal_weekday_date(phrase):
                         f"of {period_text} {year_prefixed.group('year')}"
                     )
                     match = re.fullmatch(pattern, phrase)
+    if match is None:
+        two_digit_match = re.fullmatch(
+            rf"(?:the\s+)?(?P<occurrence>{core.ORDINAL_OCCURRENCE_PATTERN})\s+"
+            rf"(?P<weekday>{core.WEEKDAY_RE})\s+(?:in|of)\s+"
+            rf"(?P<period>.+?)\s+(?P<year>\d{{2}})",
+            phrase,
+        )
+        if two_digit_match is not None:
+            phrase = (
+                f"{two_digit_match.group('occurrence')} {two_digit_match.group('weekday')} "
+                f"of {two_digit_match.group('period')} "
+                f"{core.coerce_two_digit_year(two_digit_match.group('year'))}"
+            )
+            match = re.fullmatch(pattern, phrase)
     if match is None:
         return None
 
@@ -623,28 +653,63 @@ def get_weekday_occurrence_period_phrase_date(phrase):
 def get_relative_period_phrase_date(phrase):
     import stringtime as core
 
+    after_next_match = re.fullmatch(
+        r"(?:the\s+)?(?P<unit>week|month|year)\s+after\s+next",
+        phrase,
+    )
+    if after_next_match is not None:
+        relation = "after next"
+        unit = after_next_match.group("unit")
+    else:
+        match = re.fullmatch(
+            r"(?:the\s+)?(?P<relation>last|next|this)\s+(?P<unit>week|month|year)",
+            phrase,
+        )
+        if match is None:
+            return None
+        relation = match.group("relation")
+        unit = match.group("unit")
+
+    d = core.get_reference_date()
+
+    if relation == "this":
+        return d
+    step = 2 if relation == "after next" else (1 if relation == "next" else -1)
+    if unit == "week":
+        d.set_date(d.get_date() + (7 * step))
+        return d
+    if unit == "month":
+        d.set_month(d.get_month() + step)
+        return d
+
+    d.set_year(d.get_year() + step)
+    return d
+
+
+def get_half_period_anchor_date(phrase):
+    import stringtime as core
+
     match = re.fullmatch(
-        r"(?:the\s+)?(?P<relation>last|next|this)\s+(?P<unit>week|month|year)",
+        r"(?:the\s+)?(?P<half>first|second|1st|2nd)\s+half\s+of\s+(?P<period>.+)",
         phrase,
     )
     if match is None:
         return None
 
-    relation = match.group("relation")
-    unit = match.group("unit")
-    d = core.get_reference_date()
+    period = match.group("period").strip()
+    half = match.group("half")
+    start_month = 1 if half in {"first", "1st"} else 7
 
-    if relation == "this":
-        return d
-    if unit == "week":
-        d.set_date(d.get_date() + (7 if relation == "next" else -7))
-        return d
-    if unit == "month":
-        d.set_month(d.get_month() + (1 if relation == "next" else -1))
-        return d
+    resolved_year = resolve_year_phrase(period)
+    if resolved_year is not None:
+        year = resolved_year
+    else:
+        period_date = core.parse_natural_date_strict(period)
+        if period_date is None:
+            return None
+        year = period_date.get_year()
 
-    d.set_year(d.get_year() + (1 if relation == "next" else -1))
-    return d
+    return core.build_calendar_anchor_date(year, start_month, 1)
 
 
 def get_relative_month_day_phrase_date(phrase):
@@ -720,6 +785,37 @@ def get_boundary_phrase_date(phrase):
 
     reference = core.get_reference_date()
     month_lookup = core.MONTH_INDEX
+
+    match = re.fullmatch(
+        r"(?:the\s+)?(?P<boundary>start|end|close)\s+of\s+(?:the\s+)?(?P<period>next month|last month|this month|next year|last year|this year)",
+        phrase,
+    )
+    if match is not None:
+        d = core.clone_date(reference)
+        period = match.group("period")
+        boundary = "end" if match.group("boundary") == "close" else match.group("boundary")
+        if period == "next month":
+            d.set_month(d.get_month() + 1)
+        elif period == "last month":
+            d.set_month(d.get_month() - 1)
+        elif period == "next year":
+            d.set_fullyear(d.get_year() + 1)
+        elif period == "last year":
+            d.set_fullyear(d.get_year() - 1)
+
+        if "month" in period:
+            if boundary == "start":
+                d.set_date(1)
+            else:
+                d.set_date(core.stDate.get_month_length(d.get_month() + 1, d.get_year()))
+        else:
+            if boundary == "start":
+                d.set_month(0)
+                d.set_date(1)
+            else:
+                d.set_month(11)
+                d.set_date(31)
+        return d
 
     match = re.fullmatch(
         rf"(?:the\s+)?(first|1st|last)\s+day\s+(?:of|in)\s+(?:the\s+month\s+of\s+)?(?P<month>{core.MONTH_RE})(?:\s+(?P<year>\d{{4}}))?",
@@ -958,31 +1054,51 @@ def get_week_of_month_anchor_date(phrase):
         "first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5,
     }
     match = re.fullmatch(
-        r"(?:the\s+)?(?P<week>1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)\s+week\s+(?:of|in)\s+(?P<period>.+)",
+        r"(?:the\s+)?(?P<week>1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth|last)\s+week\s+(?:of|in)\s+(?P<period>.+)",
         phrase,
     )
     if match is None:
         return None
 
-    week_number = week_lookup[match.group("week")]
-    day = ((week_number - 1) * 7) + 1
+    raw_week = match.group("week")
+    period = match.group("period").strip()
     reference = core.get_reference_date()
     reference_dt = reference.to_datetime().replace(tzinfo=None)
     d = core.clone_date(reference)
+    explicit_year_in_period = bool(
+        re.search(r"\b\d{4}\b", period)
+        or re.fullmatch(
+            rf"(?:the\s+)?(?:{core.ORDINAL_MONTH_RE})\s+month",
+            period,
+        )
+        or re.fullmatch(
+            rf"(?:{core.MONTH_PATTERN})\s+\d{{4}}",
+            period,
+        )
+    )
 
-    resolved_year = resolve_year_phrase(match.group("period"))
+    resolved_year = resolve_year_phrase(period)
     if resolved_year is not None:
         d.set_fullyear(resolved_year)
         d.set_month(0)
+        day = 25 if raw_week == "last" else 1
+        if raw_week != "last":
+            week_number = week_lookup[raw_week]
+            day = ((week_number - 1) * 7) + 1
         d.set_date(day)
         return d
 
-    resolved = resolve_period_year_month(match.group("period"))
+    resolved = resolve_period_year_month(period)
     if resolved is None:
         return None
     year, month = resolved
 
     def set_week_anchor_year(target_year):
+        if raw_week == "last":
+            day = max(1, core.stDate.get_month_length(month, target_year) - 6)
+        else:
+            week_number = week_lookup[raw_week]
+            day = ((week_number - 1) * 7) + 1
         if day > core.stDate.get_month_length(month, target_year):
             return False
         d.set_fullyear(target_year)
@@ -992,7 +1108,7 @@ def get_week_of_month_anchor_date(phrase):
 
     if not set_week_anchor_year(year):
         return None
-    if d.to_datetime().replace(tzinfo=None) < reference_dt:
+    if not explicit_year_in_period and d.to_datetime().replace(tzinfo=None) < reference_dt:
         year += 1
         if not set_week_anchor_year(year):
             return None

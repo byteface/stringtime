@@ -1,102 +1,56 @@
 # Wishlist
 
-Top 10 ideas for where `stringtime` could go next.
+Things that still feel meaningfully unfinished in `stringtime`.
 
+1. Ambiguity controls
 
-1. Add recurring schedule phrases
+Add caller settings for ambiguous phrases such as `tomorrow at 3`, for example a meridiem preference like `am` vs `pm` when no stronger cue exists.
 
-Handle `every Monday`, `every weekday at 9am`, `the first Friday of each month`, and similar repeating patterns.
+2. Date ranges
 
+Handle ranges like:
 
-Still missing or only partly covered:
+- `from next Friday to Sunday`
+- `between 3pm and 5pm tomorrow`
+- `June 1st-3rd`
+- recurring ranges such as `each november 1st since 2020 until today`
 
-multi-day recurrence
-every monday and wednesday
-tuesdays and thursdays at 9
-bounded recurrence
-every friday until christmas
-every monday through june
-start/end windows
-every day from 9 to 5
-nth-interval with anchor detail
-every 2nd tuesday
-every 3rd month on the 14th
-richer yearly rules
-the last friday of every year
-every first monday in april
-recurrence with exclusions
-every weekday except friday
-business/calendar hybrids
-every last business day of the quarter at 6pm
-natural group recurrence
-weeknights at 8
-every morning
-proper rule metadata
-frequency
-interval
-byday lists
-until
-count
-exclusions
+3. Parsing context from surrounding tense
 
+Phrases like `I did it at 5` should not lean future by default. Use surrounding tense cues like `did`, `was`, `going`, `will` to bias interpretation.
 
+4. BC dates
 
+Decide whether `BC` / negative-year support is worth adding and what the API and arithmetic model should be.
 
-2. Improve ambiguity reporting
+5. Defuzzing and extract ranking
 
-also just ambiguity in general.
+Extraction still needs smarter ranking and phrase preference in ambiguous text, for example:
 
-if I say in reality.. '2moro at 3' i don't mean 3am generally. So we need to be able to set it to favour afternoons if ambiguity occurs as a setting.
+- `around 12 i reckon on wednesday`
 
+6. Astrology / novelty calendars
 
-3. Add ISO and machine-friendly output helpers
+Still open if wanted:
 
-Expose methods for intervals, ranges, timezone-aware ISO strings, and easy conversion to Python `datetime` or JSON payloads.
+- astrological signs
+- chinese astrology
 
-4. Add strict and fuzzy parsing modes
+7. Regional holidays and regional event logic
 
-Let callers choose between permissive behavior and a strict mode that rejects ambiguous or conflicting phrases.
+Support region-specific holidays and maybe other regional logic such as UK-specific observances. This likely needs a region setting in the API.
 
+8. Phrase generation from dates
 
-5. Add date ranges
+There is still room for a proper “date to phrase” system, but it needs a rethink rather than incremental patching.
 
-Handle phrases like `from next Friday to Sunday`, `between 3pm and 5pm tomorrow`, and `June 1st-3rd`.
+9. Demo fallback / clarification UX
 
-recurring with a range:
-> each november 1st since 2020 until today  
+The demo could surface clarification behavior for underspecified phrases such as `friday in august` instead of silently choosing a representative interpretation.
 
+10. Localisation
 
-6. 'I did it at 5'. would fail by putting a time in the future. so parsing
-context of past or future from surrounding text could be useful bump.
-We should be able to use some words to guess. did, was etc vs going, will
+Decide the real direction:
 
-7. consideration around BC dates 
-    - considered milliseconds backwards?
-
-
-8. complex phrases
->>> matches = Date("the day before the twelth second of the 14th minute on the 2nd week of the first month 2321", extract=True)
-
-- defuzzing
->>> matches = Date("around 12 i reckon on wednesday", extract=True)
->>> print(matches)
-[DateMatch(text='12', start=7, end=9, date=<Date: 2026-03-13 12:00:00>), DateMatch(text='on wednesday', start=19, end=31, date=<Date: 2026-03-18 05:50:22>)]
-
-
-10. astrological signs? chinese astrology
-
-
-12. regional holidays or events
-
-i.e. UK mothers day. maybe need to set region in API
-regional working out high tides etc
-
-
-20. phrases are generated from dates
-
-there's a branch where this was started. but needs a lot of rework
-
-21.
-Demo fallsback when missing data. i.e. friday in august. (which) default to first and ask the question.
-
-22. lots of repeated terms. need to clean code
+- language packs / canonical internal translation before parse
+- or leave translation to callers before they pass phrases in

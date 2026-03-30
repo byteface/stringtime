@@ -1,4 +1,4 @@
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 __all__ = [
     "after",
     "Date",
@@ -23,6 +23,7 @@ import calendar
 import contextvars
 import datetime
 import math
+import random
 import re
 import warnings
 from dataclasses import dataclass
@@ -138,6 +139,13 @@ TIME_TOKEN_RE = re.compile(
     re.IGNORECASE,
 )
 CURRENT_REFERENCE = contextvars.ContextVar("stringtime_reference", default=None)
+CURRENT_AMBIGUOUS_MERIDIEM = contextvars.ContextVar(
+    "stringtime_ambiguous_meridiem", default=None
+)
+CURRENT_AMBIGUOUS_DIRECTION = contextvars.ContextVar(
+    "stringtime_ambiguous_direction", default=None
+)
+CURRENT_DATE_ORDER = contextvars.ContextVar("stringtime_date_order", default=None)
 MOON_PHASE_EPOCH = datetime.datetime(2000, 1, 6, 18, 14, 0)
 SYNODIC_MONTH_DAYS = 29.530588853
 WEEKDAY_RE = weekday_regex()
@@ -270,7 +278,71 @@ def coerce_reference_date(value):
         return d
     if isinstance(value, (str, int)):
         return stDate(value)
-    raise TypeError("relative_to must be a string, int, date, datetime, or Date")
+
+
+def coerce_ambiguous_meridiem(value):
+    if value is None:
+        return None
+    normalized = str(value).strip().lower()
+    if normalized in {"am", "pm"}:
+        return normalized
+    raise ValueError("ambiguous_meridiem must be None, 'am', or 'pm'")
+
+
+def get_ambiguous_meridiem_preference():
+    return CURRENT_AMBIGUOUS_MERIDIEM.get()
+
+
+def coerce_ambiguous_direction(value):
+    if value is None:
+        return None
+    normalized = str(value).strip().lower()
+    if normalized in {"past", "future", "nearest"}:
+        return normalized
+    raise ValueError(
+        "ambiguous_direction must be None, 'past', 'future', or 'nearest'"
+    )
+
+
+def get_ambiguous_direction_preference():
+    return CURRENT_AMBIGUOUS_DIRECTION.get()
+
+
+def coerce_date_order(value):
+    if value is None:
+        return None
+    normalized = str(value).strip().lower()
+    if normalized in {"auto", "dmy", "mdy"}:
+        return normalized
+    raise ValueError("date_order must be None, 'auto', 'dmy', or 'mdy'")
+
+
+def get_date_order_preference():
+    return CURRENT_DATE_ORDER.get()
+
+
+def resolve_ambiguous_weekday_date(day_to_find, relation=None):
+    weekday_name = normalize_weekday_name(day_to_find)
+    if weekday_name is None:
+        return None
+
+    reference = get_reference_date()
+    current_weekday = reference.to_datetime().weekday()
+    target_weekday = WEEKDAY_INDEX[weekday_name]
+
+    forward_delta = (target_weekday - current_weekday) % 7
+    backward_delta = -((current_weekday - target_weekday) % 7)
+
+    if relation in {"next", "after"}:
+        day_delta = forward_delta if forward_delta != 0 else 7
+    elif relation in {"last", "before"}:
+        day_delta = backward_delta if backward_delta != 0 else -7
+    else:
+        day_delta = forward_delta
+
+    d = clone_date(reference)
+    d._date = d.to_datetime() + datetime.timedelta(days=day_delta)
+    return d
 
 
 def coerce_value_date(value, *, argument_name="value", default_now=False):
@@ -511,16 +583,22 @@ def finalize_infinity_candidate(
     )
 
 
-def normalize_parse_input(raw_text):
+def normalize_parse_input(raw_text, *, apply_ambiguity_preferences=True):
     from stringtime.normalization import normalize_parse_input as _impl
 
-    return _impl(raw_text)
+    return _impl(raw_text, apply_ambiguity_preferences=apply_ambiguity_preferences)
 
 
 def collect_direct_parse_candidates(phrase, *args, timezone_aware=False, **kwargs):
     return {
         "simple_clock_instant_date": get_simple_clock_instant_date(phrase),
         "simple_numeric_instant_date": get_simple_numeric_instant_date(phrase),
+        "slash_date": get_slash_date_phrase_date(
+            phrase, *args, timezone_aware=timezone_aware, **kwargs
+        ),
+        "iso_date": get_iso_date_phrase_date(phrase),
+        "compact_datestamp_date": get_compact_datestamp_date(phrase),
+        "two_digit_year_date": get_two_digit_year_phrase_date(phrase),
         "leap_year_offset_date": get_leap_year_offset_date(phrase),
         "ordinal_time_coordinate_date": get_ordinal_time_coordinate_date(
             phrase, *args, timezone_aware=timezone_aware
@@ -550,7 +628,10 @@ def collect_direct_parse_candidates(phrase, *args, timezone_aware=False, **kwarg
             phrase, *args, timezone_aware=timezone_aware
         ),
         "add_subtract_date": get_add_subtract_phrase_date(
-            phrase, *args, timezone_aware=timezone_aware
+            phrase, *args, timezone_aware=timezone_aware, **kwargs
+        ),
+        "base_phrase_offset_tail_date": get_base_phrase_with_offset_tail_date(
+            phrase, *args, timezone_aware=timezone_aware, **kwargs
         ),
         "ordinal_month_year_date": get_ordinal_month_year_date(phrase),
         "relative_period_date": get_relative_period_phrase_date(phrase),
@@ -559,6 +640,7 @@ def collect_direct_parse_candidates(phrase, *args, timezone_aware=False, **kwarg
         ),
         "quarter_phrase_date": get_quarter_phrase_date(phrase),
         "month_anchor_date": get_month_anchor_date(phrase),
+        "half_period_anchor_date": get_half_period_anchor_date(phrase),
         "week_of_month_anchor_date": get_week_of_month_anchor_date(phrase),
         "leap_year_anchor_date": get_leap_year_anchor_date(phrase),
         "business_date": get_business_phrase_date(phrase),
@@ -684,13 +766,13 @@ def infer_phrase_semantics(phrase):
         return "boundary", "hour"
 
     if re.fullmatch(
-        r"(?:the\s+)?(?:first|1st|third|3rd|last)\s+(?:business|working)\s+day\s+of\s+(?:each|every)\s+month",
+        r"(?:every\s+)?(?:the\s+)?(?:first|1st|third|3rd|last)\s+(?:business|working)\s+day\s+of\s+(?:each|every|the)\s+month",
         phrase,
     ):
         return "recurring", "month"
 
     if re.fullmatch(
-        r"(?:the\s+)?(?:first|1st|last)\s+(?:business|working)\s+day\s+of\s+(?:each|every)\s+quarter",
+        r"(?:every\s+)?(?:the\s+)?(?:first|1st|last)\s+(?:business|working)\s+day\s+of\s+(?:each|every|the)\s+quarter",
         phrase,
     ):
         return "recurring", "quarter"
@@ -713,6 +795,12 @@ def infer_phrase_semantics(phrase):
     ):
         return "relative_offset", "second"
 
+    if split_base_phrase_and_offset_tail(phrase) is not None:
+        return "relative_offset", "second"
+
+    if parse_compound_offset(replace_short_words(phrase)) is not None:
+        return "relative_offset", "second"
+
     if re.fullmatch(
         rf"(?:(?:on\s+)?(?:(?:every)\s+)?(?:{WEEKDAY_PLURAL_PATTERN})|every\s+(?:{WEEKDAY_RE}))",
         phrase,
@@ -726,8 +814,8 @@ def infer_phrase_semantics(phrase):
         return "recurring", "week"
 
     if re.fullmatch(
-        r"(?:the\s+)?(?:first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|last|penultimate)\s+"
-        rf"(?:{WEEKDAY_RE})\s+of\s+(?:each|every)\s+month",
+        r"(?:every\s+)?(?:the\s+)?(?:first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|last|penultimate)\s+"
+        rf"(?:{WEEKDAY_RE})\s+of\s+(?:each|every|the)\s+month",
         phrase,
     ):
         return "recurring", "month"
@@ -798,6 +886,12 @@ def infer_phrase_semantics(phrase):
     if re.search(r"\b\d+(st|nd|rd|th)\b", phrase) or re.search(
         r"\b(first|second|third|fourth|fifth|penultimate|last)\b", phrase
     ):
+        return "period", "day"
+
+    if re.fullmatch(r"(?:(?:back)\s+)?in\s+'?\d{2,4}", phrase):
+        return "period", "year"
+
+    if re.fullmatch(r"\d{8}(?:\s+[+-]\s*.+)?", phrase):
         return "period", "day"
 
     return "instant", "second"
@@ -1110,6 +1204,17 @@ class DateFactory:
                 "day": whole_days * sign,
                 "hour": round((total_days - whole_days) * 24) * sign,
             }
+        elif unit == "month":
+            total_days = 30 * fraction
+            params = {"month": whole * sign, "day": round(total_days) * sign}
+        elif unit == "year":
+            total_months = 12 * fraction
+            whole_months = int(total_months)
+            params = {
+                "year": whole * sign,
+                "month": whole_months * sign,
+                "day": round((total_months - whole_months) * 30) * sign,
+            }
 
         return DateFactory.create_date_with_offsets(**params)
 
@@ -1147,6 +1252,8 @@ def build_half_relative_offset_date(unit, whole, sign=1):
 
 
 def normalize_meridiem_hour(hour, meridiem):
+    if meridiem is None:
+        return hour
     if meridiem == "pm" and hour < 12:
         return hour + 12
     if meridiem == "am" and hour == 12:
@@ -1363,10 +1470,15 @@ def replace_short_words(phrase):
         raw_number = match.group("number")
         unit = match.group("unit")
         quarter_values = {
+            "quarter": 0.25,
             "a": 0.25,
             "an": 0.25,
             "one": 0.25,
+            "1": 0.25,
             "three": 0.75,
+            "3": 0.75,
+            "1/4": 0.25,
+            "3/4": 0.75,
         }
         return f"{quarter_values[raw_number]} {unit}"
 
@@ -1449,6 +1561,16 @@ def replace_short_words(phrase):
         }[scale]
         return f"{count * multiplier} years"
 
+    def replace_counted_fortnights(match):
+        raw_number = match.group("count")
+        if raw_number in {"a", "an"}:
+            value = 1
+        else:
+            value = parse_cardinal_number(raw_number)
+        if value is None:
+            return match.group(0)
+        return f"{value * 2} weeks"
+
     # TODO - regexes might be better here. allow space or number in front
     # phrase = re.sub(r'[\s*\d*](hrs)', 'hour', phrase)
     phrase = re.sub(
@@ -1487,8 +1609,18 @@ def replace_short_words(phrase):
         phrase,
     )
     phrase = re.sub(
-        r"\b(?P<number>a|an|one|three)\s+quarters?\s+of\s+(?:an?\s+)?(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
+        r"\b(?P<number>quarter|a|an|one|three|1|3|1/4|3/4)\s+quarters?\s+of\s+(?:an?\s+)?(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
         replace_quarter_words,
+        phrase,
+    )
+    phrase = re.sub(
+        r"\b(?P<number>quarter|a|an|one|three|1|3|1/4|3/4)\s+of\s+(?:an?\s+)?(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
+        replace_quarter_words,
+        phrase,
+    )
+    phrase = re.sub(
+        r"\bhalf\s+(?:a\s+|an\s+)?(?P<unit>years?|months?|weeks?|days?|hours?|minutes?|seconds?)\b",
+        lambda match: f"0.5 {match.group('unit')}",
         phrase,
     )
 
@@ -1502,6 +1634,7 @@ def replace_short_words(phrase):
     phrase = re.sub(r"\bcouple of\b", "2", phrase)
     phrase = re.sub(r"\ba few\b", "3", phrase)
     phrase = re.sub(r"\bfew\b", "3", phrase)
+    phrase = re.sub(r"\bseveral\s+weeks?\b", "18 days", phrase)
     phrase = re.sub(r"\bseveral\b", "7", phrase)
     phrase = re.sub(r"\bhalf\s+second\b", "half a second", phrase)
     phrase = re.sub(r"\bhalf\s+millisecond\b", "half a millisecond", phrase)
@@ -1522,9 +1655,11 @@ def replace_short_words(phrase):
     phrase = re.sub(r"\bmillenia\b", "1000 years", phrase)
 
     # special cases
-    phrase = re.sub(r"\ba fortnight\b", "2 weeks", phrase)
-    phrase = re.sub(r"\bfortnights\b", "2 weeks", phrase)
-    phrase = re.sub(r"\bfortnight\b", "2 weeks", phrase)
+    phrase = re.sub(
+        rf"\b(?P<count>\d+|a|an|{CARDINAL_NUMBER_RE})\s+fortnights?\b",
+        replace_counted_fortnights,
+        phrase,
+    )
     # phrase = re.sub(r"a few\b", "3", phrase)
     # phrase = re.sub(r"\bseveral\b", "7", phrase)
 
@@ -1974,7 +2109,10 @@ def get_season_anchor_date(phrase):
     }
 
     match = re.fullmatch(
-        r"(?:(?P<edge>start|mid|middle|end)\s+of\s+|(?P<bare_mid>mid)\s+)?(?:(?P<relation>next|last|this)\s+)?(?P<season>spring|summer|autumn|fall|winter)(?:\s+(?P<year>\d{4}))?",
+        r"(?:(?:the\s+)?(?P<edge>start|mid|middle|end)\s+of\s+|(?P<bare_mid>mid)\s+)?"
+        r"(?:(?:the\s+)?(?P<relation>next|last|this)\s+)?"
+        r"(?P<season>spring|summer|autumn|fall|winter)"
+        r"(?:\s+of)?(?:\s+(?P<year>\d{2}|\d{4}))?",
         phrase,
     )
     if match is None:
@@ -1990,7 +2128,14 @@ def get_season_anchor_date(phrase):
         return datetime.datetime(year, start_month, 1)
 
     if explicit_year is not None:
-        start_year = int(explicit_year)
+        if len(explicit_year) == 2:
+            start_year = (
+                1900 + int(explicit_year)
+                if " of " in phrase
+                else coerce_two_digit_year(explicit_year)
+            )
+        else:
+            start_year = int(explicit_year)
     else:
         start_year = reference.get_year()
         current_start = season_start_for(start_year)
@@ -2375,9 +2520,15 @@ def get_relative_period_phrase_date(phrase):
     return _impl(phrase)
 
 
+def get_half_period_anchor_date(phrase):
+    from stringtime.parse_anchors import get_half_period_anchor_date as _impl
+
+    return _impl(phrase)
+
+
 def get_counted_weekday_anchor_date(phrase, *args, timezone_aware=False, **kwargs):
     match = re.fullmatch(
-        r"(?P<count>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+"
+        r"(?:the\s+)?(?:(?P<count>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+)?"
         r"(?P<weekday>mondays?|tuesdays?|wednesdays?|thursdays?|fridays?|saturdays?|sundays?)\s+"
         r"(?P<direction>after|before)\s+(?P<anchor>.+)",
         phrase,
@@ -2385,7 +2536,8 @@ def get_counted_weekday_anchor_date(phrase, *args, timezone_aware=False, **kwarg
     if match is None:
         return None
 
-    count = parse_offset_number(match.group("count"))
+    raw_count = match.group("count")
+    count = 1 if raw_count is None else parse_offset_number(raw_count)
     if count is None or count < 1:
         return None
 
@@ -2524,6 +2676,7 @@ def get_day_of_year_phrase_date(phrase):
 
 
 def get_ordinal_time_coordinate_date(phrase, *args, timezone_aware=False, **kwargs):
+    phrase, _tzinfo = normalize_parse_input(phrase)
     ordinal_lookup = ORDINAL_DAY_MAP
     ordinal_pattern = DATE_ORDINAL_PATTERN
 
@@ -3379,6 +3532,15 @@ def get_sleep_phrase_date(phrase):
 
 
 def get_special_phrase_date(phrase):
+    if phrase == "once upon a time":
+        reference_dt = get_reference_date().to_datetime().replace(tzinfo=None)
+        earliest_dt = datetime.datetime(1, 1, 1, 0, 0, 0)
+        total_seconds = int((reference_dt - earliest_dt).total_seconds())
+        random_seconds = 0 if total_seconds <= 0 else random.randint(0, total_seconds)
+        return date_from_datetime(
+            earliest_dt + datetime.timedelta(seconds=random_seconds)
+        )
+
     if phrase == "y2k":
         d = get_reference_date()
         d.set_fullyear(2000)
@@ -3390,6 +3552,13 @@ def get_special_phrase_date(phrase):
         d = clone_date(get_reference_date())
         while d.to_datetime().weekday() != 5:
             d.set_date(d.get_date() + 1)
+        return d
+
+    if phrase in {"weekend after next", "the weekend after next"}:
+        d = get_special_phrase_date("weekend")
+        if d is None:
+            return None
+        d.set_date(d.get_date() + 7)
         return d
 
     return None
@@ -3407,6 +3576,125 @@ def get_simple_numeric_instant_date(phrase):
         return build_hour_date(parsed_cardinal)
 
     return None
+
+
+def get_slash_date_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
+    match = re.fullmatch(
+        r"(?P<first>\d{1,2})/(?P<second>\d{1,2})/(?P<year>\d{2}|\d{4})(?:\s+(?:at|@)\s+(?P<time>.+))?",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    first = int(match.group("first"))
+    second = int(match.group("second"))
+    raw_year = match.group("year")
+    year = int(raw_year) if len(raw_year) == 4 else coerce_two_digit_year(raw_year)
+
+    order = get_date_order_preference() or "auto"
+    month = day = None
+    if first > 12 and second <= 12:
+        day, month = first, second
+    elif second > 12 and first <= 12:
+        month, day = first, second
+    elif first <= 12 and second <= 12:
+        if order == "dmy":
+            day, month = first, second
+        elif order == "mdy":
+            month, day = first, second
+        else:
+            return None
+    else:
+        return None
+
+    if not (1 <= month <= 12):
+        return None
+    if day < 1 or day > stDate.get_month_length(month, year):
+        return None
+
+    date_part = clone_date(get_reference_date())
+    date_part.set_fullyear(year)
+    date_part.set_month(month - 1)
+    date_part.set_date(day)
+    time_text = match.group("time")
+    if time_text is None:
+        return date_part
+
+    time_part = parse_structured_time_text(
+        time_text,
+        *args,
+        reference_override=date_part,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    if time_part is None:
+        time_part = parse_natural_date_strict(
+            f"at {time_text}",
+            *args,
+            _skip_ambiguity_normalization=True,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+    if time_part is None:
+        return None
+    return merge_date_parts(date_part, time_part)
+
+
+def get_iso_date_phrase_date(phrase):
+    match = re.fullmatch(r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})", phrase)
+    if match is None:
+        return None
+
+    year = int(match.group("year"))
+    month = int(match.group("month"))
+    day = int(match.group("day"))
+
+    try:
+        datetime.date(year, month, day)
+    except ValueError:
+        return None
+
+    return date_from_datetime(datetime.datetime(year, month, day, 0, 0, 0))
+
+
+def coerce_two_digit_year(year_value):
+    year_int = int(year_value)
+    return 2000 + year_int if year_int <= 69 else 1900 + year_int
+
+
+def get_two_digit_year_phrase_date(phrase):
+    match = re.fullmatch(
+        r"(?:(?P<back>back)\s+)?in\s+'?(?P<year>\d{2}|\d{4})",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    raw_year = match.group("year")
+    year = int(raw_year) if len(raw_year) == 4 else coerce_two_digit_year(raw_year)
+    d = clone_date(get_reference_date())
+    d.set_fullyear(year)
+    d.set_month(0)
+    d.set_date(1)
+    return d
+
+
+def get_compact_datestamp_date(phrase):
+    match = re.fullmatch(
+        r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})",
+        phrase,
+    )
+    if match is None:
+        return None
+
+    year = int(match.group("year"))
+    month = int(match.group("month"))
+    day = int(match.group("day"))
+    try:
+        datetime.date(year, month, day)
+    except ValueError:
+        return None
+    return build_calendar_anchor_date(year, month, day)
 
 
 def get_simple_clock_instant_date(phrase):
@@ -4034,10 +4322,29 @@ def apply_relative_offset(base_date, unit, amount, sign=1):
     d = clone_date(base_date)
     amount = amount * sign
 
+    if isinstance(amount, float) and not amount.is_integer() and unit in {"year", "month"}:
+        whole = int(amount)
+        fraction = amount - whole
+        base_dt = d.to_datetime()
+        if unit == "year":
+            total_months = 12 * fraction
+            whole_months = int(total_months)
+            base_dt = base_dt + relativedelta(years=whole, months=whole_months)
+            remaining_days = round((total_months - whole_months) * 30)
+            if remaining_days:
+                base_dt = base_dt + datetime.timedelta(days=remaining_days)
+        else:
+            base_dt = base_dt + relativedelta(months=whole)
+            remaining_days = round(30 * fraction)
+            if remaining_days:
+                base_dt = base_dt + datetime.timedelta(days=remaining_days)
+        d._date = base_dt
+        return d
+
     if unit == "year":
-        d.set_fullyear(d.get_year() + amount)
+        d._date = d.to_datetime() + relativedelta(years=amount)
     elif unit == "month":
-        d.set_month(d.get_month() + amount)
+        d._date = d.to_datetime() + relativedelta(months=amount)
     elif unit == "week":
         d._date = d.to_datetime() + datetime.timedelta(weeks=amount)
     elif unit == "day":
@@ -4057,6 +4364,8 @@ def apply_relative_offset(base_date, unit, amount, sign=1):
 
 
 def parse_offset_number(raw_number):
+    if re.fullmatch(r"\d+\.\d+", raw_number):
+        return float(raw_number)
     ordinal_match = re.fullmatch(r"(\d+)(?:st|nd|rd|th)", raw_number)
     if ordinal_match is not None:
         return int(ordinal_match.group(1))
@@ -4089,6 +4398,54 @@ def parse_offset_number(raw_number):
 
 
 def parse_compound_offset(offset_text):
+    offset_text = re.sub(r"\s*,\s*", " ", offset_text)
+    offset_text = re.sub(r"\s*\+\s*", " ", offset_text)
+    compact_unit_map = {
+        "year": "year",
+        "years": "years",
+        "yr": "year",
+        "yrs": "years",
+        "y": "year",
+        "month": "month",
+        "months": "months",
+        "month": "month",
+        "months": "months",
+        "mos": "months",
+        "mo": "month",
+        "week": "week",
+        "weeks": "weeks",
+        "wks": "weeks",
+        "wk": "week",
+        "w": "week",
+        "day": "day",
+        "days": "days",
+        "d": "day",
+        "hour": "hour",
+        "hours": "hours",
+        "hrs": "hours",
+        "hr": "hour",
+        "h": "hour",
+        "minute": "minute",
+        "minutes": "minutes",
+        "mins": "minutes",
+        "min": "minute",
+        "m": "minute",
+        "second": "second",
+        "seconds": "seconds",
+        "secs": "seconds",
+        "sec": "second",
+        "s": "second",
+    }
+    offset_text = re.sub(
+        r"(?P<count>\d+(?:\.\d+)?)(?P<unit>years?|yrs|yr|y|months?|mos|mo|weeks?|wks|wk|w|days?|d|hours?|hrs|hr|h|minutes?|mins|min|m(?!o)|seconds?|secs|sec|s)",
+        lambda match: f"{match.group('count')} {compact_unit_map[match.group('unit')]}",
+        offset_text,
+    )
+    offset_text = re.sub(r"(?<=\d)(?=(?!st\b|nd\b|rd\b|th\b)[A-Za-z])", " ", offset_text)
+    offset_text = re.sub(r"\s+(?:plus|add)\s+", " and ", offset_text)
+    offset_text = re.sub(r"\s+(?:minus|off|take away)\s+", " and -", offset_text)
+    offset_text = re.sub(r"\s+and\s+", " and ", offset_text)
+    offset_text = re.sub(r"\s+", " ", offset_text).strip()
     offset_text = re.sub(
         r"\bhalf\s+(?:a\s+|an\s+)?millisecond\b",
         "500 microseconds",
@@ -4115,7 +4472,7 @@ def parse_compound_offset(offset_text):
         offset_text,
     )
     number_pattern = (
-        r"(\d+(?:st|nd|rd|th)?|a|an|one|two|three|four|five|six|seven|eight|nine|ten|"
+        r"(\d+(?:\.\d+)?(?:st|nd|rd|th)?|a|an|one|two|three|four|five|six|seven|eight|nine|ten|"
         r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
         r"twenty|twenty[- ]one|twenty[- ]two|twenty[- ]three|twenty[- ]four|twenty[- ]five|"
         r"twenty[- ]six|twenty[- ]seven|twenty[- ]eight|twenty[- ]nine|thirty|thirty[- ]one|"
@@ -4125,7 +4482,7 @@ def parse_compound_offset(offset_text):
         r"forty[- ]eight|forty[- ]nine|fifty|fifty[- ]one|fifty[- ]two|fifty[- ]three|"
         r"fifty[- ]four|fifty[- ]five|fifty[- ]six|fifty[- ]seven|fifty[- ]eight|fifty[- ]nine)"
     )
-    unit_pattern = r"(years?|months?|weeks?|days?|nights?|hours?|minutes?|seconds?|milliseconds?|microseconds?)"
+    unit_pattern = r"(years?|months?|weeks?|fortnights?|days?|nights?|hours?|minutes?|seconds?|milliseconds?|microseconds?)"
     components = []
 
     half_match = re.fullmatch(
@@ -4142,13 +4499,23 @@ def parse_compound_offset(offset_text):
             unit = "day"
         return [(unit, amount + 0.5)]
 
-    for raw_number, raw_unit in re.findall(
-        rf"{number_pattern}\s+{unit_pattern}", offset_text
+    signed_number_pattern = rf"(?P<number>-?\s*{number_pattern})"
+
+    for match in re.finditer(
+        rf"{signed_number_pattern}\s+(?P<unit>{unit_pattern})", offset_text
     ):
+        raw_number = re.sub(r"\s+", "", match.group("number"))
+        sign = -1 if raw_number.startswith("-") else 1
+        raw_number = raw_number.lstrip("-")
         amount = parse_offset_number(raw_number)
         if amount is None:
             return None
+        amount *= sign
+        raw_unit = match.group("unit")
         unit = raw_unit[:-1] if raw_unit.endswith("s") else raw_unit
+        if unit == "fortnight":
+            unit = "week"
+            amount *= 2
         if unit == "night":
             unit = "day"
         components.append((unit, amount))
@@ -4156,12 +4523,9 @@ def parse_compound_offset(offset_text):
     if not components:
         return None
 
-    normalized = re.sub(
-        rf"{number_pattern}\s+{unit_pattern}",
-        "",
-        offset_text,
-    )
-    normalized = re.sub(r"\b(?:and|,)\b", "", normalized)
+    normalized = re.sub(rf"{signed_number_pattern}\s+{unit_pattern}", "", offset_text)
+    normalized = re.sub(r"\band\b", "", normalized)
+    normalized = normalized.replace(",", "").replace("+", "").replace("-", "")
     if normalized.strip():
         return None
 
@@ -4175,13 +4539,95 @@ def apply_relative_offsets(base_date, components, sign=1):
     return d
 
 
+def parse_offset_tail(tail_text):
+    tail_text = replace_short_words((tail_text or "").strip())
+    if not tail_text:
+        return None
+
+    sign = 1
+    offset_text = tail_text
+
+    leading_word_match = re.fullmatch(
+        r"(?P<sign>plus|add|minus|off|take away)\s+(?P<offset>.+)",
+        tail_text,
+    )
+    if leading_word_match is not None:
+        sign = (
+            -1
+            if leading_word_match.group("sign") in {"minus", "off", "take away"}
+            else 1
+        )
+        offset_text = leading_word_match.group("offset").strip()
+    else:
+        leading_symbol_match = re.fullmatch(r"(?P<sign>[+-])\s*(?P<offset>.+)", tail_text)
+        if leading_symbol_match is not None:
+            sign = -1 if leading_symbol_match.group("sign") == "-" else 1
+            offset_text = leading_symbol_match.group("offset").strip()
+
+    components = parse_compound_offset(offset_text)
+    if components is None:
+        return None
+
+    return sign, components
+
+
+def split_base_phrase_and_offset_tail(phrase):
+    tail_patterns = (
+        r"(?P<base>.+?)\s+(?P<tail>(?:plus|add|minus|off|take away)\s+.+)",
+        r"(?P<base>.+?)\s+(?P<tail>[+-]\s*.+)",
+    )
+
+    for pattern in tail_patterns:
+        match = re.fullmatch(pattern, phrase)
+        if match is None:
+            continue
+
+        tail = parse_offset_tail(match.group("tail"))
+        if tail is None:
+            continue
+
+        sign, components = tail
+        return match.group("base").strip(), sign, components
+
+    return None
+
+
 def get_add_subtract_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
     reference = get_reference_date()
+
+    def parse_offset_anchor_text(anchor_text):
+        compact_match = re.fullmatch(r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})", anchor_text)
+        if compact_match is not None:
+            return build_calendar_anchor_date(
+                int(compact_match.group("year")),
+                int(compact_match.group("month")),
+                int(compact_match.group("day")),
+            )
+
+        dashed_match = re.fullmatch(r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})", anchor_text)
+        if dashed_match is not None:
+            return build_calendar_anchor_date(
+                int(dashed_match.group("year")),
+                int(dashed_match.group("month")),
+                int(dashed_match.group("day")),
+            )
+
+        return None
+
     patterns = (
+        (r"(?P<anchor>\d{8})\s+\+\s*(?P<offset>.+)", 1),
+        (r"(?P<anchor>\d{8})\s+-\s*(?P<offset>.+)", -1),
+        (r"(?P<anchor>\d{4}-\d{2}-\d{2})\s+\+\s*(?P<offset>.+)", 1),
+        (r"(?P<anchor>\d{4}-\d{2}-\d{2})\s+-\s*(?P<offset>.+)", -1),
         (r"(?P<anchor>today|now)\s+(?:plus|add)\s+(?P<offset>.+)", 1),
         (r"(?P<anchor>today|now)\s+(?:minus|take away|off)\s+(?P<offset>.+)", -1),
+        (r"\+\s*(?P<offset>.+)", 1),
+        (r"-\s*(?P<offset>.+)", -1),
         (r"(?:plus|add)\s+(?P<offset>.+)", 1),
         (r"(?:minus|take away|off)\s+(?P<offset>.+)", -1),
+        (r"in\s+(?P<offset>.+)", 1),
+        (r"(?:in\s+)?(?P<offset>.+?)\s+(?:from now|hence|away|away from now)", 1),
+        (r"(?P<offset>.+?)\s+ago", -1),
         (r"(?:in\s+)?(?P<offset>.+?)\s+time", 1),
         (r"(?P<offset>.+?)\s+or so", 1),
         (r"(?:give or take|roughly|approximately|about|around)\s+(?P<offset>.+)", 1),
@@ -4201,23 +4647,136 @@ def get_add_subtract_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
         if anchor_text is None:
             anchor_date = clone_date(reference)
         else:
-            anchor_date = resolve_date_target_text(
-                anchor_text,
-                *args,
-                timezone_aware=timezone_aware,
-                **kwargs,
-            )
+            anchor_date = parse_offset_anchor_text(anchor_text)
+            if anchor_date is None:
+                anchor_date = resolve_date_target_text(
+                    anchor_text,
+                    *args,
+                    timezone_aware=timezone_aware,
+                    **kwargs,
+                )
+            if anchor_date is None:
+                anchor_date = parse_structured_date_text(
+                    anchor_text,
+                    *args,
+                    timezone_aware=timezone_aware,
+                    **kwargs,
+                )
             if anchor_date is None:
                 continue
 
         return apply_relative_offsets(anchor_date, components, sign=sign)
 
+    comma_anchor_match = re.fullmatch(r"(?P<anchor>.+?),\s*(?P<offset>.+)", phrase)
+    if comma_anchor_match is not None:
+        offset_text = replace_short_words(comma_anchor_match.group("offset").strip())
+        components = parse_compound_offset(offset_text)
+        if components is not None:
+            anchor_text = comma_anchor_match.group("anchor").strip()
+            anchor_date = None
+            explicit_year = resolve_year_phrase(anchor_text)
+            if explicit_year is not None and re.fullmatch(r"\d{4}", anchor_text):
+                anchor_date = clone_date(reference)
+                anchor_date.set_fullyear(explicit_year)
+                anchor_date.set_month(0)
+                anchor_date.set_date(1)
+            else:
+                anchor_date = resolve_date_target_text(
+                    anchor_text,
+                    *args,
+                    timezone_aware=timezone_aware,
+                    **kwargs,
+                )
+            if anchor_date is None:
+                anchor_date = parse_structured_date_text(
+                    anchor_text,
+                    *args,
+                    timezone_aware=timezone_aware,
+                    **kwargs,
+                )
+            if anchor_date is not None:
+                return apply_relative_offsets(anchor_date, components, sign=1)
+
+    bare_components = parse_compound_offset(replace_short_words(phrase.strip()))
+    if bare_components is not None:
+        return apply_relative_offsets(reference, bare_components, sign=1)
+
     return None
+
+
+def get_base_phrase_with_offset_tail_date(
+    phrase, *args, timezone_aware=False, **kwargs
+):
+    def parse_offset_anchor_base(base_text):
+        compact_match = re.fullmatch(
+            r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})", base_text
+        )
+        if compact_match is not None:
+            return build_calendar_anchor_date(
+                int(compact_match.group("year")),
+                int(compact_match.group("month")),
+                int(compact_match.group("day")),
+            )
+
+        dashed_match = re.fullmatch(
+            r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})", base_text
+        )
+        if dashed_match is not None:
+            return build_calendar_anchor_date(
+                int(dashed_match.group("year")),
+                int(dashed_match.group("month")),
+                int(dashed_match.group("day")),
+            )
+
+        return None
+
+    split = split_base_phrase_and_offset_tail(phrase)
+    if split is None:
+        return None
+
+    base_text, sign, components = split
+    base_date = parse_offset_anchor_base(base_text)
+    if base_date is None:
+        base_date = parse_structured_date_text(
+            base_text,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+    if base_date is None:
+        return None
+
+    return apply_relative_offsets(base_date, components, sign=sign)
 
 
 def get_anchor_offset_phrase_date(phrase, *args, timezone_aware=False, **kwargs):
     phrase = re.sub(r"^(?:the\s+)?day\s+before\s+", "1 day before ", phrase)
     phrase = re.sub(r"^(?:the\s+)?day\s+after\s+", "1 day after ", phrase)
+
+    part_of_day_match = re.fullmatch(
+        r"(?:the\s+)?(?P<part>morning|afternoon|evening|night)\s+(?P<direction>before|after)\s+(?P<anchor>.+)",
+        phrase,
+    )
+    if part_of_day_match is not None:
+        anchor_date = parse_anchor_like_text(
+            part_of_day_match.group("anchor").strip(),
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        if anchor_date is not None:
+            time_value = get_part_of_day_time(part_of_day_match.group("part"))
+            if time_value is None:
+                return None
+            shifted = apply_relative_offsets(
+                anchor_date,
+                [("day", 1)],
+                sign=-1 if part_of_day_match.group("direction") == "before" else 1,
+            )
+            shifted.set_hours(time_value[0])
+            shifted.set_minutes(time_value[1])
+            shifted.set_seconds(0)
+            return shifted
 
     shortcut_match = re.fullmatch(
         r"(?P<offset>.+?)\s+(?:(?P<direction>before|prior|earlier)\s+)?(?P<anchor>today|tomorrow|yesterday)",
@@ -4723,6 +5282,7 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
     timezone_aware = kwargs.pop("timezone_aware", False)
     fuzzy = kwargs.pop("fuzzy", False)
     matched_text = kwargs.pop("matched_text", None)
+    skip_ambiguity_normalization = kwargs.pop("_skip_ambiguity_normalization", False)
 
     if not isinstance(date, str):
         return None
@@ -4752,7 +5312,10 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
     if infinity_candidate is not None:
         return infinity_candidate
 
-    phrase, tzinfo = normalize_parse_input(raw_text)
+    phrase, tzinfo = normalize_parse_input(
+        raw_text,
+        apply_ambiguity_preferences=not skip_ambiguity_normalization,
+    )
 
     infinity_candidate = finalize_infinity_candidate(
         phrase,
@@ -4763,23 +5326,127 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
     if infinity_candidate is not None:
         return infinity_candidate
 
+    event_phrase = phrase
+    canonical_phrase = phrase
+    has_offset_tail = split_base_phrase_and_offset_tail(phrase) is not None
+    normalized_phrase = replace_short_words(phrase)
+    phrase = normalized_phrase
+    kwargs["_skip_ambiguity_normalization"] = True
+
+    if has_offset_tail:
+        base_phrase_offset_tail_direct = get_base_phrase_with_offset_tail_date(
+            canonical_phrase,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        finalized_base_phrase_offset_tail = finalize_parsed_candidate(
+            base_phrase_offset_tail_direct,
+            tzinfo=tzinfo,
+            timezone_aware=timezone_aware,
+            raw_text=raw_text,
+            matched_text=matched_text,
+            normalized_phrase=normalized_phrase,
+            fuzzy=fuzzy,
+            metadata_overrides={
+                "semantic_kind": "relative_offset",
+                "representative_granularity": "second",
+            },
+        )
+        if finalized_base_phrase_offset_tail is not None:
+            return finalized_base_phrase_offset_tail
+
+    if re.match(r"^(?:the\s+)?day\s+(?:before|after)\b", normalized_phrase):
+        anchor_offset_direct = get_anchor_offset_phrase_date(
+            canonical_phrase,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+        finalized_anchor_offset = finalize_parsed_candidate(
+            anchor_offset_direct,
+            tzinfo=tzinfo,
+            timezone_aware=timezone_aware,
+            raw_text=raw_text,
+            matched_text=matched_text,
+            normalized_phrase=normalized_phrase,
+            fuzzy=fuzzy,
+            metadata_overrides={
+                "semantic_kind": "relative_offset",
+                "representative_granularity": "day",
+            },
+        )
+        if finalized_anchor_offset is not None:
+            return finalized_anchor_offset
+
+    ordinal_time_coordinate_direct = get_ordinal_time_coordinate_date(
+        canonical_phrase,
+        *args,
+        timezone_aware=timezone_aware,
+        **kwargs,
+    )
+    finalized_ordinal_time_coordinate = finalize_parsed_candidate(
+        ordinal_time_coordinate_direct,
+        tzinfo=tzinfo,
+        timezone_aware=timezone_aware,
+        raw_text=raw_text,
+        matched_text=matched_text,
+        normalized_phrase=normalized_phrase,
+        fuzzy=fuzzy,
+        metadata_overrides={
+            "semantic_kind": "instant",
+            "representative_granularity": "second",
+        },
+    )
+    if finalized_ordinal_time_coordinate is not None:
+        return finalized_ordinal_time_coordinate
+
     direct_candidates = collect_direct_parse_candidates(
         phrase, *args, timezone_aware=timezone_aware, **kwargs
     )
-    event_phrase = phrase
-    normalized_phrase = replace_short_words(phrase)
-    phrase = normalized_phrase
+    if direct_candidates["business_date"] is None and canonical_phrase != phrase:
+        direct_candidates["business_date"] = get_business_phrase_date(canonical_phrase)
+    if (
+        direct_candidates["counted_weekday_anchor_date"] is None
+        and canonical_phrase != phrase
+        and re.search(
+            rf"\b{WEEKDAY_RE}\b\s+(?:after|before)\b", canonical_phrase
+        )
+    ):
+        direct_candidates["counted_weekday_anchor_date"] = (
+            get_counted_weekday_anchor_date(
+                canonical_phrase,
+                *args,
+                timezone_aware=timezone_aware,
+                **kwargs,
+            )
+        )
+    if (
+        direct_candidates["composed_date_time"] is None
+        and canonical_phrase != phrase
+        and re.match(r"^(?:before yesterday|after tomorrow)\b", canonical_phrase)
+    ):
+        direct_candidates["composed_date_time"] = get_composed_date_time_phrase_date(
+            canonical_phrase,
+            *args,
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
+
     part_of_day_date = get_part_of_day_phrase_date(
         phrase, *args, timezone_aware=timezone_aware
     )
 
-    registered_anchor_date, registered_anchor_definition = resolve_registered_anchor(
-        event_phrase,
-        *args,
-        families={"event", "structural"},
-        timezone_aware=timezone_aware,
-        **kwargs,
-    )
+    if has_offset_tail:
+        registered_anchor_date, registered_anchor_definition = (None, None)
+    else:
+        registered_anchor_date, registered_anchor_definition = resolve_registered_anchor(
+            event_phrase,
+            *args,
+            families={"event", "structural"},
+            timezone_aware=timezone_aware,
+            **kwargs,
+        )
     part_of_day_stage = finalize_part_of_day_stage(
         part_of_day_date,
         normalized_phrase=normalized_phrase,
@@ -4791,6 +5458,45 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
     )
     if part_of_day_stage is not None:
         return part_of_day_stage
+
+    direct_structural_candidates = (
+        (
+            direct_candidates["two_digit_year_date"],
+            {"semantic_kind": "period", "representative_granularity": "year"},
+        ),
+        (
+            direct_candidates["compact_datestamp_date"],
+            {"semantic_kind": "date", "representative_granularity": "day"},
+        ),
+        (
+            direct_candidates["iso_date"],
+            {"semantic_kind": "date", "representative_granularity": "day"},
+        ),
+    )
+    finalized_direct_structural = finalize_first_matching_candidate(
+        direct_structural_candidates,
+        tzinfo=tzinfo,
+        timezone_aware=timezone_aware,
+        raw_text=raw_text,
+        matched_text=matched_text,
+        normalized_phrase=normalized_phrase,
+        fuzzy=fuzzy,
+    )
+    if finalized_direct_structural is not None:
+        return finalized_direct_structural
+
+    if direct_candidates["business_date"] is not None and re.search(
+        r"\b(?:business|working)\s+day\b", normalized_phrase
+    ):
+        return finalize_parsed_candidate(
+            direct_candidates["business_date"],
+            tzinfo=tzinfo,
+            timezone_aware=timezone_aware,
+            raw_text=raw_text,
+            matched_text=matched_text,
+            normalized_phrase=normalized_phrase,
+            fuzzy=fuzzy,
+        )
 
     direct_instant_candidates = (
         (
@@ -4816,18 +5522,19 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
     if finalized_direct_instant is not None:
         return finalized_direct_instant
 
-    composed_stage = finalize_composed_stage(
-        direct_candidates["composed_date_time"],
-        registered_anchor_definition,
-        normalized_phrase=normalized_phrase,
-        tzinfo=tzinfo,
-        timezone_aware=timezone_aware,
-        raw_text=raw_text,
-        matched_text=matched_text,
-        fuzzy=fuzzy,
-    )
-    if composed_stage is not None:
-        return composed_stage
+    if direct_candidates["business_date"] is None:
+        composed_stage = finalize_composed_stage(
+            direct_candidates["composed_date_time"],
+            registered_anchor_definition,
+            normalized_phrase=normalized_phrase,
+            tzinfo=tzinfo,
+            timezone_aware=timezone_aware,
+            raw_text=raw_text,
+            matched_text=matched_text,
+            fuzzy=fuzzy,
+        )
+        if composed_stage is not None:
+            return composed_stage
 
     anchor_candidates = (
         (
@@ -4849,6 +5556,13 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
 
     simple_candidates = (
         (
+            direct_candidates["base_phrase_offset_tail_date"],
+            {
+                "semantic_kind": "relative_offset",
+                "representative_granularity": "second",
+            },
+        ),
+        (
             direct_candidates["leap_year_offset_date"],
             {
                 "semantic_kind": "relative_offset",
@@ -4868,6 +5582,10 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
                 "semantic_kind": "relative_offset",
                 "representative_granularity": "minute",
             },
+        ),
+        (
+            direct_candidates["slash_date"],
+            {"semantic_kind": "date", "representative_granularity": "day"},
         ),
         (
             direct_candidates["counted_holiday_date"],
@@ -4931,7 +5649,7 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
             direct_candidates["add_subtract_date"],
             {
                 "semantic_kind": "relative_offset",
-                "representative_granularity": "day",
+                "representative_granularity": "second",
             },
         ),
         (direct_candidates["ordinal_month_year_date"], {}),
@@ -4976,9 +5694,13 @@ def _parse_natural_date_strict_impl(date, *args, **kwargs):
     if finalized_family_candidate is not None:
         return finalized_family_candidate
 
-    if direct_candidates["composed_date_time"] is not None and not re.match(
+    if (
+        direct_candidates["composed_date_time"] is not None
+        and direct_candidates["business_date"] is None
+        and not re.match(
         r"^(?:in|on)\s+the\s+(?:morning|afternoon|evening|night)\b",
         normalized_phrase,
+        )
     ):
         return finalize_parsed_candidate(
             direct_candidates["composed_date_time"],
@@ -5072,14 +5794,33 @@ def parse_natural_date_strict(date, *args, **kwargs):
     if not isinstance(date, str):
         return None
 
+    skip_ambiguity_normalization = kwargs.pop("_skip_ambiguity_normalization", False)
+    ambiguous_meridiem = coerce_ambiguous_meridiem(
+        kwargs.get("ambiguous_meridiem")
+    )
+    ambiguous_direction = coerce_ambiguous_direction(
+        kwargs.get("ambiguous_direction")
+    )
+    date_order = coerce_date_order(kwargs.get("date_order"))
     reference = coerce_reference_date(kwargs.get("relative_to"))
     if reference is None:
         reference = get_reference_date()
 
     token = CURRENT_REFERENCE.set(reference)
+    meridiem_token = CURRENT_AMBIGUOUS_MERIDIEM.set(ambiguous_meridiem)
+    direction_token = CURRENT_AMBIGUOUS_DIRECTION.set(ambiguous_direction)
+    date_order_token = CURRENT_DATE_ORDER.set(date_order)
     try:
-        return _parse_natural_date_strict_impl(date, *args, **kwargs)
+        return _parse_natural_date_strict_impl(
+            date,
+            *args,
+            _skip_ambiguity_normalization=skip_ambiguity_normalization,
+            **kwargs,
+        )
     finally:
+        CURRENT_DATE_ORDER.reset(date_order_token)
+        CURRENT_AMBIGUOUS_DIRECTION.reset(direction_token)
+        CURRENT_AMBIGUOUS_MERIDIEM.reset(meridiem_token)
         CURRENT_REFERENCE.reset(token)
 
 
@@ -5590,6 +6331,12 @@ def extract_dates(text, *args, max_tokens=24, **kwargs):
 
             best_match = None
             max_j = min(len(tokens), i + max_tokens)
+            if (
+                get_compact_offset_phrase_date(token_text) is not None
+                and next_token is not None
+                and get_compact_offset_phrase_date(next_token) is not None
+            ):
+                max_j = i + 1
 
             for j in range(max_j, i, -1):
                 candidate = text[tokens[i].start() : tokens[j - 1].end()]
@@ -5628,11 +6375,21 @@ def extract_dates(text, *args, max_tokens=24, **kwargs):
 
 def get_date(date, *args, **kwargs):
     relative_to = kwargs.pop("relative_to", None)
+    ambiguous_meridiem = coerce_ambiguous_meridiem(
+        kwargs.get("ambiguous_meridiem")
+    )
+    ambiguous_direction = coerce_ambiguous_direction(
+        kwargs.get("ambiguous_direction")
+    )
+    date_order = coerce_date_order(kwargs.get("date_order"))
     reference = coerce_reference_date(relative_to)
     parse_kwargs = dict(kwargs)
     if reference is not None:
         parse_kwargs["relative_to"] = reference
     token = CURRENT_REFERENCE.set(reference)
+    meridiem_token = CURRENT_AMBIGUOUS_MERIDIEM.set(ambiguous_meridiem)
+    direction_token = CURRENT_AMBIGUOUS_DIRECTION.set(ambiguous_direction)
+    date_order_token = CURRENT_DATE_ORDER.set(date_order)
     try:
         parsed = parse_natural_date_strict(date, *args, **parse_kwargs)
         if parsed is not None:
@@ -5670,6 +6427,9 @@ def get_date(date, *args, **kwargs):
             ),
         )
     finally:
+        CURRENT_DATE_ORDER.reset(date_order_token)
+        CURRENT_AMBIGUOUS_DIRECTION.reset(direction_token)
+        CURRENT_AMBIGUOUS_MERIDIEM.reset(meridiem_token)
         CURRENT_REFERENCE.reset(token)
     fallback = stDate(date, *args, **kwargs)
     return attach_parse_metadata(

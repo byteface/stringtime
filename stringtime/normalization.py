@@ -158,6 +158,81 @@ def normalize_phrase(phrase):
     return phrase
 
 
+def normalize_ambiguity_preferences(phrase):
+    import stringtime as core
+
+    direction_preference = core.get_ambiguous_direction_preference()
+
+    if direction_preference is not None:
+        weekday_match = re.fullmatch(
+            rf"(?:on\s+)?(?P<weekday>{core.WEEKDAY_RE})",
+            phrase,
+            flags=re.IGNORECASE,
+        )
+        if weekday_match is not None:
+            weekday = weekday_match.group("weekday")
+            reference_weekday = core.get_reference_date().to_datetime().weekday()
+            target_weekday = core.WEEKDAY_INDEX[core.normalize_weekday_name(weekday)]
+            forward_delta = (target_weekday - reference_weekday) % 7
+            backward_delta = (reference_weekday - target_weekday) % 7
+
+            if direction_preference == "future":
+                return f"next {weekday}"
+            if direction_preference == "past":
+                return f"last {weekday}"
+            if forward_delta == 0 and backward_delta == 0:
+                return f"this {weekday}"
+            if backward_delta < forward_delta:
+                return f"last {weekday}"
+            return f"next {weekday}"
+
+        month_match = re.fullmatch(
+            rf"(?:in\s+)?(?P<month>{core.MONTH_RE})",
+            phrase,
+            flags=re.IGNORECASE,
+        )
+        if month_match is not None:
+            month = month_match.group("month")
+            normalized_month = core.normalize_month_name(month)
+            target_month = core.MONTH_INDEX[normalized_month]
+            reference_dt = core.get_reference_date().to_datetime().replace(tzinfo=None)
+            reference_month = reference_dt.month
+            reference_year = reference_dt.year
+            forward_months = (target_month - reference_month) % 12
+            backward_months = (reference_month - target_month) % 12
+
+            if direction_preference == "future":
+                target_year = (
+                    reference_year + 1 if target_month <= reference_month else reference_year
+                )
+                return f"{month} {target_year}"
+            if direction_preference == "past":
+                target_year = (
+                    reference_year - 1 if target_month >= reference_month else reference_year
+                )
+                return f"{month} {target_year}"
+
+            candidate_years = (reference_year - 1, reference_year, reference_year + 1)
+            ranked_candidates = []
+            for candidate_year in candidate_years:
+                candidate_dt = reference_dt.replace(
+                    year=candidate_year,
+                    month=target_month,
+                    day=1,
+                )
+                ranked_candidates.append(
+                    (
+                        abs(candidate_dt - reference_dt),
+                        0 if candidate_dt >= reference_dt else 1,
+                        candidate_year,
+                    )
+                )
+            target_year = min(ranked_candidates)[2]
+            return f"{month} {target_year}"
+
+    return phrase
+
+
 def apply_word_aliases(phrase):
     import stringtime as core
 
@@ -210,7 +285,7 @@ def resolve_duration_arguments(*args, from_=None, to=None, kwargs=None):
     return from_, to
 
 
-def normalize_parse_input(raw_text):
+def normalize_parse_input(raw_text, *, apply_ambiguity_preferences=True):
     phrase = raw_text.lower().strip()
     phrase = phrase.strip(" \t\r\n,.;:!?()[]{}\"'")
     if phrase == "":
@@ -223,6 +298,21 @@ def normalize_parse_input(raw_text):
     phrase = normalize_phrase(phrase)
     phrase = apply_literal_aliases(phrase)
     phrase = normalize_phrase(phrase)
+    if apply_ambiguity_preferences:
+        phrase = normalize_ambiguity_preferences(phrase)
+        phrase = normalize_phrase(phrase)
+    phrase = re.sub(
+        r"^before\s+(?P<time>\d{1,2}(?::\d{2})?(?::\d{2})?(?:am|pm))\s+yesterday$",
+        r"before yesterday at \g<time>",
+        phrase,
+        flags=re.IGNORECASE,
+    )
+    phrase = re.sub(
+        r"^after\s+(?P<time>\d{1,2}(?::\d{2})?(?::\d{2})?(?:am|pm))\s+tomorrow$",
+        r"after tomorrow at \g<time>",
+        phrase,
+        flags=re.IGNORECASE,
+    )
     phrase, trailing_tzinfo = extract_timezone_suffix(phrase)
     if tzinfo is None:
         tzinfo = trailing_tzinfo

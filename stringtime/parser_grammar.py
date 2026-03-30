@@ -539,32 +539,13 @@ def p_single_date_day(p):
     date_day : PAST_PHRASE DAY
     """
     if len(p) == 2:
-        day_to_find = p[1]
-        d = core.get_reference_date()
-        while day_to_find.lower() != d.get_day(to_string=True).lower():
-            d.set_date(d.get_date() + 1)
-        p[0] = d
+        p[0] = core.resolve_ambiguous_weekday_date(p[1])
     if len(p) == 3:
-        day_to_find = p[2]
-        d = core.get_reference_date()
-        now = core.get_reference_date()
-        if p[1] in {"last", "before"}:
-            step = -1
-        elif p[1] in {"next", "on", "after"}:
-            step = 1
-        else:
+        relation = p[1]
+        if relation not in {"last", "before", "next", "on", "after"}:
             p[0] = None
             return
-        while day_to_find.lower() != d.get_day(to_string=True).lower():
-            if step < 0 and d.get_date() == 1:
-                d.set_date(d.get_date() - 2)
-            else:
-                d.set_date(d.get_date() + step)
-        if p[1] == "next" and now.get_day(to_string=True).lower() == day_to_find.lower():
-            d.set_date(d.get_date() + 7)
-        elif p[1] in {"last", "before"} and now.get_day(to_string=True).lower() == day_to_find.lower():
-            d.set_date(d.get_date() - 7)
-        p[0] = d
+        p[0] = core.resolve_ambiguous_weekday_date(p[2], relation=relation)
 
 
 def p_before_yesterday(p):

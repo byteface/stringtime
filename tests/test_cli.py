@@ -1,4 +1,5 @@
 import json
+from io import StringIO
 
 from stringtime.__main__ import run
 
@@ -100,3 +101,14 @@ def test_cli_help_mentions_new_modes(capsys):
     assert "--extract" in output
     assert "--relative-to" in output
     assert "examples:" in output
+
+
+def test_cli_can_read_phrase_from_stdin(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("2 days from now"))
+
+    result = run(["--relative-to", "2020-12-25 17:05:55"])
+
+    captured = capsys.readouterr()
+
+    assert str(result) == "2020-12-27 17:05:55"
+    assert captured.out.strip() == "2020-12-27 17:05:55"

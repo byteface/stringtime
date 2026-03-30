@@ -65,20 +65,9 @@ h1 {
   line-height: 1.55;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-content: start;
-}
-
-.chip {
-  border: 1px solid var(--line);
-  background: rgba(255, 253, 248, 0.8);
-  color: var(--ink);
-  border-radius: 999px;
-  padding: 8px 14px;
-  cursor: pointer;
+.example-picker {
+  padding: 18px;
+  align-self: start;
 }
 
 .panel {
@@ -242,11 +231,22 @@ button.secondary {
   border-color: var(--accent);
 }
 
-.selected-date {
+.date-summary {
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+}
+
+.reference-date,
+.selected-date {
   line-height: 1.5;
+}
+
+.reference-date {
+  color: #5f645f;
+  font-size: 0.95rem;
 }
 
 .logs {
